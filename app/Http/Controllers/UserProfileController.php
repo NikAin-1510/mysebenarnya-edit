@@ -71,19 +71,4 @@ class UserProfileController extends Controller
         }
     }
 
-    public function view()
-    {
-        $user = Auth::user();
-
-        // Eager load the appropriate related table
-        if ($user->Role === 'public') {
-            $user->load('publicuser');
-        } elseif ($user->Role === 'mcmc') {
-            $user->load('mcmc');
-        } elseif ($user->Role === 'agency') {
-            $user->load('agency');
-        }
-
-        return view('viewprofile', compact('user'));
-    }
 }
