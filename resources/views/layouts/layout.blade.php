@@ -14,8 +14,8 @@
 <body>
 
 <!-- Header -->
-<div class="main-header" 
-     style="background: 
+<div class="main-header"
+     style="background:
      @if(session('user_role') === 'publicuser') #325c74 ;
      @elseif(session('user_role') === 'mcmc') rgb(104, 75, 142) ;
      @elseif(session('user_role') === 'agency') #a37e27 ;
