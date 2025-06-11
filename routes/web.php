@@ -2,14 +2,23 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/home', function () {
+    return view('SharedUI.HomepageUI');
+})->name('home');
+
+//Module 1
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserProfileController;
 
 Route::get('/login', function () {
-    return view('login');
+    return view('ManageUserUI.login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
 
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
+Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
 
 
 // Tracking Progress Controller

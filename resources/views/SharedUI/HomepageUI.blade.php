@@ -1,4 +1,10 @@
-@extends('layout') {{-- assuming layout.blade.php is in views/ --}}
+@if(!session('user_role'))
+    <script>window.location = "{{ route('login') }}";</script>
+    {{-- or: use PHP redirect (less clean) --}}
+    {{-- <?php header("Location: " . route('login')); exit; ?> --}}
+@endif
+
+@extends('layouts.layout')
 
 @section('content')
     <div class="home-page">
