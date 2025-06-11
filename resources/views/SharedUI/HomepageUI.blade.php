@@ -1,10 +1,4 @@
-@if(!session()->has('user_role'))
-    <script>
-        window.location.href = "{{ route('login') }}";
-    </script>
-@endif
-
-@extends('layout') {{-- assuming layout.blade.php is in views/ --}}
+@extends('layouts.layout')
 
 @section('content')
     <div class="home-page">

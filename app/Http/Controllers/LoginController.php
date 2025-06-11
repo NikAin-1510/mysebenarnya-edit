@@ -69,10 +69,10 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout(); // Log user out
-        $request->session()->invalidate(); // Remove session data
-        $request->session()->regenerateToken(); // Prevent CSRF reuse
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        return view('logout'); // Show logout message or redirect
+        return view('ManageUserUI.logout'); // or redirect to login page
     }
 }
