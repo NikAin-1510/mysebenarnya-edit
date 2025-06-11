@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500');
+
+* {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f0f0;
+}
+
+/* Top Header */
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 70px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  height: 60px;
+  width: auto;
+}
+
+.umpsa {
+  height: 60px;
+  width: auto;
+}
+
+.brand {
+  height: 45px;
+  width: auto;
+  margin-top: 10px;
+}
+
+.page-name {
+  font-size: 22px;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+  align-self: center;
+  text-align: center;
+  margin: 0 auto;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  width: 250px;
+  height: calc(100% - 70px);
+  background: #042331;
+  transition: all 0.5s ease;
+  overflow-y: auto;
+}
+
+.sidebar ul a {
+  display: flex;
+  align-items: center;
+  height: 65px;
+  width: 100%;
+  font-size: 16px;
+  color: white;
+  padding-left: 20px;
+  border-bottom: 1px solid black;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transition: 0.4s;
+}
+
+.sidebar ul li:hover a {
+  padding-left: 35px;
+  background-color: #ffffff1c;
+}
+
+.sidebar ul a i {
+  margin-right: 16px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Content Area */
+.content {
+  margin-left: 250px;
+  margin-top: 70px;
+  padding: 20px;
+}
