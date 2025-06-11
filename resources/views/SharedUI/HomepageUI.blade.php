@@ -1,7 +1,7 @@
-@if(!session()->has('user_role'))
-    <script>
-        window.location.href = "{{ route('login') }}";
-    </script>
+@if(!session('user_role'))
+    <script>window.location = "{{ route('login') }}";</script>
+    {{-- or: use PHP redirect (less clean) --}}
+    {{-- <?php header("Location: " . route('login')); exit; ?> --}}
 @endif
 
 @extends('layouts.layout')

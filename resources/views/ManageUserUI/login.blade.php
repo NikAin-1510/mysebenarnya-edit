@@ -6,7 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MySebenarnya Login</title>
-  <link rel="stylesheet" href="{{ asset('css/login.css') }}" />
+  <link rel="stylesheet" href="{{ asset('css/Module1/login.css') }}" />
 </head>
 
 <body>
