@@ -2,6 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\DB;
+
+Route::get('/db-test', function () {
+    try {
+        DB::connection()->getPdo();
+        return "✅ Database is connected: " . DB::connection()->getDatabaseName();
+    } catch (\Exception $e) {
+        return "❌ Could not connect to the database. Error: " . $e->getMessage();
+    }
+});
+
 Route::get('/home', function () {
     return view('SharedUI.HomepageUI');
 })->name('home');
@@ -23,18 +34,20 @@ Route::post('/register', [UserProfileController::class, 'store'])->name('public.
 
 // Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
+// home
+Route::get('/home', [TrackingProgressController::class, 'home']);
 // agency
-Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
+Route::post('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
+Route::post('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
 // mcmc
-Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
-Route::get('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
-Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
-Route::get('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
+Route::post('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
+Route::post('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
+Route::post('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
+Route::post('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
 // public
-Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
-Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
-Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-Route::get('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
-Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+Route::post('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
+Route::post('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
+Route::post('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
+Route::post('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
+Route::post('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
+Route::post('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);

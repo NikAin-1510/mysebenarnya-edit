@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 
 class TrackingProgressController extends Controller
 {
+    public function home()
+    {
+        return view('SharedUI.HomepageUI');
+    }
+
     public function a_InquiryList()
     {
         return view('InquiryProgressTrackingUI.Agency.ListAssignedInquiryUI');
