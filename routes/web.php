@@ -13,17 +13,6 @@ Route::get('/db-test', function () {
     }
 });
 
-use Illuminate\Support\Facades\DB;
-
-Route::get('/db-test', function () {
-    try {
-        DB::connection()->getPdo();
-        return "✅ Database is connected: " . DB::connection()->getDatabaseName();
-    } catch (\Exception $e) {
-        return "❌ Could not connect to the database. Error: " . $e->getMessage();
-    }
-});
-
 Route::get('/home', function () {
     return view('SharedUI.HomepageUI');
 })->name('home');
