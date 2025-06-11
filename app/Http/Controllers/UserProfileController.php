@@ -13,7 +13,7 @@ class UserProfileController extends Controller
 {
     public function showRegistrationForm()
     {
-        return view('ManageUserUI.register');
+        return view('ManageUserUI.Register');
     }
 
     public function store(Request $request)
