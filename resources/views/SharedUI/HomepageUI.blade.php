@@ -4,7 +4,7 @@
     </script>
 @endif
 
-@extends('layout') {{-- assuming layout.blade.php is in views/ --}}
+@extends('layouts.layout')
 
 @section('content')
     <div class="home-page">
