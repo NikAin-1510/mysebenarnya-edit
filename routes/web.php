@@ -62,7 +62,7 @@ use App\Http\Controllers\TrackingProgressController;
 // home
 Route::get('/home1', [TrackingProgressController::class, 'home']);
 // agency
-Route::post('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
+Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
 Route::post('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
 // mcmc
 Route::post('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
@@ -77,3 +77,7 @@ Route::post('/public/notification-list', [TrackingProgressController::class, 'p_
 Route::post('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
 Route::post('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
 //nak test
+Route::get('/set-role', function () {
+    session(['user_role' => 'agency']); // Sets the session variable
+    return redirect('/agency/inquirylist');
+});
