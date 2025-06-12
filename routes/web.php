@@ -32,6 +32,31 @@ Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])-
 Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
 // home
@@ -51,3 +76,4 @@ Route::post('/public/notification-details', [TrackingProgressController::class, 
 Route::post('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
 Route::post('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
 Route::post('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+//nak test
