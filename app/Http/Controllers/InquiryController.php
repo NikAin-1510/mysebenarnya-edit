@@ -86,13 +86,6 @@ class InquiryController extends Controller
 
         $inquiry->SubmissionStatus = 'Submitted';
         $inquiry->save();
-
-
-        use App\Http\Controllers\InquiryAssignmentController;
-
-Route::get('/inquiry-form', [InquiryAssignmentController::class, 'showInquiryForm'])->name('inquiry.form');
-Route::post('/submit-inquiry', [InquiryAssignmentController::class, 'submitInquiry'])->name('inquiry.submit');
-
     }
 
     public function showInquiryForm()
