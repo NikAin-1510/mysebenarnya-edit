@@ -14,6 +14,7 @@ class TrackingProgressController extends Controller
         return view('SharedUI.HomepageUI');
     }
 
+    // agency
     public function a_InquiryList()
     {
         $loggedInUserID = Auth::user()->UserID;
@@ -49,6 +50,7 @@ class TrackingProgressController extends Controller
         return view('InquiryProgressTrackingUI.Agency.UpdateStatusUI');
     }
 
+    //mcmc
     public function m_CreateReport()
     {
         return view('InquiryProgressTrackingUI.MCMC.CreateReportUI');
@@ -69,6 +71,8 @@ class TrackingProgressController extends Controller
         return view('InquiryProgressTrackingUI.MCMC.ProgListInquiryUI');
     }
 
+
+    //public
     public function p_OwnInquiryDetails()
     {
         return view('InquiryProgressTrackingUI.Public.DetailsOwnInquiryUI');
