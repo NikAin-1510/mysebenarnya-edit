@@ -51,7 +51,6 @@ Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
 
 
 // Inquiry Assignment
-// routes/web.php
 use App\Http\Controllers\InquiryAssignmentController;
 
 Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList']);
