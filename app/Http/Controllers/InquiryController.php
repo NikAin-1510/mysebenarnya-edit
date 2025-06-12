@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Inquiry;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 
 
 class InquiryController extends Controller
@@ -86,10 +86,25 @@ class InquiryController extends Controller
 
         $inquiry->SubmissionStatus = 'Submitted';
         $inquiry->save();
-    }
 
-    public function showInquiryForm()
-    {
-        return view('InquiryFormSubmissionUI.Public.InquiryFormUI');
+        $publicID = session('profile_id') ?? 'PU001';
+
+        $inquiries = DB::table('inquiry')
+            ->leftJoin('inquiryasssignment', 'inquiry.InquiryID', '=', 'inquiryasssignment.InquiryID')
+            ->leftJoin('agency', 'inquiryasssignment.AgencyID', '=', 'agency.AgencyID')
+            ->leftJoin('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
+            ->select(
+                'inquiry.*',
+                'agency.AgencyName',
+                'inquiryasssignment.AssignDate',
+                'inquiryprogress.VerificationDateTime',
+                'inquiryprogress.VerificationStatus',
+                'inquiryprogress.InvestigationDetails'
+            )
+            ->where('inquiry.PublicID', $publicID)
+            ->orderBy('SubmissionDate', 'desc')
+            ->get();
+
+        return view('InquiryFormSubmissionUI.Public.InquiryFormUI', compact('inquiry-form'));
     }
 }

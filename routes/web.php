@@ -49,6 +49,9 @@ Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsO
 Route::get('/public/inquiry-form', [InquiryController::class, 'p_InquiryForm']);
 Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
 
+Route::post('/submit-complaint', [InquiryController::class, 'store'])->name('complaint.store');
+Route::get('/public-dashboard', [InquiryController::class, 'dashboard'])->name('public.dashboard');
+
 
 // Inquiry Assignment
 use App\Http\Controllers\InquiryAssignmentController;
