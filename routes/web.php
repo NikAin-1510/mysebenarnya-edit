@@ -2,21 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-use Illuminate\Support\Facades\DB;
-
-Route::get('/db-test', function () {
-    try {
-        DB::connection()->getPdo();
-        return "✅ Database is connected: " . DB::connection()->getDatabaseName();
-    } catch (\Exception $e) {
-        return "❌ Could not connect to the database. Error: " . $e->getMessage();
-    }
-});
-
-Route::get('/home', function () {
-    return view('SharedUI.HomepageUI');
-})->name('home');
-
 //Module 1
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
@@ -25,6 +10,10 @@ Route::get('/login', function () {
     return view('ManageUserUI.Login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
+
+Route::get('/home', function () {
+    return view('SharedUI.HomepageUI');
+})->name('home');
 
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
