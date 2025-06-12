@@ -3,64 +3,93 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Inquiry;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class InquiryController extends Controller
 {
     // === AGENCY ===
     public function a_DisplayReport()
     {
-        return view('InquiryAssignmentUI.Agency.DisplayReportUI');
+        return view('InquiryFormSubmissionUI.Agency.DisplayReportUI');
     }
 
     public function a_HistoryInquiry()
     {
-        return view('InquiryAssignmentUI.Agency.HistoryInquiryUI');
+        return view('InquiryFormSubmissionUI.Agency.HistoryInquiryUI');
     }
 
     public function a_ListAssignedInquiry()
     {
-        return view('InquiryAssignmentUI.Agency.ListAssignedInquiryUI');
+        return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI');
     }
 
     public function a_ReviewInquiry()
     {
-        return view('InquiryAssignmentUI.Agency.ReviewInquiryUI');
+        return view('InquiryFormSubmissionUI.Agency.ReviewInquiryUI');
     }
 
     // === MCMC ===
     public function m_ListInquiry()
     {
-        return view('InquiryAssignmentUI.MCMC.ListInquiryUI');
+        return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI');
     }
 
     public function m_FilteredInquiry()
     {
-        return view('InquiryAssignmentUI.MCMC.FilteredInquiryUI'); // fix path if needed
+        return view('InquiryFormSubmissionUI.MCMC.FilteredInquiryUI'); // fix path if needed
     }
 
     public function m_DetailsInquiry()
     {
-        return view('InquiryAssignmentUI.MCMC.DetailsInquiryUI'); // fix if reused
+        return view('InquiryFormSubmissionUI.MCMC.DetailsInquiryUI'); // fix if reused
     }
 
     public function m_ReviewInquiry()
     {
-        return view('InquiryAssignmentUI.MCMC.ReviewInquiryUI');
+        return view('InquiryFormSubmissiontUI.MCMC.ReviewInquiryUI');
     }
 
     // === PUBLIC ===
     public function p_ListInquiry()
     {
-        return view('InquiryAssignmentUI.Public.ListInquiryUI');
+        return view('InquiryFormSubmissionUI.Public.ListInquiryUI');
     }
 
     public function p_DetailsOwnInquiry()
     {
-        return view('InquiryAssignmentUI.Public.DetailsOwnInquiryUI');
+        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI');
     }
 
-    public function p_InquiryForm()
+    public function p_InquiryForm(Request $request)
     {
-        return view('InquiryAssignmentUI.Public.InquiryFormUI');
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'url' => 'required|url',
+            'evidence' => 'nullable|file|max:5120', // 5MB
+        ]);
+
+        $inquiry = new Inquiry();
+        $inquiry->InquiryID = uniqid('INQ'); // or generate based on your logic
+        $inquiry->PublicID = Auth::check() ? Auth::user()->id : 'PUB001';
+        $inquiry->InquiryTitle = $request->title;
+        $inquiry->InquiryDescription = $request->description;
+        $inquiry->SubmissionLink = $request->url;
+
+        if ($request->hasFile('evidence')) {
+            $path = $request->file('evidence')->store('evidence', 'public');
+            $inquiry->SubmissionEvidence = $path;
+        }
+
+        $inquiry->SubmissionStatus = 'Submitted';
+        $inquiry->save();
+    }
+
+    public function showInquiryForm()
+    {
+        return view('InquiryFormSubmissionUI.Public.InquiryFormUI');
     }
 }

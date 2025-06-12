@@ -2,42 +2,55 @@
 
 use Illuminate\Support\Facades\Route;
 
-//Module 1
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\UserProfileController;
 
 Route::get('/login', function () {
-    return view('ManageUserUI.Login');
+    return view('login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
 
-Route::get('/home', function () {
-    return view('SharedUI.HomepageUI');
-})->name('home');
-
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-
-Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
-Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
-//End of Module 1
 
 
 // Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
-// home
-Route::get('/home1', [TrackingProgressController::class, 'home']);
 // agency
 Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::post('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
+Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
 // mcmc
-Route::post('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
-Route::post('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
-Route::post('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
-Route::post('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
+Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
+Route::get('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
+Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
+Route::get('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
 // public
-Route::post('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
-Route::post('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
-Route::post('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
-Route::post('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-Route::post('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
-Route::post('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
+Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
+Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
+Route::get('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
+Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+
+// Inquiry Form Submission
+use App\Http\Controllers\InquiryController;
+// agency
+Route::get('/agency/list-assigned-inquiry', [InquiryController::class, 'a_ListAssignedInquiry']);
+Route::get('/agency/history-inquiry', [InquiryController::class, 'a_HistoryInquiry']);
+Route::get('/agency/review-inquiry', [InquiryController::class, 'a_ReviewInquiry']);
+Route::get('/agency/display-report', [InquiryController::class, 'a_DisplayReport']);
+
+// mcmc
+Route::get('/mcmc/details-inquiry', [InquiryController::class, 'm_DetailsInquiry']);
+Route::get('/mcmc/filtered-inquiry', [InquiryController::class, 'm_FilteredInquiry']);
+Route::get('/mcmc/review-inquiry', [InquiryController::class, 'm_ReviewInquiry']);
+Route::get('/mcmc/list-inquiry', [InquiryController::class, 'm_ListInquiry']);
+
+// public
+Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsOwnInquiry']);
+Route::get('/public/inquiry-form', [InquiryController::class, 'p_InquiryForm']);
+Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
+
+
+// Inquiry Assignment
+use App\Http\Controllers\InquiryAssignmentController;
+
+Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList']);
