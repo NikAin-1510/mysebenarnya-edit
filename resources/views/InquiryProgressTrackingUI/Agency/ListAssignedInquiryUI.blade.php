@@ -1,20 +1,36 @@
 @extends('layouts.layout')
 
+@section('head')
+    <link rel="stylesheet" href="{{ asset('css/module4/agency-inquiry.css') }}">
+@endsection
+
 @section('content')
-    <div class="home-page">
-        @if(session('user_role') === 'publicuser')
-        <h2>Hello, Public User!</h2>
-        <p>This is your homepage. Choose a menu from the left sidebar to begin.</p>
-
-        @elseif(session('user_role') === 'mcmc')
-        <h2>Hello, MCMC Staff!</h2>
-        <p>This is your homepage. Choose a menu from the left sidebar to begin.</p>
-
-        @elseif(session('user_role') === 'agency')
-        <h2>Hello, Agency Staff!</h2>
-        <p>This is your homepage. Choose a menu from the left sidebar to begin.</p>
-
-        @endif
-    </div>
-    <p> why is nothing showing</p>
+    <div class="assigned-inquiry-list">
+    <table>
+        <tr>
+            <th style="width: 35%;">Inquiry</th>
+            <th>Date Assigned</th>
+            <th>Current Status</th>
+        </tr>
+        @forelse($assignedInquiries as $inquiry)
+        <tr>
+            <td>{{ $inquiry->InquiryTitle }}</td>
+            <td>{{ $inquiry->AssignDate }}</td>
+            <td>
+                @if($inquiry->VerificationStatus)
+                    {{ $inquiry->VerificationStatus }}
+                @elseif($inquiry->InvestigationBeginDate)
+                    Under Investigation
+                @else
+                    -
+                @endif
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="3">No inquiries assigned to you yet.</td>
+        </tr>
+        @endforelse
+    </table>
+</div>
 @endsection

@@ -52,8 +52,3 @@ Route::post('/public/notification-details', [TrackingProgressController::class, 
 Route::post('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
 Route::post('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
 Route::post('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
-//nak test
-Route::get('/set-role', function () {
-    session(['user_role' => 'agency']); // Sets the session variable
-    return redirect('/agency/inquirylist');
-});

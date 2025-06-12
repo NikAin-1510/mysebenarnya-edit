@@ -1,0 +1,24 @@
+.assigned-inquiry-list table {
+  text-align: center;
+}
+
+table {
+  margin: 20px 20px 20px 20px;
+  width:90%;
+}
+
+table, th, td {
+  border: 1px solid rgb(42, 42, 82);
+  border-collapse: collapse;
+  line-height: 1.8;
+}
+
+th {
+  background-color: #e1c980;
+  color: #040404;
+}
+
+td {
+  background-color: #ffffff;
+  color: #040404;
+}

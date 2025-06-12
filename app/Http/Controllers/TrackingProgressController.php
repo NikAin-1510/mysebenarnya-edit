@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 use Illuminate\Http\Request;
 
 class TrackingProgressController extends Controller
@@ -13,7 +16,32 @@ class TrackingProgressController extends Controller
 
     public function a_InquiryList()
     {
-        return view('InquiryProgressTrackingUI.Agency.ListAssignedInquiryUI');
+        $loggedInUserID = Auth::user()->UserID;
+
+        // Get the agency that belongs to this user
+        $agency = DB::table('agency')->where('UserID', $loggedInUserID)->first();
+
+        if (!$agency) {
+            abort(403, 'No agency linked to this account.');
+        }
+
+        $agencyName = $agency->AgencyName;
+
+        $assignedInquiries = DB::table('inquiryassignment')
+            ->join('inquiry', 'inquiryassignment.InquiryID', '=', 'inquiry.InquiryID')
+            ->leftJoin('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
+            ->select(
+                'inquiryassignment.*',
+                'inquiry.InquiryTitle',
+                'inquiryprogress.InvestigationBeginDate',
+                'inquiryprogress.VerificationStatus'
+            )
+            ->where('inquiryassignment.AgencyName', $agencyName)
+            ->get();
+
+        return view('InquiryProgressTrackingUI.Agency.ListAssignedInquiryUI', [
+            'assignedInquiries' => $assignedInquiries
+        ]);
     }
 
     public function a_UpdateStatus()

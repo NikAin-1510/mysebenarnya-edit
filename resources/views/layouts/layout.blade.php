@@ -10,6 +10,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
     @stack('styles')
+    @yield('head')
 </head>
 <body>
 
@@ -18,7 +19,7 @@
      style="background:
      @if(session('user_role') === 'publicuser') #325c74 ;
      @elseif(session('user_role') === 'mcmc') rgb(104, 75, 142) ;
-     @elseif(session('user_role') === 'agency') #a37e27 ;
+     @elseif(session('user_role') === 'agency') #a37e27;
      @endif color: white;">
 
     <div class="logo-container">
@@ -52,7 +53,7 @@
         @elseif(session('user_role') === 'agency')
         <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
-            <li><a href="#"><i class="fas fa-tasks"></i> Track Cases</a></li>
+            <li><a href="{{ url('/agency/inquirylist') }}"><i class="fas fa-tasks"></i> Assigned Inquiry</a></li>
             <li><a href="#"><i class="fas fa-envelope"></i> Provide Feedback</a></li>
         @endif
 
