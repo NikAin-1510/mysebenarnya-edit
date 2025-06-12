@@ -35,7 +35,7 @@ Route::post('/register', [UserProfileController::class, 'store'])->name('public.
 // Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
 // home
-Route::get('/home', [TrackingProgressController::class, 'home']);
+Route::get('/home1', [TrackingProgressController::class, 'home']);
 // agency
 Route::post('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
 Route::post('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
