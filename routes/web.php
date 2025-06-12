@@ -2,42 +2,32 @@
 
 use Illuminate\Support\Facades\Route;
 
-use Illuminate\Support\Facades\DB;
-
-Route::get('/db-test', function () {
-    try {
-        DB::connection()->getPdo();
-        return "✅ Database is connected: " . DB::connection()->getDatabaseName();
-    } catch (\Exception $e) {
-        return "❌ Could not connect to the database. Error: " . $e->getMessage();
-    }
-});
-
-Route::get('/home', function () {
-    return view('SharedUI.HomepageUI');
-})->name('home');
-
 //Module 1
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 
 Route::get('/login', function () {
-    return view('ManageUserUI.login');
+    return view('ManageUserUI.Login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
+
+Route::get('/home', function () {
+    return view('SharedUI.HomepageUI');
+})->name('home');
 
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
 Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
+//End of Module 1
 
 
 // Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
 // home
-Route::get('/home', [TrackingProgressController::class, 'home']);
+Route::get('/home1', [TrackingProgressController::class, 'home']);
 // agency
-Route::post('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
+Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
 Route::post('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
 // mcmc
 Route::post('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
@@ -51,3 +41,8 @@ Route::post('/public/notification-details', [TrackingProgressController::class, 
 Route::post('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
 Route::post('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
 Route::post('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+//nak test
+Route::get('/set-role', function () {
+    session(['user_role' => 'agency']); // Sets the session variable
+    return redirect('/agency/inquirylist');
+});

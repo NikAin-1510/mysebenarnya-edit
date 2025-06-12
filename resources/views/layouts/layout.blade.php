@@ -38,26 +38,26 @@
     <ul>
         @if(session('user_role') === 'publicuser')
             <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="{{ route('viewprofile') }}"><i class="fas fa-user"></i> User Profile</a></li>
+            <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="#"><i class="fas fa-comments"></i> Submit Inquiry</a></li>
             <li><a href="#"><i class="fas fa-newspaper"></i> Browse Verified News</a></li>
 
         @elseif(session('user_role') === 'mcmc')
         <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="{{ route('viewprofile') }}"><i class="fas fa-user"></i> User Profile</a></li>
+            <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="#"><i class="fas fa-user-plus"></i> Register Agency</a></li>
             <li><a href="#"><i class="fas fa-users"></i> View User Data</a></li>
             <li><a href="#"><i class="fas fa-chart-line"></i> Generate Reports</a></li>
 
         @elseif(session('user_role') === 'agency')
         <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="{{ route('viewprofile') }}"><i class="fas fa-user"></i> User Profile</a></li>
+            <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="#"><i class="fas fa-tasks"></i> Track Cases</a></li>
             <li><a href="#"><i class="fas fa-envelope"></i> Provide Feedback</a></li>
         @endif
 
         <li><a href="#"><i class="fas fa-history"></i> Activity Log</a></li>
-        <li><a href="{{ route('logout.submit') }}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+        <li><a href="{{ route('logout') }}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
     </ul>
 </div>
 
