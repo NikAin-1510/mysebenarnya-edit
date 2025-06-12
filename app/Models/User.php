@@ -27,25 +27,23 @@ class User extends Authenticatable
         'Updated_At',
     ];
 
-    public $timestamps = false; // since you're handling timestamps manually
+    public $timestamps = false;
 
-    protected $hidden = [
-        'Password',
-    ];
+    protected $hidden = ['Password'];
 
     // Relationships
     public function publicuser()
     {
-        return $this->hasOne(PublicUser::class, 'UserID');
+        return $this->hasOne(PublicUser::class, 'UserID', 'UserID');
     }
 
     public function mcmc()
     {
-        return $this->hasOne(MCMC::class, 'UserID');
+        return $this->hasOne(MCMC::class, 'UserID', 'UserID');
     }
 
     public function agency()
     {
-        return $this->hasOne(Agency::class, 'UserID');
+        return $this->hasOne(Agency::class, 'UserID', 'UserID');
     }
 }
