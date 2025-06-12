@@ -30,31 +30,7 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
 Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//End of Module 1
 
 
 // Tracking Progress Controller

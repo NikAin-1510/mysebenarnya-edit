@@ -57,7 +57,7 @@
         @endif
 
         <li><a href="#"><i class="fas fa-history"></i> Activity Log</a></li>
-        <li><a href="{{ route('logout.submit') }}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+        <li><a href="{{ route('logout') }}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
     </ul>
 </div>
 
