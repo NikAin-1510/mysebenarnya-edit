@@ -1,9 +1,12 @@
+@vite(['resources/css/app.css', 'resources/js/app.js'])
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
     <style>@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500');
 
@@ -332,7 +335,7 @@ body {
         <li><a href="#"><i class="fas fa-users"></i> View User Data</a></li>
         <li><a href="#"><i class="fas fa-history"></i> Activity Log</a></li>
 
-        <li><a href="resources/views/inquiry/index"><i class="fas fa-stream"></i> Module</a></li>
+        <li><a href="#"><i class="fas fa-stream"></i> Module</a></li>
         <li><a href="#"><i class="fas fa-calendar"></i> Module</a></li>
         <li><a href="#"><i class="fas fa-walking"></i> Module</a></li>
         <li><a href="#"><i class="fas fa-th-list"></i> Module</a></li>
@@ -348,8 +351,16 @@ body {
 </section>
  <!-- Complaint Form Section -->
         <section class="complaint-section">
+            @if(session('success'))
+    <div style="color: green; margin-bottom: 10px;">
+        {{ session('success') }}
+    </div>
+@endif
+
             <h2 class="form-title">Complaint Form</h2>
-            <form class="complaint-form">
+            <form class="complaint-form" id="complaintForm" action="{{ route('inquiry.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
                 <div class="form-group">
                     <label for="title">*Title :</label>
                     <input type="text" id="title" name="title">
@@ -385,6 +396,7 @@ body {
                     <th>Date</th>
                     <th>Status</th>
                     <th>Action</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>

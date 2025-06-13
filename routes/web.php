@@ -2,35 +2,32 @@
 
 use Illuminate\Support\Facades\Route;
 
+//Module1: MANAGE USER=============================================================================================
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserProfileController;
 
+    //Login
 Route::get('/login', function () {
-    return view('login');
+    return view('ManageUserUI.Login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
-
+    //First Time Login Change Password for Agency Staff
+Route::get('/first-time-password', [LoginController::class, 'showFirstTimePasswordForm'])->name('first.time.password');
+Route::post('/first-time-password', [LoginController::class, 'saveFirstTimePassword'])->name('first.time.password.save');
+    //Display Home
+Route::get('/home', [LoginController::class, 'displayHome'])->name('display.home');
+    //Log Out
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+    //Public Registration
+Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
+Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
+//Module1: MANAGE USER=============================================================================================
 
 
-// Tracking Progress Controller
-use App\Http\Controllers\TrackingProgressController;
-// agency
-Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
-// mcmc
-Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
-Route::get('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
-Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
-Route::get('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
-// public
-Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
-Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
-Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-Route::get('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
-Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
 
-// Inquiry Form Submission
+
+
+//Module2: ModuleInquiry Form Submission==========================================================================
 use App\Http\Controllers\InquiryController;
 // agency
 Route::get('/agency/list-assigned-inquiry', [InquiryController::class, 'a_ListAssignedInquiry']);
@@ -48,9 +45,46 @@ Route::get('/mcmc/list-inquiry', [InquiryController::class, 'm_ListInquiry']);
 Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsOwnInquiry']);
 Route::get('/public/inquiry-form', [InquiryController::class, 'p_InquiryForm']);
 Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
+Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name('inquiry.store');
+//Module2: ModuleInquiry Form Submission==========================================================================
 
 
-// Inquiry Assignment
+
+
+
+
+//Module3: Inquiry Assignment=====================================================================================
 use App\Http\Controllers\InquiryAssignmentController;
 
 Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList']);
+Route::get('/agency/dashboard', [InquiryAssignmentController::class, 'a_ReviewInquiry'])->name('agency.review.inquiry');
+Route::get('/agency/assign', [InquiryAssignmentController::class, 'a_AssignInquiry'])->name('agency.assign.form');
+Route::post('/agency/assign', [InquiryAssignmentController::class, 'storeAssignment'])->name('agency.assign.inquiry');
+Route::get('/agency/reports', [InquiryAssignmentController::class, 'a_DisplayReport'])->name('agency.display.report');
+Route::get('/agency/inquiries', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquiries');
+Route::get('/agency/inquiries/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
+Route::post('/agency/inquiries/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
+//Module3: Inquiry Assignment=====================================================================================
+
+
+
+
+
+//Module4: Tracking Progress Controller===========================================================================
+use App\Http\Controllers\TrackingProgressController;
+// agency
+Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
+Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
+// mcmc
+Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
+Route::get('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
+Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
+Route::get('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
+// public
+Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
+Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
+Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
+Route::get('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
+Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+//Module4: Tracking Progress Controller===========================================================================
