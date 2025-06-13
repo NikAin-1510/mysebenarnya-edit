@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -73,6 +75,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return view('ManageUserUI.Logout'); // or redirect to login page
+        return view('ManageUserUI.logout'); // or redirect to login page
     }
 }
