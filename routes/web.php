@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-//MANAGE USER
+//MODULE 1: MANAGE USER=======================================================================================================
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 
@@ -43,7 +43,7 @@ Route::get('', function () {
     //Register Agency
 Route::post('/register-agency', [UserProfileController::class, 'registerAgency'])->name('register.agency');
 
-//END OF MANAGE USER
+//END OF MODULE 1:  MANAGE USER================================================================================================
 
 
 // Tracking Progress Controller
