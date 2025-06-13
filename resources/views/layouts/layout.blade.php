@@ -10,23 +10,22 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
     @stack('styles')
-    @yield('head')
 </head>
 <body>
 
 <!-- Header -->
-<div class="main-header"
-     style="background:
+<div class="main-header" 
+     style="background: 
      @if(session('user_role') === 'publicuser') #325c74 ;
      @elseif(session('user_role') === 'mcmc') rgb(104, 75, 142) ;
-     @elseif(session('user_role') === 'agency') #a37e27;
+     @elseif(session('user_role') === 'agency') #a37e27 ;
      @endif color: white;">
 
     <div class="logo-container">
         <img src="{{ asset('images/logo.png') }}" alt="umpsa" class="umpsa">
         <img src="{{ asset('images/brand.png') }}" alt="brand" class="brand">
     </div>
-    <span class="page-name">MySebenarnya</span>
+    <span class="page-name">@yield('page-name', 'MySebenarnya')</span>
 </div>
 
 <!-- Sidebar -->
