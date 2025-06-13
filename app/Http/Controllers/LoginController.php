@@ -12,6 +12,7 @@ use App\Models\Agency;
 
 class LoginController extends Controller
 {
+    //1.Login authentication
     public function authenticate(Request $request)
     {
         // Validate input
@@ -51,17 +52,17 @@ class LoginController extends Controller
                 case 'publicuser':
                     $public = PublicUser::where('UserID', $user->UserID)->first();
                     session(['profile_id' => $public?->PublicID]);
-                    return redirect()->route('home')->with('success', 'Welcome, Public User!');
+                    return redirect()->route('display.home')->with('success', 'Welcome, Public User!');
 
                 case 'mcmc':
                     $mcmc = MCMC::where('UserID', $user->UserID)->first();
                     session(['profile_id' => $mcmc?->McmcID]);
-                    return redirect()->route('home')->with('success', 'Welcome, MCMC Staff!');
+                    return redirect()->route('display.home')->with('success', 'Welcome, MCMC Staff!');
 
                 case 'agency':
                     $agency = Agency::where('UserID', $user->UserID)->first();
                     session(['profile_id' => $agency?->AgencyID]);
-                    return redirect()->route('home')->with('success', 'Welcome, Agency!');
+                    return redirect()->route('display.home')->with('success', 'Welcome, Agency!');
 
                 default:
                     return back()->with('error', 'Role not recognized.');
@@ -71,6 +72,25 @@ class LoginController extends Controller
         return back()->with('error', 'Invalid email, password, or role.');
     }
 
+    //Display Home
+    public function displayHome()
+    {
+        if (!session()->has('user_role')) {
+            // User is not logged in, redirect to login
+            return redirect()->route('login')->with('error', 'Please login first.');
+        }
+
+        // User is logged in, display home
+        $user = session('user');
+        $role = session('user_role');
+
+        return view('SharedUI.HomepageUI', [
+            'userName' => $user['Name'] ?? 'User',
+            'userRole' => $role,
+        ]);
+    }
+
+    //First Time Login Change Password for Agency
     public function showFirstTimePasswordForm()
     {
         $user = Auth::user();
@@ -96,6 +116,7 @@ class LoginController extends Controller
         return redirect()->route('home')->with('success', 'Password updated successfully.');
     }
 
+    //Logout
     public function logout(Request $request)
     {
         Auth::logout();
