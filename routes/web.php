@@ -46,14 +46,15 @@ Route::get('/mcmc/list-inquiry', [InquiryController::class, 'm_ListInquiry']);
 
 // public
 Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsOwnInquiry']);
-Route::get('/public/inquiry-form', [InquiryController::class, 'p_InquiryForm']);
 Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
-
-Route::post('/submit-complaint', [InquiryController::class, 'store'])->name('complaint.store');
-Route::get('/public-dashboard', [InquiryController::class, 'dashboard'])->name('public.dashboard');
+Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name('inquiry.store');
 
 
 // Inquiry Assignment
 use App\Http\Controllers\InquiryAssignmentController;
 
 Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList']);
+Route::get('/agency/dashboard', [InquiryAssignmentController::class, 'a_ReviewInquiry'])->name('agency.review.inquiry');
+Route::get('/agency/assign', [InquiryAssignmentController::class, 'a_AssignInquiry'])->name('agency.assign.form');
+Route::post('/agency/assign', [InquiryAssignmentController::class, 'storeAssignment'])->name('agency.assign.inquiry');
+Route::get('/agency/reports', [InquiryAssignmentController::class, 'a_DisplayReport'])->name('agency.display.report');

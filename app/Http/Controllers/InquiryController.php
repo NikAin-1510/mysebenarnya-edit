@@ -73,38 +73,52 @@ class InquiryController extends Controller
         ]);
 
         $inquiry = new Inquiry();
-        $inquiry->InquiryID = uniqid('INQ'); // or generate based on your logic
-        $inquiry->PublicID = Auth::check() ? Auth::user()->id : 'PUB001';
-        $inquiry->InquiryTitle = $request->title;
-        $inquiry->InquiryDescription = $request->description;
-        $inquiry->SubmissionLink = $request->url;
+        $inquiry->InquiryID = uniqid('INQ');
+        $inquiry->UserID = Auth::id(); // Assuming user is logged in
+        $inquiry->Title = $request->input('title');
+        $inquiry->Description = $request->input('description');
+        $inquiry->URL = $request->input('url');
+        $inquiry->Status = 'Submitted';
+        $inquiry->DateSubmitted = now();
 
+        // Handle file upload
         if ($request->hasFile('evidence')) {
-            $path = $request->file('evidence')->store('evidence', 'public');
-            $inquiry->SubmissionEvidence = $path;
+            $file = $request->file('evidence');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('evidence', $filename, 'public'); // save in storage/app/public/evidence
+            $inquiry->EvidencePath = $path;
         }
 
-        $inquiry->SubmissionStatus = 'Submitted';
         $inquiry->save();
 
-        $publicID = session('profile_id') ?? 'PU001';
+        return redirect()->back()->with('success', 'Inquiry submitted successfully.');
+    }
 
-        $inquiries = DB::table('inquiry')
-            ->leftJoin('inquiryasssignment', 'inquiry.InquiryID', '=', 'inquiryasssignment.InquiryID')
-            ->leftJoin('agency', 'inquiryasssignment.AgencyID', '=', 'agency.AgencyID')
-            ->leftJoin('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
-            ->select(
-                'inquiry.*',
-                'agency.AgencyName',
-                'inquiryasssignment.AssignDate',
-                'inquiryprogress.VerificationDateTime',
-                'inquiryprogress.VerificationStatus',
-                'inquiryprogress.InvestigationDetails'
-            )
-            ->where('inquiry.PublicID', $publicID)
-            ->orderBy('SubmissionDate', 'desc')
-            ->get();
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'url' => 'required|url',
+            'evidence' => 'nullable|file|max:5120', // 5MB
+        ]);
 
-        return view('InquiryFormSubmissionUI.Public.InquiryFormUI', compact('inquiry-form'));
+        $inquiry = new Inquiry();
+        $inquiry->title = $request->title;
+        $inquiry->description = $request->description;
+        $inquiry->url = $request->url;
+
+        if ($request->hasFile('evidence')) {
+            $file = $request->file('evidence');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('evidence', $filename, 'public');
+            $inquiry->evidence = $filePath;
+        }
+
+        $inquiry->status = 'Submitted';
+        $inquiry->date = now();
+        $inquiry->save();
+
+        return response()->json(['message' => 'Inquiry stored successfully.'], 200);
     }
 }

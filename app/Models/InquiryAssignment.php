@@ -17,6 +17,7 @@ class InquiryAssignment extends Model
         'AgencyID',
         'mcmcID',
         'InquiryID',
+        'AgencyName',
         'AssignDate',
         'JurisdictionStatus',
         'InquiryComment',
