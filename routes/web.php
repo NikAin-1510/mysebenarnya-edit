@@ -2,14 +2,48 @@
 
 use Illuminate\Support\Facades\Route;
 
+//MODULE 1: MANAGE USER=======================================================================================================
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserProfileController;
 
+    //Login
 Route::get('/login', function () {
-    return view('login');
+    return view('ManageUserUI.Login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
-
+    //First Time Login Change Password for Agency Staff
+// First-time password routes for agency
+Route::get('/first-time-password', [LoginController::class, 'showFirstTimePasswordForm'])->name('first.time.password');
+Route::post('/first-time-password', [LoginController::class, 'saveFirstTimePassword'])->name('first.time.password.save');
+    //Display Home
+Route::get('/home', function () {return view('SharedUI.HomepageUI');})->name('home');
+    //Log Out
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+    //Public Registration
+Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
+Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
+    //View Profile
+Route::get('/viewprofile', [UserProfileController::class, 'view'])->name('profile.view');
+    //Edit Profile
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [UserProfileController::class, 'view'])->name('view.profile');
+    Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('edit.profile');
+    Route::put('/profile/save-edit', [UserProfileController::class, 'saveEdit'])->name('edit.profile.save');
+});
+    //Update Security
+// web.php
+Route::get('/update-security', [UserProfileController::class, 'showUpdateSecurityForm'])->name('showUpdateSecurityForm.security');
+Route::put('/update-security-save', [UserProfileController::class, 'updateSecurity'])->name('update.security');
+
+//Test
+Route::get('', function () {
+    return view('ManageUserUI.RegisterAgency');
+});
+
+    //Register Agency
+Route::post('/register-agency', [UserProfileController::class, 'registerAgency'])->name('register.agency');
+
+//END OF MODULE 1:  MANAGE USER================================================================================================
 
 
 // Tracking Progress Controller

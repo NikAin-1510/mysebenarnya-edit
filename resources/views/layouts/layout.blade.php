@@ -100,23 +100,31 @@
         }
     </style>
     @stack('styles')
-    @yield('head')
 </head>
 <body>
 
 <!-- Header -->
+<<<<<<< HEAD
 <div class="main-header"
      style="background: linear-gradient(135deg,
      @if(session('user_role') === 'publicuser') #325c74 0%, #1a3a4a 100%;
      @elseif(session('user_role') === 'mcmc') rgb(104, 75, 142) 0%, rgb(74, 45, 112) 100%;
      @elseif(session('user_role') === 'agency') #a37e27 0%, #7a5a1d 100%;
      @endif);">
+=======
+<div class="main-header" 
+     style="background: 
+     @if(session('user_role') === 'publicuser') #325c74 ;
+     @elseif(session('user_role') === 'mcmc') rgb(104, 75, 142) ;
+     @elseif(session('user_role') === 'agency') #a37e27 ;
+     @endif color: white;">
+>>>>>>> 5999250ec0dc6bbd5e10e3539b0c12ae0a4ca439
 
     <div class="logo-container">
         <img src="{{ asset('images/logo.png') }}" alt="umpsa" class="umpsa">
         <img src="{{ asset('images/brand.png') }}" alt="brand" class="brand">
     </div>
-    <span class="page-name">MySebenarnya</span>
+    <span class="page-name">@yield('page-name', 'PageName')</span>
 </div>
 
 <!-- Sidebar -->
@@ -129,21 +137,21 @@
     <ul>
         @if(session('user_role') === 'publicuser')
             <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
+            <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="#"><i class="fas fa-comments"></i> Submit Inquiry</a></li>
             <li><a href="#"><i class="fas fa-newspaper"></i> Browse Verified News</a></li>
 
         @elseif(session('user_role') === 'mcmc')
-        <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
+            <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="#"><i class="fas fa-user-plus"></i> Register Agency</a></li>
             <li><a href="#"><i class="fas fa-users"></i> View User Data</a></li>
             <li><a href="#"><i class="fas fa-chart-line"></i> Generate Reports</a></li>
 
         @elseif(session('user_role') === 'agency')
-        <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
-            <li><a href="{{ url('/agency/inquirylist') }}"><i class="fas fa-tasks"></i> Assigned Inquiry</a></li>
+            <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
+            <li><a href="#"><i class="fas fa-tasks"></i> Track Cases</a></li>
             <li><a href="#"><i class="fas fa-envelope"></i> Provide Feedback</a></li>
         @endif
 
