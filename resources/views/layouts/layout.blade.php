@@ -25,7 +25,7 @@
         <img src="{{ asset('images/logo.png') }}" alt="umpsa" class="umpsa">
         <img src="{{ asset('images/brand.png') }}" alt="brand" class="brand">
     </div>
-    <span class="page-name">@yield('page-name', 'MySebenarnya')</span>
+    <span class="page-name">@yield('page-name', 'PageName')</span>
 </div>
 
 <!-- Sidebar -->
