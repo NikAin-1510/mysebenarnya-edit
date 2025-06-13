@@ -104,21 +104,14 @@
 <body>
 
 <!-- Header -->
-<<<<<<< HEAD
+
 <div class="main-header"
-     style="background: linear-gradient(135deg,
-     @if(session('user_role') === 'publicuser') #325c74 0%, #1a3a4a 100%;
-     @elseif(session('user_role') === 'mcmc') rgb(104, 75, 142) 0%, rgb(74, 45, 112) 100%;
-     @elseif(session('user_role') === 'agency') #a37e27 0%, #7a5a1d 100%;
-     @endif);">
-=======
-<div class="main-header" 
-     style="background: 
+     style="background:
      @if(session('user_role') === 'publicuser') #325c74 ;
      @elseif(session('user_role') === 'mcmc') rgb(104, 75, 142) ;
      @elseif(session('user_role') === 'agency') #a37e27 ;
      @endif color: white;">
->>>>>>> 5999250ec0dc6bbd5e10e3539b0c12ae0a4ca439
+
 
     <div class="logo-container">
         <img src="{{ asset('images/logo.png') }}" alt="umpsa" class="umpsa">

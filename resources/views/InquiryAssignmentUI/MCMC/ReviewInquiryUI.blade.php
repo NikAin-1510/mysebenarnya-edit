@@ -1,21 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySebenarnya - Dashboard</title>
-    <link rel="stylesheet" href="{{ asset('css/mcmc-dashboard.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-</head>
-<body>
-    <div class="main-header">
-        <div class="logo-container">
-        <img src="{{ asset('images/logo.png') }}" alt="umpsa" class="umpsa">
-        <img src="{{ asset('images/brand.png') }}" alt="brand" class="brand">
-    </div>
-        <span class="page-name">MySebenarnya</span>
-    </div>
-
+@extends('layouts.layout')
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/Module3/mcmc-dashboard.css') }}">
+@endpush
     <div class="sidebar">
         <ul>
             <li><a href="{{ route('agency.review.inquiry') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>

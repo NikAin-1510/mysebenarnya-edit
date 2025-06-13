@@ -114,4 +114,63 @@ class InquiryAssignmentController extends Controller
             'trendsData'
         ));
     }
+    public function a_ListAssignedInquiry()
+    {
+        $agencyID = session('profile_id') ?? 'A001'; // fallback for testing
+
+        $assignments = InquiryAssignment::with(['inquiry', 'progress'])
+            ->where('AgencyID', $agencyID)
+            ->get();
+
+        return view('InquiryAssignmentUI.Agency.ListAssignedInquiryUI', compact('assignments'));
+    }
+
+    public function a_InquiryDetails($id)
+    {
+        $assignment = InquiryAssignment::with(['inquiry', 'progress'])
+            ->where('AssignmentID', $id)
+            ->firstOrFail();
+
+        return view('InquiryFormSubmissionUI.Agency.InquiryDetailsUI', compact('assignment'));
+    }
+
+    public function handleAction(Request $request, $id)
+    {
+        $assignment = InquiryAssignment::findOrFail($id);
+        $inquiry = $assignment->inquiry;
+
+        if ($request->action === 'accept') {
+            InquiryProgress::updateOrCreate(
+                ['AssignmentID' => $assignment->AssignmentID],
+                [
+                    'InquiryID' => $assignment->InquiryID,
+                    'AgencyID' => $assignment->AgencyID,
+                    'InvestigationBeginDate' => now(),
+                    'VerificationStatus' => 'accepted',
+                    'InvestigationDetails' => 'Inquiry accepted by agency.',
+                ]
+            );
+            return redirect()->route('agency.inquiries')->with('success', 'Inquiry accepted.');
+        }
+
+        if ($request->action === 'reject') {
+            DB::beginTransaction();
+            try {
+                // Reset assignment
+                $assignment->delete();
+
+                // Update inquiry status back to pending
+                $inquiry->SubmissionStatus = 'pending';
+                $inquiry->save();
+
+                DB::commit();
+                return redirect()->route('agency.inquiries')->with('success', 'Inquiry rejected and unassigned.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->with('error', 'Failed to reject inquiry: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('error', 'Invalid action.');
+    }
 }
