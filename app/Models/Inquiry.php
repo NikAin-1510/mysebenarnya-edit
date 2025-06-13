@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Inquiry extends Model
 {
-    protected $table = 'inquiry';
+    protected $table = 'inquiries';
     protected $primaryKey = 'InquiryID';
-    public $incrementing = false;
+    public $incrementing = false; // because InquiryID is a string, not auto-increment
     protected $keyType = 'string';
-    public $timestamps = false;
 
     protected $fillable = [
         'InquiryID',
@@ -19,21 +19,23 @@ class Inquiry extends Model
         'InquiryDescription',
         'SubmissionDate',
         'SubmissionStatus',
+        'SubmissionLink',
         'SubmissionEvidence',
     ];
 
-    public function publicuser()
+    protected static function boot()
     {
-        return $this->belongsTo(PublicUser::class, 'PublicID', 'PublicID');
-    }
+        parent::boot();
 
-    public function assignments()
-    {
-        return $this->hasMany(InquiryAssignment::class, 'InquiryID', 'InquiryID');
-    }
+        static::creating(function ($inquiry) {
+            if (!$inquiry->InquiryID) {
+                $count = DB::table('inquiries')->count() + 1;
+                $inquiry->InquiryID = 'IQ' . str_pad($count, 6, '0', STR_PAD_LEFT);
+            }
 
-    public function progress()
-    {
-        return $this->hasMany(InquiryProgress::class, 'InquiryID', 'InquiryID');
+            if (!$inquiry->SubmissionDate) {
+                $inquiry->SubmissionDate = now();
+            }
+        });
     }
 }

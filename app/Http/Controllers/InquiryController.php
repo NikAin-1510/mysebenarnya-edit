@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Inquiry;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response; // ✅ Add this line
+use App\Models\Inquiry;
+use Illuminate\Support\Str;
 
 
 class InquiryController extends Controller
@@ -41,15 +43,134 @@ class InquiryController extends Controller
     {
         return view('InquiryFormSubmissionUI.MCMC.FilteredInquiryUI'); // fix path if needed
     }
+    public function index(Request $request)
+    {
+        $agencies = DB::table('agency')->get();
+
+        $query = DB::table('inquiry')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select('inquiry.*', 'agency.AgencyName');
+
+        if ($request->date) {
+            $query->whereDate('inquiry.SubmissionDate', $request->date);
+        }
+
+        if ($request->status) {
+            $query->where('inquiry.SubmissionStatus', $request->status);
+        }
+
+        if ($request->agency) {
+            $query->where('agency.AgencyID', $request->agency);
+        }
+
+        $inquiries = $query->orderBy('SubmissionDate', 'desc')->get();
+
+        return view('InquiryFormSubmissionUI.MCMC.PreviousInquiriesUI', compact('inquiries', 'agencies'));
+    }
+
+    public function downloadFilteredInquiries(Request $request)
+    {
+        $query = DB::table('inquiry')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select('inquiry.InquiryTitle', 'inquiry.InquiryDescription', 'inquiry.SubmissionDate', 'agency.AgencyName', 'inquiry.SubmissionStatus');
+
+        if ($request->date) {
+            $query->whereDate('inquiry.SubmissionDate', $request->date);
+        }
+
+        if ($request->status) {
+            $query->where('inquiry.SubmissionStatus', $request->status);
+        }
+
+        if ($request->agency) {
+            $query->where('agency.AgencyID', $request->agency);
+        }
+
+        $results = $query->get();
+
+        $csvData = [];
+        $csvData[] = ['Inquiry Title', 'Description', 'Submission Date', 'Agency', 'Status'];
+
+        foreach ($results as $row) {
+            $csvData[] = [
+                $row->InquiryTitle,
+                $row->InquiryDescription,
+                \Carbon\Carbon::parse($row->SubmissionDate)->format('d M Y'),
+                $row->AgencyName ?? 'Unassigned',
+                ucfirst($row->SubmissionStatus),
+            ];
+        }
+
+        $filename = 'filtered_inquiries_' . now()->format('Ymd_His') . '.csv';
+        $handle = fopen('php://temp', 'r+');
+        foreach ($csvData as $line) {
+            fputcsv($handle, $line);
+        }
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return Response::make($content, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ]);
+    }
+    public function showPreviousInquiries(Request $request)
+    {
+        $query = DB::table('inquiry')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select('inquiry.*', 'agency.AgencyName', 'inquiry.SubmissionStatus');
+
+        if ($request->date) {
+            $query->whereDate('inquiry.SubmissionDate', $request->date);
+        }
+
+        if ($request->status) {
+            $query->where('inquiryassignment.Status', $request->status);
+        }
+
+        if ($request->agency) {
+            $query->where('agency.AgencyName', $request->agency);
+        }
+
+        $inquiries = $query->orderBy('inquiry.SubmissionDate', 'desc')->get();
+        $agencies = DB::table('agency')->get();
+
+        return view('InquiryFormSubmissionUI.MCMC.FilteredInquiryUI', compact('inquiries', 'agencies'));
+    }
+
 
     public function m_DetailsInquiry()
     {
         return view('InquiryFormSubmissionUI.MCMC.DetailsInquiryUI'); // fix if reused
     }
 
-    public function m_ReviewInquiry()
+    public function m_ReviewInquiry(Request $request)
     {
-        return view('InquiryFormSubmissiontUI.MCMC.ReviewInquiryUI');
+        $query = DB::table('inquiry')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select('inquiry.*', 'agency.AgencyName');
+
+        if ($request->month) {
+            $query->whereMonth('inquiry.SubmissionDate', $request->month);
+        }
+
+        if ($request->year) {
+            $query->whereYear('inquiry.SubmissionDate', $request->year);
+        }
+
+        if ($request->agency) {
+            $query->where('agency.AgencyID', $request->agency);
+        }
+
+        $inquiries = $query->orderBy('inquiry.SubmissionDate', 'desc')->get();
+        $agencies = DB::table('agency')->get();
+
+        return view('InquiryFormSubmissionUI.MCMC.ReviewInquiry', compact('inquiries', 'agencies'));
     }
 
     // === PUBLIC ===
@@ -91,34 +212,37 @@ class InquiryController extends Controller
 
         $inquiry->save();
 
-        return redirect()->back()->with('success', 'Inquiry submitted successfully.');
+        return redirect()->back()->with('success', 'Form successfully submitted!');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'url' => 'required|url',
-            'evidence' => 'nullable|file|max:5120', // 5MB
+        $validated = $request->validate([
+            'subject' => 'required|string|max:20',
+            'details' => 'required|string|max:30',
+            'type_link' => 'required|url|max:255',
+            'evidence' => 'nullable|file|max:5120',
         ]);
 
-        $inquiry = new Inquiry();
-        $inquiry->title = $request->title;
-        $inquiry->description = $request->description;
-        $inquiry->url = $request->url;
+        $inquiryID = 'IQ' . str_pad(DB::table('inquiries')->count() + 1, 6, '0', STR_PAD_LEFT);
+
+        $filePath = null;
 
         if ($request->hasFile('evidence')) {
-            $file = $request->file('evidence');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('evidence', $filename, 'public');
-            $inquiry->evidence = $filePath;
+            $filePath = $request->file('evidence')->store('evidence', 'public');
         }
 
-        $inquiry->status = 'Submitted';
-        $inquiry->date = now();
-        $inquiry->save();
+        DB::table('inquiries')->insert([
+            'InquiryID' => $inquiryID,
+            'PublicID' => Auth::id(),
+            'InquiryTitle' => $validated['subject'],
+            'InquiryDescription' => $validated['details'],
+            'SubmissionDate' => now(),
+            'SubmissionStatus' => 'Pending',
+            'SubmissionLink' => $validated['type_link'],
+            'SubmissionEvidence' => $filePath ? basename($filePath) : null,
+        ]);
 
-        return response()->json(['message' => 'Inquiry stored successfully.'], 200);
+        return redirect()->back()->with('success', 'Form successfully submitted!');
     }
 }

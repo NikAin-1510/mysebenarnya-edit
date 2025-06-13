@@ -1,35 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Complaint Form</title>
-  <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+@extends('layouts.layout')
 
-</head>
-<body>s
+@section('page-name', 'Frm')
 
-<div class="form-container">
-  <h2>📝 Submit a Complaint</h2>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/Module2/inquiryform.css') }}">
+@endpush
 
-  <form action="/submitComplaint" method="POST" enctype="multipart/form-data">
-    <label for="subject">Complaint Subject:</label>
-    <input type="text" id="subject" name="subject" placeholder="Enter complaint subject" required>
+@section('content')
+<section class="content-header">
+    <h2><i class="fas fa-tasks"></i> Inquiry Form</h2>
+    <p>Fill in the form below to report your complaint with supporting evidence</p>
+</section>
 
-    <label for="typeLink">Complaint Type (URL):</label>
-    <input type="url" id="typeLink" name="type_link" placeholder="Paste a link related to the complaint type" required>
+<section class="content-head2">
+    <!-- ✅ START FORM -->
+    <form method="POST" action="{{ route('complaint.store') }}" enctype="multipart/form-data">
+    @csrf
 
-    <label for="details">Complaint Details:</label>
-    <textarea id="details" name="details" placeholder="Describe your complaint here..." required></textarea>
 
-    <label for="evidence">Evidence (Upload File):</label>
-    <input type="file" id="evidence" name="evidence" accept=".jpg,.jpeg,.png,.pdf,.docx,.mp4,.zip">
+        <!-- Title -->
+        <div class="form-group">
+            <label for="subject">Title:</label>
+            <input type="text" id="subject" name="subject" placeholder="Enter inquiry subject" required>
+        </div>
 
-    <button type="submit">📨 Submit Complaint</button>
-  </form>
-</div>
+        <!-- Description -->
+        <div class="form-group">
+            <label for="details">Inquiry Description:</label>
+            <textarea id="details" name="details" placeholder="Describe your inquiry here..." required></textarea>
+        </div>
 
-</body>
-</html>
+        <!-- URL Link -->
+        <div class="form-group">
+            <label for="typeLink">URL Link:</label>
+            <input type="url" id="typeLink" name="type_link" placeholder="Paste a relevant URL (e.g., source, reference)" required>
+        </div>
+
+        <!-- Evidence Upload -->
+        <div class="form-group">
+            <label for="evidence">Upload Evidence (Optional):</label>
+            <input type="file" id="evidence" name="evidence" accept=".jpg,.jpeg,.png,.pdf,.docx,.mp4,.zip">
+            <span class="file-note">Accepted formats: JPG, PNG, PDF, MP4</span>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+        <button type="submit" class="btn-submit">
+        <i class="fas fa-paper-plane"></i> Submit Complaint</button>
+        </div>
+    </form>
+    <!-- ✅ END FORM -->
+</section>
+@endsection
+
+@push('scripts')
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#a37e27'
+    });
+</script>
+@endif
+@endpush
