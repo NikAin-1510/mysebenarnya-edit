@@ -27,7 +27,7 @@
     height: 130px;
     border-radius: 50%;
     object-fit: cover;
-    border: 5px solid #4a90e2; /* blue circular border */
+    border: 5px solid #6c6c6c58; /* blue circular border */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
 }
@@ -46,4 +46,36 @@
     color: #1d3557;
     display: inline-block;
     width: 130px;
+}
+
+.profile-buttons {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.profile-buttons .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.btn-edit {
+    background-color: #189aca; /* green */
+}
+
+.btn-edit:hover {
+    background-color: #0c5773;
+}
+
+.btn-security {
+    background-color: #ed4f4f; /* blue */
+}
+
+.btn-security:hover {
+    background-color: rgb(124, 45, 45);
 }

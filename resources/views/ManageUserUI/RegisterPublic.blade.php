@@ -14,7 +14,7 @@
       <img src="{{ asset('images/brand.png') }}" alt="brand" class="brand">
     </div>
 
-    <h1>Create Account</h1>
+    <h1>Register as Public User</h1>
 
     {{-- Show Validation Errors --}}
     @if ($errors->any())

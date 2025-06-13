@@ -21,7 +21,7 @@ class LoginController extends Controller
             'role' => 'required'
         ]);
 
-        // Fix: Use correct column names (case-sensitive)
+        // Look up user with correct role
         $user = User::where('Email', $request->email)
                     ->where('Role', $request->role)
                     ->first();
@@ -37,7 +37,12 @@ class LoginController extends Controller
                 'login_at' => now()
             ]);
 
-            // Optional: Save login time to DB
+            // ✅ FIRST TIME LOGIN redirect for AGENCY
+            if ($user->Role === 'agency' && is_null($user->Login_At)) {
+                return redirect()->route('first.time.password')->with('user_id', $user->UserID);
+            }
+
+            // Optional: Save login time to DB (do this only AFTER first time password change)
             $user->Login_At = now();
             $user->save();
 
@@ -63,8 +68,32 @@ class LoginController extends Controller
             }
         }
 
-        // If authentication fails
-        return back()->with('error', 'Invalid credentials.');
+        return back()->with('error', 'Invalid email, password, or role.');
+    }
+
+    public function showFirstTimePasswordForm()
+    {
+        $user = Auth::user();
+
+        if (!$user || $user->Role !== 'agency' || $user->Login_At !== null) {
+            return redirect()->route('home');
+        }
+
+        return view('ManageUserUI.FirstTimeLoginAgency', ['userID' => $user->UserID]);
+    }
+
+    public function saveFirstTimePassword(Request $request)
+    {
+        $request->validate([
+            'new_password' => 'required|confirmed',
+        ]);
+
+        $user = Auth::user();
+        $user->Password = $request->new_password; // or use bcrypt() if you're using hashing later
+        $user->Login_At = now();
+        $user->save();
+
+        return redirect()->route('home')->with('success', 'Password updated successfully.');
     }
 
     public function logout(Request $request)
