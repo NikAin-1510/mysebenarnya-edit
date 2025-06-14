@@ -6,19 +6,19 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 
-    //Login
+//Login
 Route::get('/login', function () {
     return view('ManageUserUI.Login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
-    //First Time Login Change Password for Agency Staff
+//First Time Login Change Password for Agency Staff
 Route::get('/first-time-password', [LoginController::class, 'showFirstTimePasswordForm'])->name('first.time.password');
 Route::post('/first-time-password', [LoginController::class, 'saveFirstTimePassword'])->name('first.time.password.save');
-    //Display Home
+//Display Home
 Route::get('/home', [LoginController::class, 'displayHome'])->name('display.home');
-    //Log Out
+//Log Out
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-    //Public Registration
+//Public Registration
 Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
 Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
 //Module1: MANAGE USER=============================================================================================
@@ -75,9 +75,13 @@ use App\Http\Controllers\TrackingProgressController;
 // agency
 Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
 Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
+Route::post('/agency/updatestatus/save', [TrackingProgressController::class, 'a_SaveStatus']);
+Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_NotifyMCMC']);
+Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
+
 // mcmc
 Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
-Route::get('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
+Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
 Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
 Route::get('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
 // public
@@ -85,6 +89,5 @@ Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p
 Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
 Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
 Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-Route::get('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
 Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
 //Module4: Tracking Progress Controller===========================================================================

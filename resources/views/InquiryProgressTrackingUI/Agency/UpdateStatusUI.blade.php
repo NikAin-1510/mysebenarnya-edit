@@ -31,8 +31,16 @@
         <label for="InvestigationDoc">Upload Document:</label>
         <input type="file" name="InvestigationDoc" id="InvestigationDoc"><br><br>
 
-        <p><strong>Last Updated:</strong> {{ $progress?->VerificationDateTime ?? 'Not yet updated' }}</p>
-        <p><strong>Updated By:</strong> {{ $agency->AgencyName }}</p>
+        <p><strong>Last Updated:</strong>
+        @if($progress?->VerificationStatus == 'Under Investigation')
+            {{ $progress?->InvestigationBeginDate ?? 'Not yet updated' }}
+        @elseif(in_array($progress?->VerificationStatus, ['Verified as True', 'Identified as Fake', 'Rejected']))
+            {{ $progress?->VerificationDateTime ?? 'Not yet updated' }}
+        @else
+            Not yet updated
+        @endif
+</p>
+        <p><strong>Updated By:</strong> {{ Auth::user()->name }}</p>
     </div>
 
     <button type="submit">Submit</button>
@@ -49,6 +57,6 @@
 <form action="{{ url('/agency/request-reassignment') }}" method="POST" style="margin-top: 20px;">
     @csrf
     <input type="hidden" name="InquiryID" value="{{ $inquiryID }}">
-    <button type="submit">Request Reassignment</button>
+    <button type="submit" {{ $progress?->ReassignmentRequested ? 'disabled' : '' }}>Request Reassignment</button>
 </form>
 @endsection

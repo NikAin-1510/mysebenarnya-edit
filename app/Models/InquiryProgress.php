@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class InquiryProgress extends Model
 {
     protected $table = 'inquiryprogress';
@@ -39,4 +40,9 @@ class InquiryProgress extends Model
     {
         return $this->belongsTo(InquiryAssignment::class, 'AssignmentID', 'AssignmentID');
     }
+
+    //public function officer()
+    //{
+    //    return $this->belongsTo(User::class, 'UserID', 'UserID');
+    //}
 }

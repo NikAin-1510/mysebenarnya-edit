@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TrackingProgressController extends Controller
 {
@@ -76,22 +77,63 @@ class TrackingProgressController extends Controller
             'AgencyID' => $request->AgencyID,
             'VerificationStatus' => $request->VerificationStatus,
             'InvestigationDetails' => $request->InvestigationDetails,
-            'VerificationDateTime' => now(),
+            'VerificationDateTime' => now(), // always updated
         ];
 
-        if ($request->hasFile('InvestigationDoc')) {
-            $doc = $request->file('InvestigationDoc')->get();
-            $data['InvestigationDoc'] = $doc;
+        // Only set InvestigationBeginDate if status is 'Under Investigation'
+        if ($request->VerificationStatus === 'Under Investigation' && empty($existing?->InvestigationBeginDate)) {
+            $data['InvestigationBeginDate'] = now();
         }
 
-        DB::table('inquiryprogress')->updateOrInsert(
-            ['InquiryID' => $request->InquiryID, 'AgencyID' => $request->AgencyID],
-            $data
-        );
+        // Handle file upload
+        if ($request->hasFile('InvestigationDoc')) {
+            $filename = $request->file('InvestigationDoc')->store('investigation_docs', 'public');
+            $data['InvestigationDoc'] = $filename;
+        }
 
-        return redirect()->back()->with('success', 'Status updated successfully.');
+        // Check if record exists
+        $existing = DB::table('inquiryprogress')
+            ->where('InquiryID', $request->InquiryID)
+            ->where('AgencyID', $request->AgencyID)
+            ->first();
+
+        if ($existing) {
+            // ✅ Update existing progress
+            DB::table('inquiryprogress')
+                ->where('InquiryID', $request->InquiryID)
+                ->where('AgencyID', $request->AgencyID)
+                ->update($data);
+        } else {
+            // ✅ Insert new record with generated StatusID
+            $data['StatusID'] = 'ST' . strtoupper(Str::random(6));
+            DB::table('inquiryprogress')->insert($data);
+        }
+
+        return redirect()->route('agency.assign.form')->with('success', 'Inquiry updated successfully.');
     }
 
+    public function a_NotifyMCMC(Request $request)
+    {
+        $inquiryID = $request->InquiryID;
+        // Logic to send MCMC notification or update DB flag
+        return redirect()->back()->with('success', 'MCMC has been notified.');
+    }
+
+    public function a_RequestReassignment(Request $request)
+    {
+        $inquiryID = $request->InquiryID;
+        $userID = Auth::user()->UserID;
+
+        $agency = DB::table('agency')->where('UserID', $userID)->first();
+
+        // Update the reassignment request flag
+        DB::table('inquiryprogress')
+            ->where('InquiryID', $inquiryID)
+            ->where('AgencyID', $agency->AgencyID)
+            ->update(['ReassignmentRequested' => true]);
+
+        return redirect()->back()->with('success', 'Reassignment requested.');
+    }
 
     //mcmc
     public function m_CreateReport()
@@ -99,9 +141,23 @@ class TrackingProgressController extends Controller
         return view('SharedUI.CreateReportUI');
     }
 
-    public function m_InquiryDetails()
+
+    public function m_InquiryProgress(Request $request)
     {
-        return view('InquiryProgressTrackingUI.MCMC.MonitorProgressUI');
+        $inquiryID = $request->query('id');
+
+        $inquiry = DB::table('inquiry')->where('InquiryID', $inquiryID)->first();
+
+        $progressList = DB::table('inquiryprogress')
+            ->join('agency', 'inquiryprogress.AgencyID', '=', 'agency.AgencyID')
+            ->where('inquiryprogress.InquiryID', $inquiryID)
+            ->select('inquiryprogress.*', 'agency.AgencyName')
+            ->get();
+
+        return view('InquiryProgressTrackingUI.MCMC.MonitorProgressUI', [
+            'inquiry' => $inquiry,
+            'progressList' => $progressList
+        ]);
     }
 
     public function m_DisplayReport()
