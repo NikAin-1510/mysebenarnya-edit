@@ -7,171 +7,109 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response; // ✅ Add this line
 use App\Models\Inquiry;
-use Illuminate\Support\Str;
+use App\Models\Agency;
 
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class InquiryController extends Controller
 {
     // === AGENCY ===
-    public function a_DisplayReport()
+
+
+    public function a_ListAssignedInquiry(Request $request)
     {
-        return view('InquiryFormSubmissionUI.Agency.DisplayReportUI');
+        $agencyId = Auth::user()->AgencyID;
+
+        $query = Inquiry::where('AgencyID', $agencyId);
+
+        if ($request->status) {
+            $query->where('InvestigationStatus', $request->status);
+        }
+
+        if ($request->category) {
+            $query->where('SubmissionCategory', $request->category);
+        }
+
+        if ($request->date) {
+            $query->whereMonth('SubmissionDate', '=', date('m', strtotime($request->date)))
+                ->whereYear('SubmissionDate', '=', date('Y', strtotime($request->date)));
+        }
+
+        $assignedInquiries = $query->orderBy('SubmissionDate', 'desc')->get();
+
+        return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
     }
 
-    public function a_HistoryInquiry()
+
+    public function a_ReviewInquiry($id)
     {
-        return view('InquiryFormSubmissionUI.Agency.HistoryInquiryUI');
+        $inquiry = Inquiry::findOrFail($id);
+        $historyLogs = InquiryLog::where('InquiryID', $id)->orderBy('created_at', 'desc')->get();
+
+        return view('InquiryFormSubmissionUI.Agency.ReviewInquiryUI', compact('inquiry', 'historyLogs'));
     }
 
-    public function a_ListAssignedInquiry()
-    {
-        return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI');
-    }
 
-    public function a_ReviewInquiry()
-    {
-        return view('InquiryFormSubmissionUI.Agency.ReviewInquiryUI');
-    }
+
+
+
 
     // === MCMC ===
-    public function m_ListInquiry()
-    {
-        return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI');
-    }
 
-    public function m_FilteredInquiry()
-    {
-        return view('InquiryFormSubmissionUI.MCMC.FilteredInquiryUI'); // fix path if needed
-    }
-    public function index(Request $request)
-    {
-        $agencies = DB::table('agency')->get();
 
-        $query = DB::table('inquiry')
+
+    //DISPLAY REPORT
+
+    public function m_DisplayReport(Request $request)
+    {
+        // Filter logic (optional based on month/year/agency)
+        $inquiries = DB::table('inquiry')
             ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
             ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
             ->select('inquiry.*', 'agency.AgencyName');
 
-        if ($request->date) {
-            $query->whereDate('inquiry.SubmissionDate', $request->date);
-        }
-
-        if ($request->status) {
-            $query->where('inquiry.SubmissionStatus', $request->status);
-        }
-
-        if ($request->agency) {
-            $query->where('agency.AgencyID', $request->agency);
-        }
-
-        $inquiries = $query->orderBy('SubmissionDate', 'desc')->get();
-
-        return view('InquiryFormSubmissionUI.MCMC.PreviousInquiriesUI', compact('inquiries', 'agencies'));
-    }
-
-    public function downloadFilteredInquiries(Request $request)
-    {
-        $query = DB::table('inquiry')
-            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
-            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
-            ->select('inquiry.InquiryTitle', 'inquiry.InquiryDescription', 'inquiry.SubmissionDate', 'agency.AgencyName', 'inquiry.SubmissionStatus');
-
-        if ($request->date) {
-            $query->whereDate('inquiry.SubmissionDate', $request->date);
-        }
-
-        if ($request->status) {
-            $query->where('inquiry.SubmissionStatus', $request->status);
-        }
-
-        if ($request->agency) {
-            $query->where('agency.AgencyID', $request->agency);
-        }
-
-        $results = $query->get();
-
-        $csvData = [];
-        $csvData[] = ['Inquiry Title', 'Description', 'Submission Date', 'Agency', 'Status'];
-
-        foreach ($results as $row) {
-            $csvData[] = [
-                $row->InquiryTitle,
-                $row->InquiryDescription,
-                \Carbon\Carbon::parse($row->SubmissionDate)->format('d M Y'),
-                $row->AgencyName ?? 'Unassigned',
-                ucfirst($row->SubmissionStatus),
-            ];
-        }
-
-        $filename = 'filtered_inquiries_' . now()->format('Ymd_His') . '.csv';
-        $handle = fopen('php://temp', 'r+');
-        foreach ($csvData as $line) {
-            fputcsv($handle, $line);
-        }
-        rewind($handle);
-        $content = stream_get_contents($handle);
-        fclose($handle);
-
-        return Response::make($content, 200, [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-        ]);
-    }
-    public function showPreviousInquiries(Request $request)
-    {
-        $query = DB::table('inquiry')
-            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
-            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
-            ->select('inquiry.*', 'agency.AgencyName', 'inquiry.SubmissionStatus');
-
-        if ($request->date) {
-            $query->whereDate('inquiry.SubmissionDate', $request->date);
-        }
-
-        if ($request->status) {
-            $query->where('inquiryassignment.Status', $request->status);
-        }
-
-        if ($request->agency) {
-            $query->where('agency.AgencyName', $request->agency);
-        }
-
-        $inquiries = $query->orderBy('inquiry.SubmissionDate', 'desc')->get();
-        $agencies = DB::table('agency')->get();
-
-        return view('InquiryFormSubmissionUI.MCMC.FilteredInquiryUI', compact('inquiries', 'agencies'));
-    }
-
-
-    public function m_DetailsInquiry()
-    {
-        return view('InquiryFormSubmissionUI.MCMC.DetailsInquiryUI'); // fix if reused
-    }
-
-    public function m_ReviewInquiry(Request $request)
-    {
-        $query = DB::table('inquiry')
-            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
-            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
-            ->select('inquiry.*', 'agency.AgencyName');
-
+        // Apply filters
         if ($request->month) {
-            $query->whereMonth('inquiry.SubmissionDate', $request->month);
+            $inquiries->whereMonth('SubmissionDate', $request->month);
         }
 
         if ($request->year) {
-            $query->whereYear('inquiry.SubmissionDate', $request->year);
+            $inquiries->whereYear('SubmissionDate', $request->year);
         }
 
         if ($request->agency) {
-            $query->where('agency.AgencyID', $request->agency);
+            $inquiries->where('agency.AgencyID', $request->agency);
         }
 
-        $inquiries = $query->orderBy('inquiry.SubmissionDate', 'desc')->get();
+        $inquiries = $inquiries->get();
+
+        // Build monthly chart data
+        $monthlyCounts = DB::table('inquiry')
+            ->select(
+                DB::raw('MONTH(SubmissionDate) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy(DB::raw('MONTH(SubmissionDate)'))
+            ->orderBy('month')
+            ->pluck('total', 'month');
+
+        $chartData = [
+            'labels' => [],
+            'data' => []
+        ];
+
+        foreach (range(1, 12) as $m) {
+            $chartData['labels'][] = date('F', mktime(0, 0, 0, $m, 1));
+            $chartData['data'][] = $monthlyCounts[$m] ?? 0;
+        }
+
         $agencies = DB::table('agency')->get();
 
-        return view('InquiryFormSubmissionUI.MCMC.ReviewInquiry', compact('inquiries', 'agencies'));
+        return view('InquiryFormSubmissionUI.MCMC.DisplayReportUI', compact('inquiries', 'agencies', 'chartData'));
     }
+
+    //-----
 
     // === PUBLIC ===
     public function p_ListInquiry()
@@ -181,9 +119,18 @@ class InquiryController extends Controller
 
     public function p_DetailsOwnInquiry()
     {
-        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI');
+        $userID = auth()->id(); // or use auth()->user()->id
+
+        $inquiries = Inquiry::where('UserID', $userID)
+            ->orderBy('SubmissionDate', 'desc')
+            ->get();
+
+        return view('InquiryFormSubmission.Public.DetailsOwnInquiryUI', compact('inquiries'));
     }
 
+
+
+    // INQUIRY FORM //
     public function p_InquiryForm(Request $request)
     {
         $request->validate([
@@ -244,5 +191,69 @@ class InquiryController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Form successfully submitted!');
+    }
+
+    //------
+
+
+    // LIST INQUIRY
+    public function m_ListInquiry()
+    {
+        $inquiries = DB::table('inquiry')
+            ->join('publicuser', 'inquiry.publicID', '=', 'publicuser.publicID')
+            ->join('user', 'publicuser.userID', '=', 'user.UserID')
+            ->where('user.Role', 'publicuser')
+            ->orderBy('inquiry.SubmissionDate', 'desc')
+            ->select('inquiry.*')
+            ->get();
+
+        return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiries'));
+    }
+    //----
+
+    // DETAILS INQUIRY
+    public function UpdateCategory(Request $request, $id)
+    {
+        $request->validate([
+            'SubmissionCategory' => 'required|in:Genuine,NonSerious',
+        ]);
+
+        $inquiry = Inquiry::where('PublicID', $id)->firstOrFail();
+        $inquiry->SubmissionCategory = $request->SubmissionCategory;
+        $inquiry->save();
+
+        return back()->with('success', 'Category updated.');
+    }
+
+    public function m_DetailsInquiry($id)
+    {
+        $inquiry = Inquiry::where('PublicID', $id)->firstOrFail();
+        return view('InquiryFormSubmissionUI.MCMC.DetailsInquiryUI', compact('inquiry'));
+    }
+
+    //-----
+
+    // LIST ALL INQUIRY
+
+    public function m_ListAllInquiry(Request $request)
+    {
+        $query = Inquiry::query();
+
+        if ($request->filled('status')) {
+            $query->where('SubmissionCategory', $request->status);
+        }
+
+        if ($request->filled('agency')) {
+            $query->where('AssignedAgencyID', $request->agency);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('SubmissionDate', [$request->start_date, $request->end_date]);
+        }
+
+        $inquiries = $query->orderByDesc('SubmissionDate')->get();
+        $agencies = Agency::all();
+
+        return view('InquiryFormSubmissionUI.MCMC.ListAllInquiryUI', compact('inquiries', 'agencies'));
     }
 }

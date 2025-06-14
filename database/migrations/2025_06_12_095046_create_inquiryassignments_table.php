@@ -8,7 +8,7 @@ class CreateInquiryasssignmentTable extends Migration
 {
     public function up()
     {
-        Schema::create('inquiryasssignment', function (Blueprint $table) {
+        Schema::create('inquiryassignment', function (Blueprint $table) {
             $table->string('AssignmentID', 8)->primary();
             $table->string('AgencyID', 8);
             $table->string('mcmcID', 8);

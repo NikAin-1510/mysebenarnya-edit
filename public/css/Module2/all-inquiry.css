@@ -1,0 +1,122 @@
+
+
+.content {
+  margin-left: 240px;
+  padding: 2rem;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #1d3557;
+}
+
+.dashboard-header p {
+  color: #6c757d;
+}
+
+.filter-form {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.filter-form input,
+.filter-form select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.filter-form button {
+  background: #1d3557;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.filter-form button:hover {
+  background: #16324f;
+}
+
+.inquiries-section {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.inquiry-card {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.inquiry-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.inquiry-title {
+  font-size: 1.2rem;
+  color: #1d3557;
+  margin: 0.5rem 0;
+}
+
+.inquiry-description {
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.inquiry-dates div {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.inquiry-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.btn-view {
+  background: #007bff;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.btn-view:hover {
+  background: #0056b3;
+}
+
+.badge-genuine {
+  background-color: #28a745;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.badge-nonserious {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
