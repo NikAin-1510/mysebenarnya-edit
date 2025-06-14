@@ -11,6 +11,7 @@ class InquiryProgress extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
+
     protected $fillable = [
         'StatusID',
         'InquiryID',
@@ -20,9 +21,10 @@ class InquiryProgress extends Model
         'VerificationStatus',
         'VerificationDateTime',
         'InvestigationDetails',
+        'InvestigationDoc'
     ];
 
-
+    // Relationships
     public function inquiry()
     {
         return $this->belongsTo(Inquiry::class, 'InquiryID', 'InquiryID');

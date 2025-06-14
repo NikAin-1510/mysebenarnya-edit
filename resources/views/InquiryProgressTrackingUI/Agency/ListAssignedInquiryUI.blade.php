@@ -14,7 +14,7 @@
         </tr>
         @forelse($assignedInquiries as $inquiry)
         <tr>
-            <td>{{ $inquiry->InquiryTitle }}</td>
+            <td><a href="{{ url('/agency/updatestatus?id=' . $inquiry->InquiryID) }}">{{ $inquiry->InquiryTitle }}</a></td>
             <td>{{ $inquiry->AssignDate }}</td>
             <td>
                 @if($inquiry->VerificationStatus)
@@ -22,7 +22,7 @@
                 @elseif($inquiry->InvestigationBeginDate)
                     Under Investigation
                 @else
-                    -
+                    Pending
                 @endif
             </td>
         </tr>
