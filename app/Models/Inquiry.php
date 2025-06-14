@@ -9,7 +9,7 @@ class Inquiry extends Model
 {
     protected $table = 'inquiries';
     protected $primaryKey = 'InquiryID';
-    public $incrementing = false; // because InquiryID is a string, not auto-increment
+    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -21,6 +21,7 @@ class Inquiry extends Model
         'SubmissionStatus',
         'SubmissionLink',
         'SubmissionEvidence',
+        'SubmissionCategory', // Add the new field here
     ];
 
     protected static function boot()
@@ -35,6 +36,11 @@ class Inquiry extends Model
 
             if (!$inquiry->SubmissionDate) {
                 $inquiry->SubmissionDate = now();
+            }
+
+            // Default value if not provided
+            if (!$inquiry->SubmissionCategory) {
+                $inquiry->SubmissionCategory = 'Genuine';
             }
         });
     }
