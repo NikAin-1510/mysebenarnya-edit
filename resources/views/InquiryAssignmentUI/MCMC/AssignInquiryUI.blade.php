@@ -1,29 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assign Inquiry</title>
-    <link rel="stylesheet" href="{{ asset('css/mcmc-dashboard.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-</head>
-<body>
-    <div class="main-header">
-        <div class="logo-container">
-        <img src="{{ asset('images/logo.png') }}" alt="umpsa" class="umpsa">
-        <img src="{{ asset('images/brand.png') }}" alt="brand" class="brand">
-    </div>
-        <span class="page-name">MySebenarnya</span>
-    </div>
-
-    <div class="sidebar">
-        <ul>
-            <li><a href="{{ route('agency.review.inquiry') }}"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="{{ route('agency.assign.form') }}" class="active"><i class="fas fa-tasks"></i> Assign Inquiries</a></li>
-            <li><a href="{{ route('agency.display.report') }}"><i class="fas fa-chart-line"></i> Generate Reports</a></li>
-        </ul>
-    </div>
-
+@extends('layouts.layout')
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/Module3/mcmc-dashboard.css') }}">
+@endpush
     <section class="content">
         <div class="content-header">
             <h1>Assign Inquiries to Agencies</h1>
