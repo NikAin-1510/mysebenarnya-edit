@@ -83,11 +83,10 @@ Route::post('/agency/request-reassignment', [TrackingProgressController::class, 
 Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
 Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
 Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
-Route::get('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
 // public
-Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
+Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
 Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
 Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry']);
 //Module4: Tracking Progress Controller===========================================================================

@@ -114,26 +114,25 @@ class TrackingProgressController extends Controller
 
     public function a_NotifyMCMC(Request $request)
     {
-        $inquiryID = $request->InquiryID;
-        // Logic to send MCMC notification or update DB flag
-        return redirect()->back()->with('success', 'MCMC has been notified.');
-    }
+        $request->validate([
+            'InquiryID' => 'required',
+            'Notify' => 'required|in:Further clarification needed,Inquiry is completed,Reassignment requested',
+        ]);
 
-    public function a_RequestReassignment(Request $request)
-    {
-        $inquiryID = $request->InquiryID;
         $userID = Auth::user()->UserID;
 
         $agency = DB::table('agency')->where('UserID', $userID)->first();
 
-        // Update the reassignment request flag
         DB::table('inquiryprogress')
-            ->where('InquiryID', $inquiryID)
+            ->where('InquiryID', $request->InquiryID)
             ->where('AgencyID', $agency->AgencyID)
-            ->update(['ReassignmentRequested' => true]);
+            ->update([
+                'Notify' => $request->Notify,
+            ]);
 
-        return redirect()->back()->with('success', 'Reassignment requested.');
+        return redirect()->back()->with('success', 'MCMC has been notified: ' . $request->Notify);
     }
+
 
     //mcmc
     public function m_CreateReport()
@@ -167,23 +166,144 @@ class TrackingProgressController extends Controller
 
 
     //public
-    public function p_OwnInquiryDetails()
+    public function p_OwnInquiryProg(Request $request)
     {
-        return view('InquiryProgressTrackingUI.Public.ProgOwnInquiryUI');
+        $inquiryID = $request->query('id'); // ?id=IQ000123
+
+        if (!$inquiryID) {
+            abort(404, 'Inquiry ID not provided.');
+        }
+
+        $userID = Auth::user()->UserID;
+
+        // Make sure this inquiry belongs to the current public user
+        $inquiry = DB::table('inquiry')
+            ->where('InquiryID', $inquiryID)
+            ->where('PublicID', $userID)
+            ->first();
+
+        if (!$inquiry) {
+            abort(403, 'You are not authorized to view this inquiry.');
+        }
+
+        // Get progress list for this inquiry
+        $progressList = DB::table('inquiryprogress')
+            ->where('InquiryID', $inquiryID)
+            ->get();
+
+        return view('InquiryProgressTrackingUI.Public.ProgOwnInquiryUI', [
+            'inquiry' => $inquiry,
+            'progressList' => $progressList,
+            'message' => $progressList->isEmpty() ? 'No agencies have submitted progress yet for this inquiry.' : null
+        ]);
     }
 
-    public function p_NotificationDetails()
+    public function p_NotificationDetails(Request $request)
     {
-        return view('InquiryProgressTrackingUI.Public.NotificationDetailsUI');
+        $inquiryID = $request->query('id');
+        $userID = Auth::user()->UserID;
+
+        // Get the inquiry submitted by this user
+        $inquiry = DB::table('inquiry')
+            ->where('InquiryID', $inquiryID)
+            ->where('PublicID', $userID)
+            ->first();
+
+        if (!$inquiry) {
+            abort(403, 'Unauthorized or invalid inquiry.');
+        }
+
+        // Get latest progress
+        $latestProgress = DB::table('inquiryprogress')
+            ->where('InquiryID', $inquiryID)
+            ->orderByDesc('VerificationDateTime')
+            ->orderByDesc('InvestigationBeginDate')
+            ->first();
+
+        return view('InquiryProgressTrackingUI.Public.NotificationDetailsUI', [
+            'inquiry' => $inquiry,
+            'latestProgress' => $latestProgress,
+        ]);
     }
+
 
     public function p_NotificationList()
     {
-        return view('InquiryProgressTrackingUI.Public.NotificationListUI');
+        $userID = Auth::user()->UserID;
+
+        // Get only the inquiries created by this user
+        $notifications = DB::table('inquiryprogress')
+            ->join('inquiry', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
+            ->where('inquiry.PublicID', $userID)
+            ->where(function ($query) {
+                $query->whereNotNull('inquiryprogress.InvestigationBeginDate')
+                    ->orWhereNotNull('inquiryprogress.VerificationStatus');
+            })
+            ->select(
+                'inquiry.InquiryID',
+                'inquiry.InquiryTitle',
+                'inquiryprogress.InvestigationBeginDate',
+                'inquiryprogress.VerificationStatus',
+                'inquiryprogress.VerificationDateTime'
+            )
+            ->orderByDesc('inquiryprogress.VerificationDateTime')
+            ->get();
+
+        return view('InquiryProgressTrackingUI.Public.NotificationListUI', [
+            'notifications' => $notifications
+        ]);
     }
 
-    public function p_InquiryDetails()
+    public function p_ProgAllInquiry(Request $request)
     {
-        return view('InquiryProgressTrackingUI.Public.ProgAllInquiryUI');
+        $inquiryID = $request->query('id');
+
+        if (!$inquiryID) {
+            abort(404, 'Inquiry ID not provided.');
+        }
+
+        $inquiry = DB::table('inquiry')->where('InquiryID', $inquiryID)->first();
+
+        if (!$inquiry) {
+            abort(404, 'Inquiry not found.');
+        }
+
+        $progressList = DB::table('inquiryprogress')
+            ->where('InquiryID', $inquiryID)
+            ->get(); // Removed agency join and AgencyName select
+
+        return view('InquiryProgressTrackingUI.Public.ProgAllInquiryUI', [
+            'inquiry' => $inquiry,
+            'progressList' => $progressList
+        ]);
+    }
+
+    public function p_ListAllInquiry(Request $request)
+    {
+        $userID = Auth::user()->UserID;
+
+        $statusFilter = $request->input('status'); // 'Under Investigation', 'Verified as True', 'Identified as Fake'
+        $ownOnly = $request->input('own_only'); // 'on' if checked
+
+        $query = DB::table('inquiry')
+            ->join('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
+            ->select('inquiry.*', 'inquiryprogress.VerificationStatus');
+
+        if ($statusFilter) {
+            $query->where('inquiryprogress.VerificationStatus', $statusFilter);
+        }
+
+        if ($ownOnly) {
+            $query->join('publicuser', 'inquiry.PublicID', '=', 'publicuser.PublicID')
+                ->where('publicuser.UserID', $userID);
+        }
+
+        $inquiries = $query->get();
+
+        return view('InquiryProgressTrackingUI.Public.ListAllInquiryUI', [
+            'inquiries' => $inquiries,
+            'statusFilter' => $statusFilter,
+            'ownOnly' => $ownOnly
+        ]);
     }
 }

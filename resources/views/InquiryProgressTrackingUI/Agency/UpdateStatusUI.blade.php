@@ -43,20 +43,17 @@
         <p><strong>Updated By:</strong> {{ Auth::user()->name }}</p>
     </div>
 
+    <label for="notify-option">Notify MCMC:</label>
+        <select name="Notify" id="notify-option" required>
+            <option value="">--Select Notification--</option>
+            <option value="Further clarification needed" {{ $progress?->Notify == 'Further clarification needed' ? 'selected' : '' }}>Further clarification needed</option>
+            <option value="Inquiry is completed" {{ $progress?->Notify == 'Inquiry is completed' ? 'selected' : '' }}>Inquiry is completed</option>
+            <option value="Reassignment requested" {{ $progress?->Notify == 'Reassignment requested' ? 'selected' : '' }}>Reassignment requested</option>
+        </select>
+
+        <button type="submit">Submit Notification</button>
+
     <button type="submit">Submit</button>
 </form>
 
-@if(in_array($progress?->VerificationStatus, ['Verified as True', 'Identified as Fake', 'Rejected']))
-    <form action="{{ url('/agency/notify-mcmc') }}" method="POST" style="margin-top: 20px;">
-        @csrf
-        <input type="hidden" name="InquiryID" value="{{ $inquiryID }}">
-        <button type="submit">Notify MCMC</button>
-    </form>
-@endif
-
-<form action="{{ url('/agency/request-reassignment') }}" method="POST" style="margin-top: 20px;">
-    @csrf
-    <input type="hidden" name="InquiryID" value="{{ $inquiryID }}">
-    <button type="submit" {{ $progress?->ReassignmentRequested ? 'disabled' : '' }}>Request Reassignment</button>
-</form>
 @endsection
