@@ -3,7 +3,7 @@
 @endphp
 
 @extends('layouts.layout')
-
+@section('page-name', 'View User Data')
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/Module1/viewuserdata.css') }}">
 @endpush

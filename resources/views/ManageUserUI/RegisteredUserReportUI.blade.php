@@ -1,5 +1,5 @@
 @extends('layouts.layout')
-
+@section('page-name', 'Registered User Report')
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/Module1/userreports.css') }}">
 

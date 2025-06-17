@@ -1,5 +1,5 @@
 @extends('layouts.layout')
-
+@section('page-name', 'View All Users')
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/Module1/viewallusers.css') }}">
 @endpush
