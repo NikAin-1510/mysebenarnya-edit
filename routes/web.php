@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-//Module1: MANAGE USER=============================================================================================
+//Module1: Manage User=============================================================================================
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 
@@ -19,34 +19,34 @@ Route::post('/register', [UserProfileController::class, 'store'])->name('public.
 Route::middleware(['auth'])->group(function () {
 //4.Display Home
 Route::get('/home', [LoginController::class, 'displayHome'])->name('display.home');
-//Log Out
+//5.Log Out
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-//View Profile
+//6.View Profile
 Route::get('/profile', [UserProfileController::class, 'view'])->name('view.profile');
 //Edit Profile
 Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('edit.profile');
 Route::put('/profile/save-edit', [UserProfileController::class, 'saveEdit'])->name('edit.profile.save');
 
 
-//Update Security
+//7.Update Security
 Route::get('/update-security', [UserProfileController::class, 'showUpdateSecurityForm'])->name('showUpdateSecurityForm.security');
 Route::put('/update-security-save', [UserProfileController::class, 'updateSecurity'])->name('update.security');
-//Register Agency
+//8.Register Agency
 Route::get('/register-agency', [UserProfileController::class, 'showRegisterAgency'])->name('show.register.agency');
 Route::post('/register-agency', [UserProfileController::class, 'registerAgency'])->name('register.agency');
-//View Users List
+//9.View Users List
 Route::get('/userlist', [UserProfileController::class, 'viewAllUsers'])->name('view.all.users');
-//View User Data
+//10.View User Data
 Route::get('/users/{id}/view', [UserProfileController::class, 'viewUserData'])->name('view.user.data');
-//ReportDashboard
+//11.ReportDashboard
 Route::get('/report/dashboard', [UserProfileController::class, 'displayReportDashboard'])->name('show.reportDashboard');
-//UserReports
+//12.UserReports
 Route::get('/user-report', [UserProfileController::class, 'showUserReport'])->name('show.registeredUserReport');
 Route::get('/user-report/pdf', [UserProfileController::class, 'downloadPdf'])->name('registeredUserReport.download');
 });
-//Module1: MANAGE USER=============================================================================================
+//Module1: Manage User=============================================================================================
 
 
 

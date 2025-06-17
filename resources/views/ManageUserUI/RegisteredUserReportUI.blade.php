@@ -61,7 +61,7 @@
         <label for="role">Select Role:</label>
         <select name="role">
             <option value="publicuser" {{ request('role') == 'publicuser' ? 'selected' : '' }}>Public User</option>
-            <option value="mcmc" {{ request('role') == 'mcmc' ? 'selected' : '' }}>MCMC Staff</option>
+            <option value="agency" {{ request('role') == 'agency' ? 'selected' : '' }}>Agency</option>
         </select>
     </div>
 
@@ -79,7 +79,7 @@
     <button type="submit">Apply Filter</button>
 </form>
 
-<form method="GET" action="{{ route('userReport.download') }}">
+<form method="GET" action="{{ route('registeredUserReport.download') }}">
     {{-- keep the filters on PDF download too --}}
     <input type="hidden" name="filter_by" value="{{ request('filter_by') }}">
     <input type="hidden" name="date" value="{{ request('date') }}">

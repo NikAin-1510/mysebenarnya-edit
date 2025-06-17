@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.layout')
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/reportdashboard.css') }}">
