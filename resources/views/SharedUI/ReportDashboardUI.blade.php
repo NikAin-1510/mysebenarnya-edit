@@ -1,7 +1,7 @@
 @extends('layout')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/Module1/reportdashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('css/reportdashboard.css') }}">
 @endpush
 
 @section('page-name', 'Report Dashboard')
