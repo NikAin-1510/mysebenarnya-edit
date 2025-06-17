@@ -14,10 +14,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
+
 class InquiryController extends Controller
 {
     // === AGENCY ===
-
 
     public function a_ListAssignedInquiry(Request $request)
     {
@@ -48,12 +48,8 @@ class InquiryController extends Controller
         return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
     }
 
-
-
     public function a_ReviewInquiry($id)
     {
-        //$inquiry = Inquiry::findOrFail($id);
-        // $historyLogs = InquiryLog::where('InquiryID', $id)->orderBy('created_at', 'desc')->get();
 
         return view('InquiryFormSubmissionUI.Agency.ReviewInquiryUI', compact('inquiry', 'historyLogs'));
     }
@@ -139,35 +135,25 @@ class InquiryController extends Controller
         return $query->get();
     }
 
-    public function exportReportToPDF(Request $request)
-    {
-        $inquiries = $this->filterReportData($request);
-        $pdf = PDF::loadView('exports.mcmc-report-pdf', compact('inquiries'));
-        return $pdf->download('inquiry_report.pdf');
-    }
+    public function exportReportToPDF(Request $request) {}
 
 
-    public function exportReportToExcel(Request $request)
-    {
-        $inquiries = $this->filterReportData($request);
-        return Excel::download(new ReportExport($inquiries), 'inquiry_report.xlsx');
-    }
+    public function exportReportToExcel(Request $request) {}
 
 
-
-    //-----
 
     // === PUBLIC ===
 
+
     public function p_DetailsOwnInquiry()
     {
-        //  $userID = auth()->id(); // or use auth()->user()->id
+        $userID = auth()->id(); // or use auth()->user()->id
 
-        //  $inquiries = Inquiry::where('UserID', $userID)
-        //     ->orderBy('SubmissionDate', 'desc')
-        //     ->get();
+        $inquiries = Inquiry::where('UserID', $userID)
+            ->orderBy('SubmissionDate', 'desc')
+            ->get();
 
-        return view('InquiryFormSubmission.Public.DetailsOwnInquiryUI', compact('inquiries'));
+        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact('inquiries'));
     }
 
 
@@ -204,26 +190,30 @@ class InquiryController extends Controller
         return redirect()->back()->with('success', 'Form successfully submitted!');
     }
 
+    public function create()
+    {
+        return view('InquiryFormSubmissionUI.Public.InquiryFormUI');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'subject' => 'required|string|max:20',
-            'details' => 'required|string|max:30',
+            'subject' => 'required|string|max:100',
+            'details' => 'required|string|max:1000',
             'type_link' => 'required|url|max:255',
-            'evidence' => 'nullable|file|max:5120',
+            'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
 
-        $inquiryID = 'IQ' . str_pad(DB::table('inquiries')->count() + 1, 6, '0', STR_PAD_LEFT);
+        $inquiryID = 'IQ' . str_pad(DB::table('inquiry')->count() + 1, 6, '0', STR_PAD_LEFT);
 
         $filePath = null;
-
         if ($request->hasFile('evidence')) {
             $filePath = $request->file('evidence')->store('evidence', 'public');
         }
 
-        DB::table('inquiries')->insert([
+        DB::table('inquiry')->insert([
             'InquiryID' => $inquiryID,
-            'PublicID' => Auth::id(),
+            'PublicID' => Auth::user()->publicUser->PublicID,
             'InquiryTitle' => $validated['subject'],
             'InquiryDescription' => $validated['details'],
             'SubmissionDate' => now(),
@@ -232,10 +222,11 @@ class InquiryController extends Controller
             'SubmissionEvidence' => $filePath ? basename($filePath) : null,
         ]);
 
-        return redirect()->back()->with('success', 'Form successfully submitted!');
+        return redirect()->route('inquiry.form')->with('success', 'Form successfully submitted!');
     }
 
-    //------
+
+
 
 
     // LIST INQUIRY

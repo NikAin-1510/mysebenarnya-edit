@@ -32,10 +32,18 @@ class User extends Authenticatable
     protected $hidden = ['Password'];
 
     // Relationships
-    public function publicuser()
+    // User.php
+    public function publicProfile()
+    {
+        return $this->hasOne(PublicUser::class, 'UserID'); // or whatever model you use
+    }
+    // app/Models/User.php
+    public function publicUser()
     {
         return $this->hasOne(PublicUser::class, 'UserID', 'UserID');
     }
+
+
 
     public function mcmc()
     {

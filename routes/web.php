@@ -30,25 +30,44 @@ Route::get('/public/notification-list', [TrackingProgressController::class, 'p_N
 Route::get('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
 Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
 
+
+
 // Inquiry Form Submission
 use App\Http\Controllers\InquiryController;
 // agency
-Route::get('/agency/list-assigned-inquiry', [InquiryController::class, 'a_ListAssignedInquiry']);
-Route::get('/agency/history-inquiry', [InquiryController::class, 'a_HistoryInquiry']);
 Route::get('/agency/review-inquiry', [InquiryController::class, 'a_ReviewInquiry']);
-Route::get('/agency/display-report', [InquiryController::class, 'a_DisplayReport']);
+Route::get('/agency/list-assigned-inquiry', [InquiryController::class, 'a_ListAssignedInquiry'])->name('agency.list.assigned');
+Route::get('/agency/inquiry/review/{id}', [InquiryController::class, 'a_ReviewInquiry'])->name('agency.review.inquiry');
+
 
 // mcmc
 Route::get('/mcmc/details-inquiry', [InquiryController::class, 'm_DetailsInquiry']);
-Route::get('/mcmc/filtered-inquiry', [InquiryController::class, 'm_FilteredInquiry']);
-Route::get('/mcmc/review-inquiry', [InquiryController::class, 'm_ReviewInquiry']);
-Route::get('/mcmc/list-inquiry', [InquiryController::class, 'm_ListInquiry']);
+Route::get('/mcmc/list-inquiry', [InquiryController::class, 'm_ListInquiry'])->name('mcmc.inquiries');
+Route::get('/previous-inquiries/download', [InquiryController::class, 'downloadFilteredInquiries'])->name('inquiries.download');
+Route::get('/display-report', [InquiryController::class, 'm_DisplayReport'])->name('mcmc.display.report');
+Route::get('/mcmc/export/report/pdf', [InquiryController::class, 'exportReportToPDF'])->name('mcmc.export.pdf');
+Route::get('/mcmc/export/report/excel', [InquiryController::class, 'exportReportToExcel'])->name('mcmc.export.excel');
+Route::get('/mcmc/inquiry/{id}', [InquiryController::class, 'm_DetailsInquiry'])->name('inquiry.view');
+Route::put('/inquiry/update-category/{id}', [InquiryController::class, 'UpdateCategory'])->name('inquiry.update.category');
+Route::get('/mcmc/allinquiry', [InquiryController::class, 'm_ListAllInquiry'])->name('mcmc.all.inquiry');
+
 
 // public
 Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsOwnInquiry']);
-Route::get('/public/inquiry-form', [InquiryController::class, 'p_InquiryForm']);
+
 Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
-Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name('inquiry.store');
+Route::post('/complaint/store', [InquiryController::class, 'store'])->name('complaint.store');
+// Show the public inquiry form (GET)
+
+// Show the form (GET)
+Route::get('/inquiry/form', [InquiryController::class, 'create'])->name('inquiry.form');
+// Handle form submission (POST)
+Route::post('/inquiry/submit', [InquiryController::class, 'store'])->name('inquiry.submit');
+
+Route::get('/inquiries/{id}/view', [InquiryController::class, 'view'])->name('inquiry.view');
+
+Route::get('/public/details-inquiry', [InquiryController::class, 'P_DetailsOwnInquiry'])->name('public.details.inquiry');
+
 
 
 // Inquiry Assignment
@@ -62,3 +81,5 @@ Route::get('/agency/reports', [InquiryAssignmentController::class, 'a_DisplayRep
 Route::get('/agency/inquiries', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquiries');
 Route::get('/agency/inquiries/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
 Route::post('/agency/inquiries/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
+Route::get('/inquiry/assign-agency/{id}', [InquiryController::class, 'mcmc_AssignAgencyForm'])->name('inquiry.assign.agency');
+Route::post('/inquiry/assign-agency/{id}', [InquiryController::class, 'mcmc_AssignAgencySubmit'])->name('inquiry.assign.agency.submit');
