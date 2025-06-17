@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Flex container to center content inside the content area */
+.users-container {
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* use center if vertical centering is preferred */
+  padding: 30px 20px;
+  background: #f9f9f9;
+}
+
+/* Wrapper to limit table width */
+.users-table-wrapper {
+  width: 100%;
+  max-width: 1000px;
+}
+
+/* Table styling */
+.slot-table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* Table header */
+.slot-table thead tr {
+  background-color: #2a0646d4;
+  color: white;
+}
+
+.slot-table thead th {
+  padding: 12px 20px;
+  font-weight: 550;
+  user-select: none;
+  font-weight: 400;
+}
+
+/* Table body */
+.slot-table tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.3s ease;
+}
+
+.slot-table tbody tr:hover {
+  background-color: #f3eaff;
+}
+
+.slot-table tbody td {
+  padding: 12px 20px;
+}
+
+/* View button */
+.view-btn {
+  background-color: #2a0646d4;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 400;
+}
+
+.view-btn:hover {
+  background-color: #580597d4;
+}
+
+/* Responsive support */
+@media screen and (max-width: 768px) {
+  .users-table-wrapper {
+    max-width: 100%;
+  }
+
+  .slot-table {
+    font-size: 14px;
+  }
+}
