@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response; // ✅ Add this line
 use App\Models\Inquiry;
 use App\Models\Agency;
-
+use PDF;
+use App\Exports\ReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -36,16 +38,22 @@ class InquiryController extends Controller
                 ->whereYear('SubmissionDate', '=', date('Y', strtotime($request->date)));
         }
 
+        // ✅ New: Filter by Inquiry Title (partial match)
+        if ($request->title) {
+            $query->where('InquiryTitle', 'like', '%' . $request->title . '%');
+        }
+
         $assignedInquiries = $query->orderBy('SubmissionDate', 'desc')->get();
 
         return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
     }
 
 
+
     public function a_ReviewInquiry($id)
     {
-        $inquiry = Inquiry::findOrFail($id);
-        $historyLogs = InquiryLog::where('InquiryID', $id)->orderBy('created_at', 'desc')->get();
+        //$inquiry = Inquiry::findOrFail($id);
+        // $historyLogs = InquiryLog::where('InquiryID', $id)->orderBy('created_at', 'desc')->get();
 
         return view('InquiryFormSubmissionUI.Agency.ReviewInquiryUI', compact('inquiry', 'historyLogs'));
     }
@@ -109,21 +117,55 @@ class InquiryController extends Controller
         return view('InquiryFormSubmissionUI.MCMC.DisplayReportUI', compact('inquiries', 'agencies', 'chartData'));
     }
 
+    private function filterReportData(Request $request)
+    {
+        $query = DB::table('inquiry')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select('inquiry.*', 'agency.AgencyName');
+
+        if ($request->month) {
+            $query->whereMonth('SubmissionDate', $request->month);
+        }
+
+        if ($request->year) {
+            $query->whereYear('SubmissionDate', $request->year);
+        }
+
+        if ($request->agency) {
+            $query->where('agency.AgencyID', $request->agency);
+        }
+
+        return $query->get();
+    }
+
+    public function exportReportToPDF(Request $request)
+    {
+        $inquiries = $this->filterReportData($request);
+        $pdf = PDF::loadView('exports.mcmc-report-pdf', compact('inquiries'));
+        return $pdf->download('inquiry_report.pdf');
+    }
+
+
+    public function exportReportToExcel(Request $request)
+    {
+        $inquiries = $this->filterReportData($request);
+        return Excel::download(new ReportExport($inquiries), 'inquiry_report.xlsx');
+    }
+
+
+
     //-----
 
     // === PUBLIC ===
-    public function p_ListInquiry()
-    {
-        return view('InquiryFormSubmissionUI.Public.ListInquiryUI');
-    }
 
     public function p_DetailsOwnInquiry()
     {
-        $userID = auth()->id(); // or use auth()->user()->id
+        //  $userID = auth()->id(); // or use auth()->user()->id
 
-        $inquiries = Inquiry::where('UserID', $userID)
-            ->orderBy('SubmissionDate', 'desc')
-            ->get();
+        //  $inquiries = Inquiry::where('UserID', $userID)
+        //     ->orderBy('SubmissionDate', 'desc')
+        //     ->get();
 
         return view('InquiryFormSubmission.Public.DetailsOwnInquiryUI', compact('inquiries'));
     }
