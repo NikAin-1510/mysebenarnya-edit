@@ -306,14 +306,15 @@ class TrackingProgressController extends Controller
 
     public function p_ListAllInquiry(Request $request)
     {
-        //$userID = Auth::user()->UserID;
+        $userID = Auth::user()->UserID;
 
         $statusFilter = $request->input('status'); // 'Under Investigation', 'Verified as True', 'Identified as Fake'
         $ownOnly = $request->input('own_only'); // 'on' if checked
 
         $query = DB::table('inquiry')
             ->join('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
-            ->select('inquiry.*', 'inquiryprogress.VerificationStatus');
+            ->select('inquiry.*', 'inquiryprogress.VerificationStatus')
+            ->where('inquiryprogress.VerificationStatus', '!=', 'Rejected'); // ⛔️ Exclude Rejected
 
         if ($statusFilter) {
             $query->where('inquiryprogress.VerificationStatus', $statusFilter);
