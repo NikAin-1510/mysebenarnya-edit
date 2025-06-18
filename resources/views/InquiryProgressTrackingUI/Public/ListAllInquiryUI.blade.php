@@ -8,7 +8,7 @@
     <div class="assigned-inquiry-list">
         <h2>All Inquiries</h2>
 
-        <form method="GET" action="{{ route('public.allinquiries') }}" style="margin-bottom: 20px;">
+        <form method="GET" action="/public/inquiry-list"" style="margin-bottom: 20px;">
             <label for="status">Filter by Status:</label>
             <select name="status" id="status">
                 <option value="">-- All --</option>
@@ -33,7 +33,7 @@
             </tr>
             @forelse($inquiries as $inq)
                 <tr>
-                    <td><a href="{{ url('/public/allinquiries?id=' . $inq->InquiryID) }}">{{ $inq->InquiryTitle }}</a></td>
+                    <td><a href="{{ url('/public/inquiry-list?id=' . $inq->InquiryID) }}">{{ $inq->InquiryTitle }}</a></td>
                     <td>{{ \Carbon\Carbon::parse($inq->SubmissionDate)->format('Y-m-d H:i') }}</td>
                     <td>{{ $inq->VerificationStatus ?? 'N/A' }}</td>
                 </tr>

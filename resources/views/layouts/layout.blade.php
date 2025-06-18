@@ -42,6 +42,7 @@
             <li><a href="#"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="#"><i class="fas fa-comments"></i> Submit Inquiry</a></li>
             <li><a href="#"><i class="fas fa-newspaper"></i> Browse Verified News</a></li>
+            <li><a href="/public/notification-list"><i class="fas fa-newspaper"></i> Notification</a></li>
 
         @elseif(session('user_role') === 'mcmc')
             <li><a href="#"><i class="fas fa-home"></i> Home</a></li>

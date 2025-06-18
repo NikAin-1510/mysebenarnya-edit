@@ -16,32 +16,28 @@
             </tr>
 
             @forelse($notifications as $notif)
-                <tr>
-                    <td><a href="{{ url('/public/allinquiries?id=' . $notif->InquiryID) }}">{{ $notif->InquiryTitle }}</a></td>
-                    <td>
-                        @if ($notif->VerificationStatus)
-                            {{ $notif->VerificationStatus }}
-                        @elseif ($notif->InvestigationBeginDate)
-                            Under Investigation Started
-                        @else
-                            N/A
-                        @endif
-                    </td>
-                    <td>
-                        @if ($notif->VerificationDateTime)
-                            {{ \Carbon\Carbon::parse($notif->VerificationDateTime)->format('Y-m-d H:i') }}
-                        @elseif ($notif->InvestigationBeginDate)
-                            {{ \Carbon\Carbon::parse($notif->InvestigationBeginDate)->format('Y-m-d H:i') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="3">No notifications at the moment.</td>
-                </tr>
-            @endforelse
+    <tr>
+        <td>
+            <a href="{{ url('/public/notification-details?id=' . $notif->InquiryID . '&status=' . urlencode($notif->Status)) }}">
+                {{ $notif->InquiryTitle }}
+            </a>
+        </td>
+        <td>{{ $notif->Status }}</td>
+        <td>
+    @if ($notif->Status === 'Under Investigation')
+        {{ \Carbon\Carbon::parse($notif->InvestigationBeginDate)->format('Y-m-d H:i') }}
+    @elseif ($notif->Status)
+        {{ \Carbon\Carbon::parse($notif->VerificationDateTime)->format('Y-m-d H:i') }}
+    @else
+        -
+    @endif
+</td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="3">No notifications at the moment.</td>
+    </tr>
+@endforelse
         </table>
     </div>
 @endsection
