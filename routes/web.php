@@ -77,8 +77,7 @@ Route::get('/mcmc/allinquiry', [InquiryController::class, 'm_ListAllInquiry'])->
 
 
 // public
-Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsOwnInquiry']);
-
+Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsOwnInquiry'])->name('details.own.inquiry');
 Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
 Route::post('/complaint/store', [InquiryController::class, 'store'])->name('complaint.store');
 // Show the public inquiry form (GET)
@@ -87,12 +86,8 @@ Route::post('/complaint/store', [InquiryController::class, 'store'])->name('comp
 Route::get('/inquiry/form', [InquiryController::class, 'create'])->name('inquiry.form');
 // Handle form submission (POST)
 Route::post('/inquiry/submit', [InquiryController::class, 'store'])->name('inquiry.submit');
-
 Route::get('/inquiries/{id}/view', [InquiryController::class, 'view'])->name('inquiry.view');
-
 Route::get('/public/details-inquiry', [InquiryController::class, 'P_DetailsOwnInquiry'])->name('public.details.inquiry');
-
-
 Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name('inquiry.store');
 //Module2: ModuleInquiry Form Submission
 
@@ -103,7 +98,7 @@ Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name
 //Module3: Inquiry Assignment
 use App\Http\Controllers\InquiryAssignmentController;
 
-Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList']);
+Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList'])->name('public.list');;
 Route::get('/agency/dashboard', [InquiryAssignmentController::class, 'a_ReviewInquiry'])->name('agency.review.inquiry');
 Route::get('/agency/assign', [InquiryAssignmentController::class, 'a_AssignInquiry'])->name('agency.assign.form');
 Route::post('/agency/assign', [InquiryAssignmentController::class, 'storeAssignment'])->name('agency.assign.inquiry');
