@@ -405,3 +405,45 @@ body {
         justify-content: center;
     }
 }
+.inquiry-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.inquiry-actions .action-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.view-btn {
+    background-color: #3490dc;
+    color: #fff;
+}
+
+.edit-btn {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.delete-btn {
+    background-color: #e3342f;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    opacity: 0.9;
+}
+
+.inline-delete-form {
+    display: inline;
+}

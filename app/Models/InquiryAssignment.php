@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class InquiryAssignment extends Model
 {
     protected $table = 'inquiryasssignment'; // note: 3 's' to match actual table name
+    protected $table = 'inquiryassignment'; // note: 3 's' to match actual table name
     protected $primaryKey = 'AssignmentID';
     public $incrementing = false;
     protected $keyType = 'string';

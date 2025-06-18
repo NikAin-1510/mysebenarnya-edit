@@ -25,6 +25,8 @@ class LoginController extends Controller
         $user = User::where('Email', $request->email)
                     ->where('Role', $request->role)
                     ->first();
+            ->where('Role', $request->role)
+            ->first();
 
         // Check if user exists and password is correct (plaintext version for now)
         if ($user && $request->password === $user->Password) {

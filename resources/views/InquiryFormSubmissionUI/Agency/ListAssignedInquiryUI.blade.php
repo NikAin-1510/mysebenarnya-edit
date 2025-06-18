@@ -9,25 +9,29 @@
     <h1 class="page-title">Assigned Inquiry History</h1>
     <p class="page-desc">View and filter past inquiries assigned to your agency based on status, date, and category.</p>
 
-    <form method="GET" action="{{ route('agency.list.assigned') }}" class="filter-form">
-        <select name="status">
-            <option value="">All Statuses</option>
-            <option value="under investigation">Under Investigation</option>
-            <option value="verified">Verified True</option>
-            <option value="fake">Identified as Fake</option>
-            <option value="rejected">Rejected</option>
-        </select>
+   <form method="GET" action="{{ route('agency.list.assigned') }}" class="filter-form">
+    <select name="status">
+    <option value="">All Statuses</option>
+    <option value="under investigation" {{ request('status') == 'under investigation' ? 'selected' : '' }}>Under Investigation</option>
+    <option value="verified" {{ request('status') == 'verified' ? 'selected' : '' }}>Verified True</option>
+    <option value="fake" {{ request('status') == 'fake' ? 'selected' : '' }}>Identified as Fake</option>
+    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+</select>
 
-        <select name="category">
-            <option value="">All Categories</option>
-            <option value="Genuine">Genuine</option>
-            <option value="NonSerious">Non-Serious</option>
-        </select>
+<select name="category">
+    <option value="">All Categories</option>
+    <option value="Genuine" {{ request('category') == 'Genuine' ? 'selected' : '' }}>Genuine</option>
+    <option value="NonSerious" {{ request('category') == 'NonSerious' ? 'selected' : '' }}>Non-Serious</option>
+</select>
 
-        <input type="month" name="date" placeholder="Filter by Month">
+<input type="month" name="date" value="{{ request('date') }}">
 
-        <button type="submit">Apply Filters</button>
-    </form>
+    <!-- 🔍 NEW: Search by title/subject -->
+    <input type="text" name="title" placeholder="Search by Inquiry Title" value="{{ request('title') }}">
+
+    <button type="submit">Apply Filters</button>
+</form>
+
 
     <div class="inquiries-list">
         @forelse ($assignedInquiries as $inquiry)
