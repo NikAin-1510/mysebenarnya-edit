@@ -145,16 +145,26 @@ class InquiryController extends Controller
     // === PUBLIC ===
 
 
+
     public function p_DetailsOwnInquiry()
     {
-        $userID = auth()->id(); // or use auth()->user()->id
+        // Get the logged-in user's associated PublicID using the relationship
+        $publicID = auth()->user()->publicProfile->PublicID ?? null;
 
-        $inquiries = Inquiry::where('UserID', $userID)
+
+        if (!$publicID) {
+            return redirect()->back()->with('error', 'Public user profile not found.');
+        }
+
+        // Fetch inquiries using PublicID
+        $inquiries = Inquiry::where('PublicID', $publicID)
             ->orderBy('SubmissionDate', 'desc')
             ->get();
 
         return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact('inquiries'));
     }
+
+
 
 
 
@@ -188,6 +198,11 @@ class InquiryController extends Controller
         $inquiry->save();
 
         return redirect()->back()->with('success', 'Form successfully submitted!');
+    }
+
+    public function p_DetailsAllInquiry()
+    {
+        return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI');
     }
 
     public function create()

@@ -80,6 +80,7 @@ Route::get('/mcmc/allinquiry', [InquiryController::class, 'm_ListAllInquiry'])->
 Route::get('/public/details-own-inquiry', [InquiryController::class, 'p_DetailsOwnInquiry'])->name('details.own.inquiry');
 Route::get('/public/list-inquiry', [InquiryController::class, 'p_ListInquiry']);
 Route::post('/complaint/store', [InquiryController::class, 'store'])->name('complaint.store');
+Route::get('/public/details-all-inquiry', [InquiryController::class, 'p_DetailsAllInquiry'])->name('details.all.inquiry');
 // Show the public inquiry form (GET)
 
 // Show the form (GET)
