@@ -3,7 +3,7 @@
 @endphp
 
 @extends('layouts.layout')
-
+@section('page-name', 'Edit Profile')
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/Module1/editprofile.css') }}">
 @endpush

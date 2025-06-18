@@ -2,26 +2,51 @@
 
 use Illuminate\Support\Facades\Route;
 
-//Module1: MANAGE USER=============================================================================================
+//Module1: Manage User=============================================================================================
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 
-//Login
-Route::get('/login', function () {
-    return view('ManageUserUI.Login');
-})->name('login');
+//1.Login
+Route::get('/login', function () {return view('ManageUserUI.Login');})->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
-//First Time Login Change Password for Agency Staff
+//2.First Time Login Change Password for Agency Staff
 Route::get('/first-time-password', [LoginController::class, 'showFirstTimePasswordForm'])->name('first.time.password');
 Route::post('/first-time-password', [LoginController::class, 'saveFirstTimePassword'])->name('first.time.password.save');
-//Display Home
-Route::get('/home', [LoginController::class, 'displayHome'])->name('display.home');
-//Log Out
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-//Public Registration
+//3.Public Registration
 Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
 Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
-//Module1: MANAGE USER=============================================================================================
+
+Route::middleware(['auth'])->group(function () {
+//4.Display Home
+Route::get('/home', [LoginController::class, 'displayHome'])->name('display.home');
+//5.Log Out
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+
+
+//6.View Profile
+Route::get('/profile', [UserProfileController::class, 'view'])->name('view.profile');
+//Edit Profile
+Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('edit.profile');
+Route::put('/profile/save-edit', [UserProfileController::class, 'saveEdit'])->name('edit.profile.save');
+
+
+//7.Update Security
+Route::get('/update-security', [UserProfileController::class, 'showUpdateSecurityForm'])->name('showUpdateSecurityForm.security');
+Route::put('/update-security-save', [UserProfileController::class, 'updateSecurity'])->name('update.security');
+//8.Register Agency
+Route::get('/register-agency', [UserProfileController::class, 'showRegisterAgency'])->name('show.register.agency');
+Route::post('/register-agency', [UserProfileController::class, 'registerAgency'])->name('register.agency');
+//9.View Users List
+Route::get('/userlist', [UserProfileController::class, 'viewAllUsers'])->name('view.all.users');
+//10.View User Data
+Route::get('/users/{id}/view', [UserProfileController::class, 'viewUserData'])->name('view.user.data');
+//11.ReportDashboard
+Route::get('/report/dashboard', [UserProfileController::class, 'displayReportDashboard'])->name('show.reportDashboard');
+//12.UserReports
+Route::get('/user-report', [UserProfileController::class, 'showUserReport'])->name('show.registeredUserReport');
+Route::get('/user-report/pdf', [UserProfileController::class, 'downloadPdf'])->name('registeredUserReport.download');
+});
+//Module1: Manage User=============================================================================================
 
 
 

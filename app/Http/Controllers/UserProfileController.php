@@ -10,6 +10,7 @@ use App\Models\Agency;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Str; 
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserProfileController extends Controller
 {
@@ -130,10 +131,6 @@ class UserProfileController extends Controller
             $user->publicuser()->updateOrCreate(['UserID' => $user->UserID], [
                 'Gender' => $request->Gender,
             ]);
-        } elseif ($user->Role === 'mcmc') {
-            $user->mcmc()->updateOrCreate(['UserID' => $user->UserID], [
-                'Position' => $request->Position,
-            ]);
         } elseif ($user->Role === 'agency') {
             $user->agency()->updateOrCreate(['UserID' => $user->UserID], [
                 'AgencyName' => $request->AgencyName,
@@ -167,8 +164,6 @@ class UserProfileController extends Controller
             'new_password' => ['required', 'confirmed'],
         ]);
 
-        $user = Auth::user(); // No need to import again if already used
-
         if ($request->current_password !== $user->Password) {
             return back()->withErrors(['current_password' => 'Current password is incorrect']);
         }
@@ -180,6 +175,10 @@ class UserProfileController extends Controller
     }
 
     //Register Agency
+    public function showRegisterAgency(){
+        return view('ManageUserUI.RegisterAgency');
+    }
+
     public function registerAgency(Request $request)
     {
         // Validate form input
@@ -237,4 +236,88 @@ class UserProfileController extends Controller
             return back()->withErrors(['error' => 'Registration failed: ' . $e->getMessage()]);
         }
     }
+
+    //View List of All Users
+    public function viewAllUsers(){
+        if (session('user_role') !== 'mcmc') {
+            return redirect('/login')->with('error', 'Unauthorized access.');
+        }
+
+        $users = User::select('UserID', 'Name', 'Role')
+                 ->whereIn('Role', ['agency', 'publicuser'])
+                 ->orderBy('Name')
+                 ->get();
+        return view('ManageUserUI.ViewAllUsers', compact('users'));
+    }
+
+    //View User Data including user profile, registration details and activity logs
+    public function viewUserData($id)
+    {
+        if (session('user_role') !== 'mcmc') {
+            return redirect('/login')->with('error', 'Unauthorized access.');
+        }
+
+        $user = User::with(['publicuser', 'agency'])
+                    ->where('UserID', $id)
+                    ->whereIn('Role', ['publicuser', 'agency'])
+                    ->firstOrFail(); 
+
+        return view('ManageUserUI.ViewUserData', compact('user'));
+    }
+
+    //Report Dashbord
+    public function displayReportDashboard()
+    {
+        return view('SharedUI.ReportDashboardUI');
+    }
+    //User Reports
+    public function showUserReport(Request $request)
+    {
+        [$users, $agencies] = $this->queryUsers($request);
+
+        return view('ManageUserUI.RegisteredUserReportUI', [
+            'users'    => $users,
+            'agencies' => $agencies,
+            'total'    => $users->count(),
+            'pdf'      => false,
+        ]);
+    }
+
+    public function downloadPdf(Request $request)
+    {
+        [$users, $agencies] = $this->queryUsers($request);
+
+        $pdf = Pdf::loadView('ManageUserUI.RegisteredUserReportUI', [
+            'users'    => $users,
+            'agencies' => $agencies,
+            'total'    => $users->count(),
+            'pdf'      => true,
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->download('RegisteredUserReport.pdf');
+    }
+
+    private function queryUsers(Request $request)
+    {
+        $query = DB::table('user');
+
+        if ($request->filter_by === 'role' && $request->role) {
+            $query->where('Role', $request->role);
+        }
+
+        if ($request->filter_by === 'date' && $request->date) {
+            $query->whereDate('Created_At', $request->date);
+        }
+
+        if ($request->filter_by === 'agency' && $request->agency) {
+            $query->join('agency', 'user.UserID', '=', 'agency.UserID')
+                  ->where('agency.AgencyName', $request->agency);
+        }
+
+        $users    = $query->select('user.*')->get();
+        $agencies = DB::table('agency')->distinct()->get(['AgencyName']);
+
+        return [$users, $agencies];
+    }
+
 }
