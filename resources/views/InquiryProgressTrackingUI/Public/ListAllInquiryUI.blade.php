@@ -33,7 +33,9 @@
             </tr>
             @forelse($inquiries as $inq)
                 <tr>
-                    <td><a href="{{ url('/public/inquiry-list?id=' . $inq->InquiryID) }}">{{ $inq->InquiryTitle }}</a></td>
+                    <td><a href="{{ route('details.all.inquiry', ['id' => $inq->InquiryID]) }}">
+    {{ $inq->InquiryTitle }}
+</a></td>
                     <td>{{ \Carbon\Carbon::parse($inq->SubmissionDate)->format('Y-m-d H:i') }}</td>
                     <td>{{ $inq->VerificationStatus ?? 'N/A' }}</td>
                 </tr>

@@ -40,12 +40,8 @@
         @if(session('user_role') === 'publicuser')
             <li><a href="{{ route('display.home') }}"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
-
             <li><a href="{{ route('inquiry.form') }}"><i class="fas fa-comments"></i> Submit Inquiry</a></li>
             <li><a href="{{ route('public.list') }}"><i class="fas fa-comments"></i> List Inquiry</a></li>
-            <li><a href="#"><i class="fas fa-newspaper"></i> Browse Verified News</a></li>
-
-            <li><a href="#"><i class="fas fa-comments"></i> Submit Inquiry</a></li>
             <li><a href="/public/inquiry-list"><i class="fas fa-newspaper"></i> Browse Verified News</a></li>
             <li><a href="/public/notification-list"><i class="fas fa-newspaper"></i> Notification</a></li>
 
