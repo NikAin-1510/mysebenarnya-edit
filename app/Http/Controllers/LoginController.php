@@ -23,8 +23,6 @@ class LoginController extends Controller
 
         // Look up user with correct role
         $user = User::where('Email', $request->email)
-                    ->where('Role', $request->role)
-                    ->first();
             ->where('Role', $request->role)
             ->first();
 
