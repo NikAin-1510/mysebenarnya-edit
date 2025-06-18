@@ -46,7 +46,8 @@ body {
 .brand {
   height: 45px;
   width: auto;
-  margin-top: 10px;
+  margin-top: 0px;
+  margin-bottom: 5px;
 }
 
 .page-name {

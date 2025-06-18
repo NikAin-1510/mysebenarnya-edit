@@ -10,52 +10,62 @@
 
         <p><strong>Inquiry Title:</strong> {{ $inquiry->InquiryTitle }}</p>
 
-        <p><strong>Latest Status:</strong>
-            @if ($latestProgress->VerificationStatus)
-                {{ $latestProgress->VerificationStatus }}
-            @elseif ($latestProgress->InvestigationBeginDate)
-                Under Investigation Started
-            @else
-                N/A
-            @endif
-        </p>
+        @if ($latestProgress)
 
-        <p>Your inquiry <strong>{{ $inquiry->InquiryTitle }}</strong> is
-            <strong>
-                @if ($latestProgress->VerificationStatus)
-                    {{ $latestProgress->VerificationStatus }}
-                @elseif ($latestProgress->InvestigationBeginDate)
-                    Under Investigation
-                @else
-                    not yet processed
-                @endif
-            </strong>.
-        </p>
+            @if ($latestProgress->VerificationStatus === 'Rejected')
+                {{-- Minimal output for Rejected --}}
+                <p><strong>Status:</strong> Rejected</p>
+                <p>Your inquiry <strong>{{ $inquiry->InquiryTitle }}</strong> was <strong>rejected</strong>.</p>
+                <p>Please check your dashboard for more details.</p>
+
+                <h3>Log Progress:</h3>
+                <p><strong>Investigation Begin Date:</strong> -</p>
+                <p><strong>Verification Status:</strong> Rejected</p>
+                <p><strong>Verification Date:</strong>
+                    {{ $latestProgress->VerificationDateTime
+                        ? \Carbon\Carbon::parse($latestProgress->VerificationDateTime)->format('Y-m-d H:i:s')
+                        : '-' }}
+                </p>
+
+            @elseif (request()->query('status') === 'Under Investigation')
+                {{-- Full output for Under Investigation --}}
+                <p><strong>Latest Status:</strong> Under Investigation</p>
+                <p>Your inquiry <strong>{{ $inquiry->InquiryTitle }}</strong> is currently <strong>Under investigation</strong>.</p>
+
+                <h3>Log Progress:</h3>
+                <p><strong>Investigation Begin Date:</strong>
+                    {{ $latestProgress->InvestigationBeginDate
+                        ? \Carbon\Carbon::parse($latestProgress->InvestigationBeginDate)->format('Y-m-d H:i:s')
+                        : '-' }}
+                </p>
+                <p><strong>Verification Status:</strong> Under Investigation</p>
+                <p><strong>Verification Date:</strong> -</p>
+
+            @else
+                {{-- Full output for other verification results --}}
+                <p><strong>Latest Status:</strong> {{ $latestProgress->VerificationStatus }}</p>
+                <p>Your inquiry <strong>{{ $inquiry->InquiryTitle }}</strong> was
+                    <strong>{{ $latestProgress->VerificationStatus }}</strong>.
+                </p>
+
+                <h3>Log Progress:</h3>
+                <p><strong>Investigation Begin Date:</strong>
+                    {{ $latestProgress->InvestigationBeginDate
+                        ? \Carbon\Carbon::parse($latestProgress->InvestigationBeginDate)->format('Y-m-d H:i:s')
+                        : '-' }}
+                </p>
+                <p><strong>Verification Status:</strong> {{ $latestProgress->VerificationStatus }}</p>
+                <p><strong>Verification Date:</strong>
+                    {{ $latestProgress->VerificationDateTime
+                        ? \Carbon\Carbon::parse($latestProgress->VerificationDateTime)->format('Y-m-d H:i:s')
+                        : '-' }}
+                </p>
+            @endif
+
+        @else
+            <p><strong>Status update:</strong> No progress record found for this status.</p>
+        @endif
+
         <p>Please check your dashboard for more details.</p>
-
-        <br>
-        <h3>Log Progress:</h3>
-
-        <p><strong>Current Status:</strong>
-            @if ($latestProgress->VerificationStatus)
-                {{ $latestProgress->VerificationStatus }}
-            @elseif ($latestProgress->InvestigationBeginDate)
-                Under Investigation
-            @else
-                Not started
-            @endif
-        </p>
-
-        <p><strong>Investigation Begin Date:</strong>
-            {{ $latestProgress->InvestigationBeginDate
-                ? \Carbon\Carbon::parse($latestProgress->InvestigationBeginDate)->format('Y-m-d H:i:s')
-                : '-' }}
-        </p>
-
-        <p><strong>Verification Date:</strong>
-            {{ $latestProgress->VerificationDateTime
-                ? \Carbon\Carbon::parse($latestProgress->VerificationDateTime)->format('Y-m-d H:i:s')
-                : '-' }}
-        </p>
     </div>
 @endsection

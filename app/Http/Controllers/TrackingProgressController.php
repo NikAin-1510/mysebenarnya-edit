@@ -11,36 +11,6 @@ class TrackingProgressController extends Controller
 {
 
     // agency
-    public function a_InquiryList() //ainul kalau nak amik
-    {
-        $loggedInUserID = Auth::user()->UserID;
-
-        // Get the agency that belongs to this user
-        $agency = DB::table('agency')->where('UserID', $loggedInUserID)->first();
-
-        if (!$agency) {
-            abort(403, 'No agency linked to this account.');
-        }
-
-        $agencyName = $agency->AgencyName;
-
-        $assignedInquiries = DB::table('inquiryassignment')
-            ->join('inquiry', 'inquiryassignment.InquiryID', '=', 'inquiry.InquiryID')
-            ->leftJoin('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
-            ->select(
-                'inquiryassignment.*',
-                'inquiry.InquiryTitle',
-                'inquiryprogress.InvestigationBeginDate',
-                'inquiryprogress.VerificationStatus'
-            )
-            ->where('inquiryassignment.AgencyName', $agencyName)
-            ->get();
-
-        return view('InquiryProgressTrackingUI.Agency.ListAssignedInquiryUI', [
-            'assignedInquiries' => $assignedInquiries
-        ]);
-    }
-
     public function a_UpdateStatus(Request $request)
     {
         $inquiryID = $request->query('id');
@@ -201,28 +171,56 @@ class TrackingProgressController extends Controller
     public function p_NotificationDetails(Request $request)
     {
         $inquiryID = $request->query('id');
+        $status = $request->query('status');
         $userID = Auth::user()->UserID;
 
-        // Get the inquiry submitted by this user
+        // Ensure the inquiry belongs to this public user
         $inquiry = DB::table('inquiry')
-            ->where('InquiryID', $inquiryID)
-            ->where('PublicID', $userID)
+            ->join('publicuser', 'inquiry.PublicID', '=', 'publicuser.PublicID')
+            ->where('inquiry.InquiryID', $inquiryID)
+            ->where('publicuser.UserID', $userID)
+            ->select('inquiry.*')
             ->first();
 
         if (!$inquiry) {
             abort(403, 'Unauthorized or invalid inquiry.');
         }
 
-        // Get latest progress
-        $latestProgress = DB::table('inquiryprogress')
-            ->where('InquiryID', $inquiryID)
-            ->orderByDesc('VerificationDateTime')
-            ->orderByDesc('InvestigationBeginDate')
-            ->first();
+        // Get exact match for progress by status
+        $progressQuery = DB::table('inquiryprogress')
+            ->where('InquiryID', $inquiryID);
+
+        // Only allow these statuses
+        $validStatuses = ['Under Investigation', 'Rejected', 'Verified as True', 'Identified as Fake'];
+
+        if (!in_array($status, $validStatuses)) {
+            abort(400, 'Invalid status type.');
+        }
+
+        // Strict status matching
+        if ($status === 'Under Investigation') {
+            $progressQuery->whereNotNull('InvestigationBeginDate')
+                ->orderByDesc('InvestigationBeginDate');
+        } else {
+            $progressQuery->where('VerificationStatus', $status)
+                ->orderByDesc('VerificationDateTime');
+        }
+
+        $latestProgress = $progressQuery->first();
+
+        // Force override fields to match view expectations
+        if ($latestProgress) {
+            if ($status === 'Rejected') {
+                $latestProgress->InvestigationBeginDate = null;
+            } elseif ($status === 'Under Investigation') {
+                $latestProgress->VerificationDateTime = null;
+            }
+        }
 
         return view('InquiryProgressTrackingUI.Public.NotificationDetailsUI', [
             'inquiry' => $inquiry,
             'latestProgress' => $latestProgress,
+            'error' => !$latestProgress ? 'No matching progress record found for this status.' : null
         ]);
     }
 
@@ -231,29 +229,57 @@ class TrackingProgressController extends Controller
     {
         $userID = Auth::user()->UserID;
 
-        // Get only the inquiries created by this user
-        $notifications = DB::table('inquiryprogress')
-            ->join('inquiry', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
-            ->where('inquiry.PublicID', $userID)
-            ->where(function ($query) {
-                $query->whereNotNull('inquiryprogress.InvestigationBeginDate')
-                    ->orWhereNotNull('inquiryprogress.VerificationStatus');
-            })
-            ->select(
-                'inquiry.InquiryID',
-                'inquiry.InquiryTitle',
-                'inquiryprogress.InvestigationBeginDate',
-                'inquiryprogress.VerificationStatus',
-                'inquiryprogress.VerificationDateTime'
-            )
-            ->orderByDesc('inquiryprogress.VerificationDateTime')
-            ->get();
+        // Get all inquiry IDs submitted by this user
+        $inquiryIDs = DB::table('inquiry')
+            ->join('publicuser', 'inquiry.PublicID', '=', 'publicuser.PublicID')
+            ->where('publicuser.UserID', $userID)
+            ->pluck('inquiry.InquiryID');
+
+        // Get all progress notifications related to those inquiries
+        $notifications = collect();
+
+        foreach ($inquiryIDs as $inquiryID) {
+            $inquiry = DB::table('inquiry')->where('InquiryID', $inquiryID)->first();
+
+            $progressList = DB::table('inquiryprogress')
+                ->where('InquiryID', $inquiryID)
+                ->get();
+
+            foreach ($progressList as $progress) {
+                // Add Investigation notification if it exists
+                if ($progress->InvestigationBeginDate && $progress->VerificationStatus !== 'Rejected') {
+                    $notifications->push((object)[
+                        'InquiryID' => $inquiry->InquiryID,
+                        'InquiryTitle' => $inquiry->InquiryTitle,
+                        'Status' => 'Under Investigation',
+                        'InvestigationBeginDate' => $progress->InvestigationBeginDate,
+                        'VerificationDateTime' => null,
+                    ]);
+                }
+
+                // Add Verification notification if it exists
+                if ($progress->VerificationStatus && $progress->VerificationStatus !== 'Under Investigation') {
+                    $notifications->push((object)[
+                        'InquiryID' => $inquiry->InquiryID,
+                        'InquiryTitle' => $inquiry->InquiryTitle,
+                        'Status' => $progress->VerificationStatus,
+                        'VerificationDateTime' => $progress->VerificationDateTime,
+                        'InvestigationBeginDate' => $progress->InvestigationBeginDate,
+                    ]);
+                }
+            }
+        }
+
+        // Sort by latest date
+        $notifications = $notifications->sortByDesc(function ($notif) {
+            return $notif->VerificationDateTime ?? $notif->InvestigationBeginDate ?? now()->subYears(10); // fallback
+        })->values();
+
 
         return view('InquiryProgressTrackingUI.Public.NotificationListUI', [
             'notifications' => $notifications
         ]);
     }
-
     public function p_ProgAllInquiry(Request $request)
     {
         $inquiryID = $request->query('id');
@@ -287,7 +313,8 @@ class TrackingProgressController extends Controller
 
         $query = DB::table('inquiry')
             ->join('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
-            ->select('inquiry.*', 'inquiryprogress.VerificationStatus');
+            ->select('inquiry.*', 'inquiryprogress.VerificationStatus')
+            ->where('inquiryprogress.VerificationStatus', '!=', 'Rejected'); // ⛔️ Exclude Rejected
 
         if ($statusFilter) {
             $query->where('inquiryprogress.VerificationStatus', $statusFilter);
