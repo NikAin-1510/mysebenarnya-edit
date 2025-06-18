@@ -200,10 +200,18 @@ class InquiryController extends Controller
         return redirect()->back()->with('success', 'Form successfully submitted!');
     }
 
-    public function p_DetailsAllInquiry()
+    public function p_DetailsAllInquiry($id)
     {
-        return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI');
+        $inquiry = Inquiry::findOrFail($id);
+        return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI', compact('inquiry'));
     }
+
+    public function p_ViewAssignedAgency($id)
+    {
+        $inquiry = Inquiry::with('agency')->findOrFail($id);
+        return view('InquiryFormSubmissionUI.Public.AssignedAgencyView', compact('inquiry'));
+    }
+
 
     public function create()
     {
