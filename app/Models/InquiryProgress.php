@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class InquiryProgress extends Model
 {
     protected $table = 'inquiryprogress';
@@ -11,6 +12,7 @@ class InquiryProgress extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
+
     protected $fillable = [
         'StatusID',
         'InquiryID',
@@ -20,9 +22,10 @@ class InquiryProgress extends Model
         'VerificationStatus',
         'VerificationDateTime',
         'InvestigationDetails',
+        'InvestigationDoc'
     ];
 
-
+    // Relationships
     public function inquiry()
     {
         return $this->belongsTo(Inquiry::class, 'InquiryID', 'InquiryID');
@@ -37,4 +40,9 @@ class InquiryProgress extends Model
     {
         return $this->belongsTo(InquiryAssignment::class, 'AssignmentID', 'AssignmentID');
     }
+
+    //public function officer()
+    //{
+    //    return $this->belongsTo(User::class, 'UserID', 'UserID');
+    //}
 }

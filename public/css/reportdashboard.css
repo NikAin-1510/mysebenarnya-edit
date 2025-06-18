@@ -1,0 +1,77 @@
+/* === Layout Area === */
+.content {
+  margin-left: 250px;
+  margin-top: 70px;
+  padding: 40px;
+  min-height: calc(100vh - 70px);
+  background: linear-gradient(to right, #f0f0f8, #f9f9fc);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === Report Container Card === */
+.report-container {
+  width: 100%;
+  max-width: 800px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.report-container h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* === Grid Button Layout === */
+.report-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* === Button Styling === */
+.report-selection-grid button {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  padding: 25px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  word-break: break-word;
+}
+
+.report-selection-grid button:hover {
+  background: linear-gradient(135deg, #5111cb, #1a62e8);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* === Smooth Load === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === Responsive Tweaks === */
+@media (max-width: 600px) {
+  .report-container {
+    padding: 30px 20px;
+  }
+
+  .report-selection-grid button {
+    font-size: 14px;
+    padding: 20px 10px;
+  }
+}

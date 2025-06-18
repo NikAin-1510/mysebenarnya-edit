@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mcmcs', function (Blueprint $table) {
+        Schema::create('mcmc', function (Blueprint $table) {
             $table->string('mcmcID', 8)->primary();
             $table->string('UserID', 8);
             $table->string('Position', 20);

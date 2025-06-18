@@ -2,37 +2,61 @@
 
 use Illuminate\Support\Facades\Route;
 
+//Module1: Manage User
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserProfileController;
 
+//1.Login
 Route::get('/login', function () {
-    return view('login');
+    return view('ManageUserUI.Login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
+//2.First Time Login Change Password for Agency Staff
+Route::get('/first-time-password', [LoginController::class, 'showFirstTimePasswordForm'])->name('first.time.password');
+Route::post('/first-time-password', [LoginController::class, 'saveFirstTimePassword'])->name('first.time.password.save');
+//3.Public Registration
+Route::get('/register', [UserProfileController::class, 'showRegistrationForm'])->name('public.register');
+Route::post('/register', [UserProfileController::class, 'store'])->name('public.register.store');
 
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::middleware(['auth'])->group(function () {
+    //4.Display Home
+    Route::get('/home', [LoginController::class, 'displayHome'])->name('display.home');
+    //5.Log Out
+    Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-// Tracking Progress Controller
-use App\Http\Controllers\TrackingProgressController;
-// agency
-Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
-// mcmc
-Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
-Route::get('/mcmc/inquiry-details', [TrackingProgressController::class, 'm_InquiryDetails']);
-Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
-Route::get('/mcmc/inquiry-list', [TrackingProgressController::class, 'm_InquiryList']);
-// public
-Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryDetails']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_InquiryList']);
-Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
-Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-Route::get('/public/own-inquiry-list', [TrackingProgressController::class, 'p_OwnInquiryList']);
-Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_InquiryDetails']);
+    //6.View Profile
+    Route::get('/profile', [UserProfileController::class, 'view'])->name('view.profile');
+    //Edit Profile
+    Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('edit.profile');
+    Route::put('/profile/save-edit', [UserProfileController::class, 'saveEdit'])->name('edit.profile.save');
 
 
 
-// Inquiry Form Submission
+    // Inquiry Form Submission
+    //7.Update Security
+    Route::get('/update-security', [UserProfileController::class, 'showUpdateSecurityForm'])->name('showUpdateSecurityForm.security');
+    Route::put('/update-security-save', [UserProfileController::class, 'updateSecurity'])->name('update.security');
+    //8.Register Agency
+    Route::get('/register-agency', [UserProfileController::class, 'showRegisterAgency'])->name('show.register.agency');
+    Route::post('/register-agency', [UserProfileController::class, 'registerAgency'])->name('register.agency');
+    //9.View Users List
+    Route::get('/userlist', [UserProfileController::class, 'viewAllUsers'])->name('view.all.users');
+    //10.View User Data
+    Route::get('/users/{id}/view', [UserProfileController::class, 'viewUserData'])->name('view.user.data');
+    //11.ReportDashboard
+    Route::get('/report/dashboard', [UserProfileController::class, 'displayReportDashboard'])->name('show.reportDashboard');
+    //12.UserReports
+    Route::get('/user-report', [UserProfileController::class, 'showUserReport'])->name('show.registeredUserReport');
+    Route::get('/user-report/pdf', [UserProfileController::class, 'downloadPdf'])->name('registeredUserReport.download');
+});
+//Module1: Manage User
+
+
+
+
+
+//Module2: ModuleInquiry Form Submission
 use App\Http\Controllers\InquiryController;
 // agency
 Route::get('/agency/review-inquiry', [InquiryController::class, 'a_ReviewInquiry']);
@@ -69,8 +93,14 @@ Route::get('/inquiries/{id}/view', [InquiryController::class, 'view'])->name('in
 Route::get('/public/details-inquiry', [InquiryController::class, 'P_DetailsOwnInquiry'])->name('public.details.inquiry');
 
 
+Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name('inquiry.store');
+//Module2: ModuleInquiry Form Submission
 
-// Inquiry Assignment
+
+
+
+
+//Module3: Inquiry Assignment
 use App\Http\Controllers\InquiryAssignmentController;
 
 Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList']);
@@ -81,5 +111,29 @@ Route::get('/agency/reports', [InquiryAssignmentController::class, 'a_DisplayRep
 Route::get('/agency/inquiries', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquiries');
 Route::get('/agency/inquiries/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
 Route::post('/agency/inquiries/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
+
 Route::get('/inquiry/assign-agency/{id}', [InquiryController::class, 'mcmc_AssignAgencyForm'])->name('inquiry.assign.agency');
 Route::post('/inquiry/assign-agency/{id}', [InquiryController::class, 'mcmc_AssignAgencySubmit'])->name('inquiry.assign.agency.submit');
+
+
+
+
+//Module4: Tracking Progress Controller
+use App\Http\Controllers\TrackingProgressController;
+// agency
+Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
+Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
+Route::post('/agency/updatestatus/save', [TrackingProgressController::class, 'a_SaveStatus']);
+Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_NotifyMCMC']);
+Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
+
+// mcmc
+Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
+Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
+Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
+// public
+Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
+Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
+Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
+Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry']);

@@ -17,13 +17,12 @@
 @endsection
 
 @section('content')
-    <h2 style="margin-bottom: 25px;">📋 Monitor Inquiry Progress</h2>
+    <h2 style="margin-bottom: 25px;">Inquiry Progress</h2>
 
     <p><strong>Inquiry Title:</strong> {{ $inquiry->InquiryTitle ?? 'N/A' }}</p>
 
     @forelse($progressList as $progress)
         <div class="progress-card">
-            <h3>Agency: {{ $progress->AgencyName }}</h3>
             <p><strong>Status:</strong> {{ $progress->VerificationStatus ?? 'N/A' }}</p>
 
             @if($progress->VerificationStatus === 'Rejected')
@@ -37,24 +36,8 @@
 
             <p><strong>Investigation Details:</strong></p>
             <p>{{ $progress->InvestigationDetails ?? 'No details provided.' }}</p>
-
-            <p><strong>Supporting Document:</strong>
-                @if($progress->InvestigationDoc)
-                    <a href="{{ asset('storage/' . $progress->InvestigationDoc) }}" target="_blank">📄 View / Download File</a>
-                @else
-                    None uploaded
-                @endif
-            </p>
-
-            <p><strong>Reassignment Requested:</strong>
-                @if($progress->ReassignmentRequested)
-                    <span style="color: red;"><strong>Yes</strong></span>
-                @else
-                    No
-                @endif
-            </p>
         </div>
     @empty
-        <p>No agencies have submitted progress yet for this inquiry.</p>
+        <p>No progress found for this inquiry.</p>
     @endforelse
 @endsection
