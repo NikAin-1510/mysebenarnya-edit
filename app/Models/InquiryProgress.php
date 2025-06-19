@@ -22,7 +22,8 @@ class InquiryProgress extends Model
         'VerificationStatus',
         'VerificationDateTime',
         'InvestigationDetails',
-        'InvestigationDoc'
+        'InvestigationDoc',
+        'Notify'
     ];
 
     // Relationships
@@ -40,9 +41,4 @@ class InquiryProgress extends Model
     {
         return $this->belongsTo(InquiryAssignment::class, 'AssignmentID', 'AssignmentID');
     }
-
-    //public function officer()
-    //{
-    //    return $this->belongsTo(User::class, 'UserID', 'UserID');
-    //}
 }

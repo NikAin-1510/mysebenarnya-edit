@@ -105,22 +105,34 @@ class TrackingProgressController extends Controller
 
 
     //mcmc
-    public function m_CreateReport()
-    {
-        return view('SharedUI.CreateReportUI');
-    }
-
-
     public function m_InquiryProgress(Request $request)
     {
         $inquiryID = $request->query('id');
 
-        $inquiry = DB::table('inquiry')->where('InquiryID', $inquiryID)->first();
+        if (!$inquiryID) {
+            abort(404, 'Inquiry ID not provided.');
+        }
+
+        $inquiry = DB::table('inquiry')
+            ->where('InquiryID', $inquiryID)
+            ->first();
+
+        if (!$inquiry) {
+            abort(404, 'Inquiry not found.');
+        }
 
         $progressList = DB::table('inquiryprogress')
             ->join('agency', 'inquiryprogress.AgencyID', '=', 'agency.AgencyID')
             ->where('inquiryprogress.InquiryID', $inquiryID)
-            ->select('inquiryprogress.*', 'agency.AgencyName')
+            ->select(
+                'inquiryprogress.VerificationStatus',
+                'inquiryprogress.VerificationDateTime',
+                'inquiryprogress.InvestigationBeginDate',
+                'inquiryprogress.InvestigationDetails',
+                'inquiryprogress.InvestigationDoc',
+                'inquiryprogress.Notify', // ✅ add this
+                'agency.AgencyName'
+            )
             ->get();
 
         return view('InquiryProgressTrackingUI.MCMC.MonitorProgressUI', [
@@ -129,6 +141,7 @@ class TrackingProgressController extends Controller
         ]);
     }
 
+
     public function m_DisplayReport()
     {
         return view('InquiryProgressTrackingUI.MCMC.ProgDisplayReportUI');
@@ -136,9 +149,9 @@ class TrackingProgressController extends Controller
 
 
     //public
-    public function p_OwnInquiryProg(Request $request)
+    public function p_ProgOwnInquiry(Request $request)
     {
-        $inquiryID = $request->query('id'); // ?id=IQ000123
+        $inquiryID = $request->query('id');
 
         if (!$inquiryID) {
             abort(404, 'Inquiry ID not provided.');
@@ -146,17 +159,18 @@ class TrackingProgressController extends Controller
 
         $userID = Auth::user()->UserID;
 
-        // Make sure this inquiry belongs to the current public user
+        // Join publicuser to get the inquiry that belongs to this user
         $inquiry = DB::table('inquiry')
-            ->where('InquiryID', $inquiryID)
-            ->where('PublicID', $userID)
+            ->join('publicuser', 'inquiry.PublicID', '=', 'publicuser.PublicID')
+            ->where('inquiry.InquiryID', $inquiryID)
+            ->where('publicuser.UserID', $userID)
+            ->select('inquiry.*') // Select inquiry columns only
             ->first();
 
         if (!$inquiry) {
             abort(403, 'You are not authorized to view this inquiry.');
         }
 
-        // Get progress list for this inquiry
         $progressList = DB::table('inquiryprogress')
             ->where('InquiryID', $inquiryID)
             ->get();
@@ -167,6 +181,7 @@ class TrackingProgressController extends Controller
             'message' => $progressList->isEmpty() ? 'No agencies have submitted progress yet for this inquiry.' : null
         ]);
     }
+
 
     public function p_NotificationDetails(Request $request)
     {
