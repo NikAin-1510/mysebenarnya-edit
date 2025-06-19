@@ -23,10 +23,12 @@
 
     @forelse($progressList as $progress)
         <div class="progress-card">
-            <h3>Agency: {{ $progress->AgencyName }}</h3>
             <p><strong>Status:</strong> {{ $progress->VerificationStatus ?? 'N/A' }}</p>
 
             @if($progress->VerificationStatus === 'Rejected')
+            <p>The inquiry you submitted is dismissed due to irrelevance or lack of sufficient
+evidence.</p>
+<p><strong>Investigation Start Date:</strong> No investigation conducted</p>
                 <p><strong>Verification Date:</strong> {{ $progress->VerificationDateTime ?? 'Not available' }}</p>
             @elseif(in_array($progress->VerificationStatus, ['Verified as True', 'Identified as Fake']))
                 <p><strong>Investigation Start Date:</strong> {{ $progress->InvestigationBeginDate ?? 'Not started' }}</p>

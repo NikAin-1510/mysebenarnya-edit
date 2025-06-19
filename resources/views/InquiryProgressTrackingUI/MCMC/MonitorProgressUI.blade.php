@@ -23,7 +23,7 @@
 
     @forelse($progressList as $progress)
         <div class="progress-card">
-            <h3>Agency: {{ $progress->AgencyName }}</h3>
+            {{-- <h3>Agency: {{ $progress->AgencyName }}</h3> --}}
             <p><strong>Status:</strong> {{ $progress->VerificationStatus ?? 'N/A' }}</p>
 
             @if($progress->VerificationStatus === 'Rejected')
@@ -47,7 +47,7 @@
             </p>
 
             <p><strong>Reassignment Requested:</strong>
-                @if($progress->ReassignmentRequested)
+                @if($progress->Notify)
                     <span style="color: red;"><strong>Yes</strong></span>
                 @else
                     No

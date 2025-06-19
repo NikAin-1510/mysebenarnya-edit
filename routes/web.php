@@ -126,7 +126,6 @@ Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_Notify
 Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
 
 // mcmc
-Route::get('/mcmc/create-report', [TrackingProgressController::class, 'm_CreateReport']);
 Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
 Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
 // public
