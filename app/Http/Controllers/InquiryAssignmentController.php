@@ -7,32 +7,41 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Inquiry;
 use App\Models\Agency;
 use App\Models\InquiryAssignment;
+use Illuminate\Support\Facades\Auth;
+use App\Models\PublicUser;
 
 class InquiryAssignmentController extends Controller
 {
     // === PUBLIC ===
     public function publicOwnList()
     {
-        $publicID = session('profile_id') ?? 'PU001';
+        $user = Auth::user();
+
+        if (!$user || !$user->publicUser) {
+            return redirect()->route('login')->with('error', 'You must be logged in as a public user.');
+        }
+
+        $publicID = $user->publicUser->PublicID;
 
         $inquiries = DB::table('inquiry')
-            ->leftJoin('inquiryasssignment', 'inquiry.InquiryID', '=', 'inquiryasssignment.InquiryID')
-            ->leftJoin('agency', 'inquiryasssignment.AgencyID', '=', 'agency.AgencyID')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
             ->leftJoin('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
             ->select(
                 'inquiry.*',
                 'agency.AgencyName',
-                'inquiryasssignment.AssignDate',
+                'inquiryassignment.AssignDate',
                 'inquiryprogress.VerificationDateTime',
                 'inquiryprogress.VerificationStatus',
                 'inquiryprogress.InvestigationDetails'
             )
-            ->where('inquiry.PublicID', $publicID)
+            ->where('inquiry.PublicID', $publicID) // now using auth()->user()
             ->orderBy('SubmissionDate', 'desc')
             ->get();
 
-        return view('InquiryAssignmentUI.Public.OwnListInquiryUI', compact('inquiries'));
+        return view('InquiryAssignmentUI.Public.OwnAssignedInquiryUI', compact('inquiries'));
     }
+
 
     // === MCMC ===
 
@@ -148,7 +157,7 @@ class InquiryAssignmentController extends Controller
                     'InvestigationBeginDate' => now(),
                     'VerificationStatus' => 'accepted',
                     'InvestigationDetails' => 'Inquiry accepted by agency.',
-                ]
+                ] //
             );
             return redirect()->route('agency.inquiries')->with('success', 'Inquiry accepted.');
         }

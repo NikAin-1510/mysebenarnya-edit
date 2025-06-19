@@ -41,14 +41,17 @@
             <li><a href="{{ route('display.home') }}"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="{{ route('inquiry.form') }}"><i class="fas fa-comments"></i> Submit Inquiry</a></li>
-            <li><a href="{{ route('public.list') }}"><i class="fas fa-comments"></i> List Inquiry</a></li>
+            <li><a href="{{ route('public.list') }}"><i class="fas fa-align-justify"></i> List Inquiry</a></li>
             <li><a href="/public/inquiry-list"><i class="fas fa-newspaper"></i> Browse Verified News</a></li>
             <li><a href="/public/notification-list"><i class="fas fa-newspaper"></i> Notification</a></li>
 
 
         @elseif(session('user_role') === 'mcmc')
+
             <li><a href="{{ route('display.home') }}"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
+            <li><a href="{{ route('mcmc.all.inquiry') }}"><i class="fas fa-align-justify"></i> List Inquiry</a></li>
+            <li><a href="{{ route('mcmc.new.inquiry') }}"><i class="far fa-clipboard"></i> New Inquiry</a></li>
             <li><a href="{{ route('show.register.agency') }}"><i class="fas fa-user-plus"></i> Register Agency</a></li>
             <li><a href="{{ route('view.all.users') }}"><i class="fas fa-users"></i> View All Users</a></li>
             <li><a href="{{ route('show.reportDashboard') }}"><i class="fas fa-chart-line"></i> Generate Reports</a></li>
