@@ -272,18 +272,26 @@ class InquiryController extends Controller
     //----
 
     // DETAILS INQUIRY
-    public function UpdateCategory(Request $request, $id)
+    public function updateCategory(Request $request, $id)
     {
         $request->validate([
-            'SubmissionCategory' => 'required|in:Genuine,NonSerious',
+            'SubmissionCategory' => 'required|in:Genuine,Non-Serious',
         ]);
 
-        $inquiry = Inquiry::where('PublicID', $id)->firstOrFail();
+        $inquiry = Inquiry::findOrFail($id);
         $inquiry->SubmissionCategory = $request->SubmissionCategory;
         $inquiry->save();
 
-        return back()->with('success', 'Category updated.');
+        return redirect()->back()->with('success', 'Category updated successfully.');
     }
+    public function assignAgency($id)
+    {
+        $inquiry = Inquiry::findOrFail($id);
+        $agencies = Agency::all(); // or however you fetch agency list
+
+        return view('InquiryFormSubmissionUI.Public.AssignAgencyUI', compact('inquiry', 'agencies'));
+    }
+
 
     public function m_DetailsInquiry($id)
     {
