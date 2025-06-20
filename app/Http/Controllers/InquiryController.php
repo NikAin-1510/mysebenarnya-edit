@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\User;
-
+use App\Models\InquiryAssignment;
 
 class InquiryController extends Controller
 {
@@ -149,8 +149,7 @@ class InquiryController extends Controller
 
     public function p_DetailsOwnInquiry($id)
     {
-        $user = Auth::user(); // ✅ same thing, more IDE-friendly
-
+        $user = Auth::user();
 
         if (!$user || !$user->publicUser) {
             return redirect()->back()->with('error', 'Your public user profile is missing.');
@@ -160,8 +159,20 @@ class InquiryController extends Controller
             ->where('PublicID', $user->publicUser->PublicID)
             ->firstOrFail();
 
-        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact('inquiry'));
+        // Assigned agency (if any)
+        $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
+            ->where('InquiryID', $id)
+            ->first();
+
+        // ❌ DO NOT use InquiryComment::... (it's not a model)
+
+        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact(
+            'inquiry',
+            'assignedAgency'
+        ));
     }
+
+
 
 
 

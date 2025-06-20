@@ -12,14 +12,18 @@
         text-transform: capitalize;
         color: #fff;
     }
+
     .badge-genuine {
-        background-color: #28a745; /* green */
+        background-color: #28a745; /* Green */
     }
+
     .badge-nonserious {
-        background-color: #dc3545; /* red */
+        background-color: #dc3545; /* Red */
     }
 </style>
 @endpush
+
+@section('page-name', 'New Inquiries')
 
 @section('content')
 <div class="container">
@@ -46,11 +50,11 @@
                     @elseif ($inquiry->SubmissionCategory === 'NonSerious')
                         <span class="badge badge-nonserious">Non-Serious</span>
                     @else
-                        <span class="badge">{{ $inquiry->SubmissionCategory }}</span>
+                        <span class="badge">{{ $inquiry->SubmissionCategory ?? 'Uncategorized' }}</span>
                     @endif
                 </td>
                 <td>
-                    <a href="{{ route('inquiry.own.view', $inquiry->PublicID) }}" class="btn btn-primary">View Details</a>
+                    <a href="{{ route('inquiry.own.view', $inquiry->InquiryID) }}" class="btn btn-primary">View Details</a>
                 </td>
             </tr>
             @empty
