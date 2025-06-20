@@ -24,7 +24,9 @@ class InquiryController extends Controller
     {
         $agencyId = Auth::user()->AgencyID;
 
-        $query = Inquiry::where('AgencyID', $agencyId);
+        $query = Inquiry::select('inquiry.*')
+            ->join('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->where('inquiryassignment.AgencyID', $agencyId);
 
         if ($request->status) {
             $query->where('InvestigationStatus', $request->status);
@@ -35,19 +37,19 @@ class InquiryController extends Controller
         }
 
         if ($request->date) {
-            $query->whereMonth('SubmissionDate', '=', date('m', strtotime($request->date)))
-                ->whereYear('SubmissionDate', '=', date('Y', strtotime($request->date)));
+            $query->whereMonth('SubmissionDate', date('m', strtotime($request->date)))
+                ->whereYear('SubmissionDate', date('Y', strtotime($request->date)));
         }
 
-        // ✅ New: Filter by Inquiry Title (partial match)
         if ($request->title) {
             $query->where('InquiryTitle', 'like', '%' . $request->title . '%');
         }
 
-        $assignedInquiries = $query->orderBy('SubmissionDate', 'desc')->get();
+        $assignedInquiries = $query->orderByDesc('SubmissionDate')->get();
 
         return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
     }
+
 
     public function a_ReviewInquiry($id)
     {
