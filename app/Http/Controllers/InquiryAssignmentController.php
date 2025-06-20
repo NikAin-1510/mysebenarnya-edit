@@ -9,6 +9,7 @@ use App\Models\Agency;
 use App\Models\InquiryAssignment;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PublicUser;
+use App\Models\User;
 
 class InquiryAssignmentController extends Controller
 {
@@ -45,33 +46,57 @@ class InquiryAssignmentController extends Controller
 
     // === MCMC ===
 
+    // Show Assign Inquiry Form
     public function showAssignForm($id)
-{
-    $inquiry = \App\Models\Inquiry::findOrFail($id);
-    $agencies = \App\Models\Agency::select('AgencyID', 'AgencyName')->distinct()->get();
+    {
+        // Get inquiry data
+        $inquiry = Inquiry::findOrFail($id);
 
-    return view('InquiryAssignment.MCMC.AssignInquiryUI', compact('inquiry', 'agencies'));
-}
+        // Get all distinct agencies from database
+        $agencies = Agency::select('AgencyID', 'AgencyName')->distinct()->get();
 
-public function storeAssignment(Request $request, $id)
-{
-    $validated = $request->validate([
-        'AgencyID' => 'required',
-        'InquiryComment' => 'required|string|max:255'
-    ]);
+        // Pass to view
+        return view('InquiryAssignmentUI.MCMC.AssignInquiryUI', compact('inquiry', 'agencies'));
+    }
 
-    $assignment = new \App\Models\InquiryAssignment();
-    $assignment->AssignmentID = 'ASS' . str_pad(rand(1, 9999), 3, '0', STR_PAD_LEFT);
-    $assignment->AgencyID = $validated['AgencyID'];
-    $assignment->mcmcID = auth()->user()->UserID; // assuming MCMC user is logged in
-    $assignment->InquiryID = $id;
-    $assignment->AssignDate = now()->toDateString();
-    $assignment->JurisdictionStatus = 1;
-    $assignment->InquiryComment = $validated['InquiryComment'];
-    $assignment->save();
+    // Store Inquiry Assignment
+    public function storeAssignment(Request $request, $id)
+    {
+        // Validate form input
+        $validated = $request->validate([
+            'AgencyID' => 'required',
+            'InquiryComment' => 'required|string|max:255',
+        ]);
 
-    return redirect()->route('mcmc.new.inquiry')->with('success', 'Inquiry successfully assigned!');
-}
+        // Generate unique AssignmentID (example: ASS1234)
+        $assignmentID = 'ASS' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+        // Create new assignment
+        $assignment = new InquiryAssignment();
+        $assignment->AssignmentID = $assignmentID;
+        $assignment->AgencyID = $validated['AgencyID'];
+        $assignment->mcmcID = Auth::user()->UserID;
+        $assignment->InquiryID = $id;
+        $assignment->AssignDate = now()->toDateString();
+        $assignment->JurisdictionStatus = 1; // default status
+        $assignment->InquiryComment = $validated['InquiryComment'];
+        $assignment->save();
+
+        return redirect()->route('mcmc.assign.view', $id)->with('success', 'Inquiry assigned successfully.');
+    }
+
+    public function viewAssignedInquiry($id)
+    {
+        $inquiry = Inquiry::findOrFail($id);
+        $assignment = InquiryAssignment::where('InquiryID', $id)->first();
+
+        if (!$assignment) {
+            return redirect()->route('mcmc.new.inquiry')->with('error', 'Assignment not found.');
+        }
+
+        return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiry', 'assignment'));
+    }
+
 
 
     public function a_ReviewInquiry()
@@ -88,7 +113,7 @@ public function storeAssignment(Request $request, $id)
         $agencies = Agency::all();
         $assignments = InquiryAssignment::with(['inquiry', 'agency'])->latest('AssignDate')->get();
 
-        return view('InquiryAssignmentUI.MCMC.AssignInquiryUI', compact('inquiries', 'agencies', 'assignments'));
+        return view('InquiryAssignmentUI.AssignInquiryUI', compact('inquiries', 'agencies', 'assignments'));
     }
 
     public function a_DisplayReport()

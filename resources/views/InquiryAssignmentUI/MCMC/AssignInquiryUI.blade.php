@@ -8,7 +8,8 @@
 <div class="container">
     <h1>Inquiry Details</h1>
 
-    <form action="{{ route('agency.assign.inquiry', $inquiry->InquiryID) }}" method="POST">
+   <form action="{{ route('agency.assign.inquiry', $inquiry->InquiryID) }}" method="POST">
+
         @csrf
 
         <div class="inquiry-details-card">
@@ -20,7 +21,7 @@
             <p><strong>Submission Category:</strong> {{ $inquiry->SubmissionCategory }}</p>
 
             <div class="evidence-section">
-                <p><strong>Submission Link:</strong> 
+                <p><strong>Submission Link:</strong>
                     <a href="{{ $inquiry->SubmissionLink }}" target="_blank">{{ $inquiry->SubmissionLink }}</a>
                 </p>
 
@@ -34,7 +35,7 @@
             </div>
 
             {{-- Agency Dropdown --}}
-            <p><strong>Assign to Agency:</strong>
+            <p><strong>Agency:</strong>
                 <select name="AgencyID" class="category-select" required>
                     <option value="">-- Select Agency --</option>
                     @foreach($agencies as $agency)

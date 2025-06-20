@@ -43,7 +43,7 @@
 .btn-save,
 .btn-next,
 .btn-back {
-    width: 125px; /* fixed width */
+    width: 130px; /* fixed width */
     height: 40px; /* fixed height */
     line-height: 45px; /* vertical alignment */
     display: inline-block;
@@ -69,12 +69,12 @@
 }
 
 .btn-next {
-    background-color: #007bff;
+    background-color: #993594;
     color: white;
 }
 
 .btn-next:hover {
-    background-color: #0056b3;
+    background-color: #64126b;
 }
 
 .btn-back {

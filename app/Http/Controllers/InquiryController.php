@@ -181,7 +181,7 @@ class InquiryController extends Controller
             'url' => 'required|url',
             'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
-
+        $inquiryID = 'INQ' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         $inquiry = new Inquiry();
         $inquiry->InquiryID = uniqid('INQ');
         $inquiry->UserID = Auth::id(); // Assuming user is logged in
