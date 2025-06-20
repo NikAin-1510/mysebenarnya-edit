@@ -28,7 +28,6 @@
 
             <p><strong>Status:</strong> {{ ucfirst($inquiry->SubmissionStatus) }}</p>
             <p><strong>Submitted At:</strong> {{ \Carbon\Carbon::parse($inquiry->SubmissionDate)->format('d M Y') }}</p>
-            <p><strong>Agency:</strong> Unassigned</p>
 
             {{-- Evidence Section --}}
             <div class="evidence-section">
@@ -44,6 +43,7 @@
         <p><strong>Evidence File:</strong> Not Provided</p>
     @endif
 </div>
+ <p><strong>Agency:</strong> Unassigned</p>
 
         <div class="text-center mt-4">
             <br>
