@@ -343,18 +343,29 @@ class TrackingProgressController extends Controller
     {
         $userID = Auth::user()->UserID;
 
-        $statusFilter = $request->input('status'); // 'Under Investigation', 'Verified as True', 'Identified as Fake'
+        $statusFilter = $request->input('status'); // 'Under Investigation', etc.
         $ownOnly = $request->input('own_only'); // 'on' if checked
 
         $query = DB::table('inquiry')
             ->join('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
-            ->select('inquiry.*', 'inquiryprogress.VerificationStatus')
-            ->where('inquiryprogress.VerificationStatus', '!=', 'Rejected'); // ⛔️ Exclude Rejected
+            ->select('inquiry.*', 'inquiryprogress.VerificationStatus', 'inquiryprogress.InvestigationBeginDate', 'inquiryprogress.VerificationDateTime')
+            ->where(function ($q) {
+                $q->whereNull('inquiryprogress.VerificationStatus')
+                    ->orWhere('inquiryprogress.VerificationStatus', '!=', 'Rejected'); // Exclude rejected
+            });
 
-        if ($statusFilter) {
+        // ✅ Handle special logic for "Under Investigation"
+        if ($statusFilter === 'Under Investigation') {
+            $query->whereNotNull('inquiryprogress.InvestigationBeginDate')
+                ->whereNull('inquiryprogress.VerificationStatus')
+                ->whereNull('inquiryprogress.VerificationDateTime');
+        }
+        // ✅ Handle other statuses
+        elseif (in_array($statusFilter, ['Verified as True', 'Identified as Fake'])) {
             $query->where('inquiryprogress.VerificationStatus', $statusFilter);
         }
 
+        // ✅ Filter by own inquiries
         if ($ownOnly) {
             $query->join('publicuser', 'inquiry.PublicID', '=', 'publicuser.PublicID')
                 ->where('publicuser.UserID', $userID);

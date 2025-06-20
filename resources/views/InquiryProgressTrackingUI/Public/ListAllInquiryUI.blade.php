@@ -37,7 +37,11 @@
     {{ $inq->InquiryTitle }}
 </a></td>
                     <td>{{ \Carbon\Carbon::parse($inq->SubmissionDate)->format('Y-m-d H:i') }}</td>
-                    <td>{{ $inq->VerificationStatus ?? 'N/A' }}</td>
+                    @php
+                        $status = $inq->VerificationStatus
+                        ?? ($inq->InvestigationBeginDate ? 'Under Investigation' : 'N/A');
+                    @endphp
+                    <td>{{ $status }}</td>
                 </tr>
             @empty
                 <tr>
