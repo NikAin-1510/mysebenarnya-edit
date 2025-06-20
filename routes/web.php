@@ -102,7 +102,7 @@ Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnL
     ->name('public.list');
 
 Route::get('/agency/dashboard', [InquiryAssignmentController::class, 'a_ReviewInquiry'])->name('agency.review.inquiry');
-Route::get('/agency/assign', [InquiryAssignmentController::class, 'a_AssignInquiry'])->name('agency.assign.form');
+Route::get('/mcmc/assign', [InquiryAssignmentController::class, 'a_AssignInquiry'])->name('agency.assign.form');
 Route::post('/agency/assign', [InquiryAssignmentController::class, 'storeAssignment'])->name('agency.assign.inquiry');
 Route::get('/agency/reports', [InquiryAssignmentController::class, 'a_DisplayReport'])->name('agency.display.report');
 Route::get('/agency/inquiries', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquiries');
