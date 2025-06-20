@@ -4,11 +4,16 @@
 <link rel="stylesheet" href="{{ asset('css/Module3/assign-inquiry.css') }}">
 @endpush
 
+
+
+
 @section('content')
 <div class="container">
     <h1>Inquiry Details</h1>
 
-   <form action="{{ route('agency.assign.inquiry', $inquiry->InquiryID) }}" method="POST">
+   <form action="{{ route('mcmc.assign.inquiry', ['id' => $inquiry->InquiryID]) }}" method="POST">
+
+
 
         @csrf
 
@@ -59,3 +64,18 @@
     </form>
 </div>
 @endsection
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+@endpush

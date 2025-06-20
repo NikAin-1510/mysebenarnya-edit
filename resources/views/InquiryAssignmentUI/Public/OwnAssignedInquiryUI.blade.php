@@ -22,8 +22,9 @@
   <div class="agency-info">
     <div class="agency-header">
       <div class="agency-icon"><i class="fas fa-building"></i></div>
-      <div class="agency-name">{{ $inq->AgencyName ?? 'Awaiting Agency Assignment' }}</div>
-    </div>
+      <div class="agency-name">
+    {{ $inq->latestAssignment?->agency?->AgencyName ?? 'Awaiting Agency Assignment' }}
+</div>
     <div class="agency-details">
       @if($inq->InvestigationDetails)
         <strong>Verification Result:</strong> {{ $inq->InvestigationDetails }}

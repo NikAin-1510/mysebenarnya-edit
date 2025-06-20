@@ -31,8 +31,9 @@ class InquiryAssignment extends Model
 
     public function agency()
     {
-        return $this->belongsTo(Agency::class, 'AgencyID', 'AgencyID');
+        return $this->belongsTo(\App\Models\Agency::class, 'AgencyID');
     }
+
 
     public function mcmc()
     {

@@ -159,18 +159,19 @@ class InquiryController extends Controller
             ->where('PublicID', $user->publicUser->PublicID)
             ->firstOrFail();
 
-        // Assigned agency (if any)
         $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
             ->where('InquiryID', $id)
+            ->orderByDesc('AssignDate')
             ->first();
 
-        // ❌ DO NOT use InquiryComment::... (it's not a model)
 
         return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact(
             'inquiry',
-            'assignedAgency'
+            'assignedAgency',
+
         ));
     }
+
 
 
 
@@ -274,49 +275,66 @@ class InquiryController extends Controller
             ->join('publicuser', 'inquiry.publicID', '=', 'publicuser.publicID')
             ->join('user', 'publicuser.userID', '=', 'user.UserID')
             ->where('user.Role', 'publicuser')
+            ->whereNull('inquiry.SubmissionCategory')
             ->orderBy('inquiry.SubmissionDate', 'desc')
             ->select('inquiry.*')
             ->get();
 
         return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiries'));
     }
+
+
+
     //----
 
     // DETAILS INQUIRY
     public function updateCategory(Request $request, $id)
     {
+        // ✅ 1. Validate that the SubmissionCategory field is either "Genuine" or "Non-Serious"
         $request->validate([
             'SubmissionCategory' => 'required|in:Genuine,Non-Serious',
         ]);
 
+        // ✅ 2. Find the inquiry by ID or fail if not found
         $inquiry = Inquiry::findOrFail($id);
+
+        // ✅ 3. Update the SubmissionCategory field with the selected value
         $inquiry->SubmissionCategory = $request->SubmissionCategory;
+
+        // ✅ 4. Save the updated record to the database
         $inquiry->save();
 
+        // ✅ 5. Redirect back to the form with a success message (used for popup alert)
         return redirect()->back()->with('success', 'Category updated successfully.');
     }
 
+
     public function m_DetailsInquiry($id)
     {
-        $inquiry = Inquiry::where('PublicID', $id)->firstOrFail();
+        $inquiry = Inquiry::where('InquiryID', $id)->firstOrFail();
         return view('InquiryFormSubmissionUI.MCMC.DetailsInquiryUI', compact('inquiry'));
     }
+
+
 
     //-----
 
     // LIST ALL INQUIRY
-
     public function m_ListAllInquiry(Request $request)
     {
-        $query = Inquiry::query();
+        $query = Inquiry::with(['latestAssignment.agency']);
+
 
         if ($request->filled('status')) {
             $query->where('SubmissionCategory', $request->status);
         }
 
         if ($request->filled('agency')) {
-            $query->where('AssignedAgencyID', $request->agency);
+            $query->whereHas('latestAssignment', function ($q) use ($request) {
+                $q->where('AgencyID', $request->agency);
+            });
         }
+
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('SubmissionDate', [$request->start_date, $request->end_date]);
@@ -328,19 +346,17 @@ class InquiryController extends Controller
         return view('InquiryFormSubmissionUI.MCMC.ListAllInquiryUI', compact('inquiries', 'agencies'));
     }
 
+
+
+
     public function m_AllDetailsInquiry($id)
     {
-        $user = Auth::user(); // ✅ same thing, more IDE-friendly
+        $inquiry = Inquiry::where('InquiryID', $id)->firstOrFail();
 
+        $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
+            ->where('InquiryID', $id)
+            ->first();
 
-        if (!$user || !$user->publicUser) {
-            return redirect()->back()->with('error', 'Your public user profile is missing.');
-        }
-
-        $inquiry = Inquiry::where('InquiryID', $id)
-            ->where('PublicID', $user->publicUser->PublicID)
-            ->firstOrFail();
-
-        return view('InquiryFormSubmissionUI.Public.AllDetailsInquiryUI', compact('inquiry'));
+        return view('InquiryFormSubmissionUI.MCMC.AllDetailsInquiryUI', compact('inquiry', 'assignedAgency'));
     }
 }

@@ -24,24 +24,37 @@ class InquiryAssignmentController extends Controller
 
         $publicID = $user->publicUser->PublicID;
 
+        // Subquery to get the latest assignment per inquiry
+        $latestAssignments = DB::table('inquiryassignment as ia1')
+            ->select('ia1.InquiryID', 'ia1.AgencyID', 'ia1.AssignDate')
+            ->whereRaw('ia1.AssignDate = (
+            SELECT MAX(ia2.AssignDate)
+            FROM inquiryassignment as ia2
+            WHERE ia2.InquiryID = ia1.InquiryID
+        )');
+
+        // Main query to get inquiries with latest assignment, agency info, and progress
         $inquiries = DB::table('inquiry')
-            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
-            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->leftJoinSub($latestAssignments, 'latest_ia', function ($join) {
+                $join->on('inquiry.InquiryID', '=', 'latest_ia.InquiryID');
+            })
+            ->leftJoin('agency', 'latest_ia.AgencyID', '=', 'agency.AgencyID')
             ->leftJoin('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
             ->select(
                 'inquiry.*',
                 'agency.AgencyName',
-                'inquiryassignment.AssignDate',
+                'latest_ia.AssignDate',
                 'inquiryprogress.VerificationDateTime',
                 'inquiryprogress.VerificationStatus',
                 'inquiryprogress.InvestigationDetails'
             )
-            ->where('inquiry.PublicID', $publicID) // now using auth()->user()
+            ->where('inquiry.PublicID', $publicID)
             ->orderBy('SubmissionDate', 'desc')
             ->get();
 
         return view('InquiryAssignmentUI.Public.OwnAssignedInquiryUI', compact('inquiries'));
     }
+
 
 
     // === MCMC ===
@@ -82,19 +95,15 @@ class InquiryAssignmentController extends Controller
         $assignment->InquiryComment = $validated['InquiryComment'];
         $assignment->save();
 
-        return redirect()->route('mcmc.assign.view', $id)->with('success', 'Inquiry assigned successfully.');
+        return redirect()->route('mcmc.new.inquiry')->with('success', 'Inquiry assigned successfully.');
     }
 
-    public function viewAssignedInquiry($id)
+
+    public function m_ReviewInquiry($id)
     {
-        $inquiry = Inquiry::findOrFail($id);
-        $assignment = InquiryAssignment::where('InquiryID', $id)->first();
+        $inquiry = Inquiry::with('latestAssignment.agency')->where('InquiryID', $id)->firstOrFail();
 
-        if (!$assignment) {
-            return redirect()->route('mcmc.new.inquiry')->with('error', 'Assignment not found.');
-        }
-
-        return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiry', 'assignment'));
+        return view('InquiryAssignmentUI.MCMC.ReviewInquiryUI', compact('inquiry'));
     }
 
 
@@ -170,45 +179,5 @@ class InquiryAssignmentController extends Controller
             ->firstOrFail();
 
         return view('InquiryFormSubmissionUI.Agency.InquiryDetailsUI', compact('assignment'));
-    }
-
-    public function handleAction(Request $request, $id)
-    {
-        $assignment = InquiryAssignment::findOrFail($id);
-        $inquiry = $assignment->inquiry;
-
-        if ($request->action === 'accept') {
-            InquiryProgress::updateOrCreate(
-                ['AssignmentID' => $assignment->AssignmentID],
-                [
-                    'InquiryID' => $assignment->InquiryID,
-                    'AgencyID' => $assignment->AgencyID,
-                    'InvestigationBeginDate' => now(),
-                    'VerificationStatus' => 'accepted',
-                    'InvestigationDetails' => 'Inquiry accepted by agency.',
-                ] //
-            );
-            return redirect()->route('agency.inquiries')->with('success', 'Inquiry accepted.');
-        }
-
-        if ($request->action === 'reject') {
-            DB::beginTransaction();
-            try {
-                // Reset assignment
-                $assignment->delete();
-
-                // Update inquiry status back to pending
-                $inquiry->SubmissionStatus = 'pending';
-                $inquiry->save();
-
-                DB::commit();
-                return redirect()->route('agency.inquiries')->with('success', 'Inquiry rejected and unassigned.');
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return back()->with('error', 'Failed to reject inquiry: ' . $e->getMessage());
-            }
-        }
-
-        return back()->with('error', 'Invalid action.');
     }
 }

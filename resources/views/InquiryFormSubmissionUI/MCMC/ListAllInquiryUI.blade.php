@@ -47,9 +47,15 @@
           @endif
         </div>
         <div class="inquiry-footer">
-          <div><i class="fas fa-building"></i> {{ $inq->AgencyName ?? 'Unassigned' }}</div>
-          <a href="{{ route('mcmc.all.details', $inq->InquiryID) }}" class="btn-view">View Details</a>
-        </div>
+  <div>
+    <i class="fas fa-building"></i>
+    {{ $inq->latestAssignment?->agency?->AgencyName ?? 'Unassigned' }}
+
+
+  </div>
+  <a href="{{ route('mcmc.all.details', $inq->InquiryID) }}" class="btn-view">View Details</a>
+</div>
+
       </div>
     @endforeach
   </div>
