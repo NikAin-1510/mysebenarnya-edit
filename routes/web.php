@@ -98,6 +98,7 @@ Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name
 
 //Module3: Inquiry Assignment
 use App\Http\Controllers\InquiryAssignmentController;
+
 // MCMC Routes
 Route::group(['prefix' => 'mcmc', 'middleware' => ['auth', 'role:mcmc']], function () {
 
