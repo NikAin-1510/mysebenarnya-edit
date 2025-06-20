@@ -46,81 +46,169 @@ class InquiryAssignmentController extends Controller
 
     // === MCMC ===
 
-// In your Controller (e.g., McmcController or InquiryController)
+    // Show Assign Inquiry Form
+    public function showAssignForm($id)
+    {
+        // Get inquiry data
+        $inquiry = Inquiry::findOrFail($id);
 
-public function assignInquiry(Request $request, $inquiryId)
-{
-    try {
-        // Validate the request
-        $request->validate([
-            'AgencyID' => 'required|string',
-            'InquiryComment' => 'required|string|max:30',
-        ]);
+        // Get all distinct agencies from database
+        $agencies = Agency::select('AgencyID', 'AgencyName')->distinct()->get();
 
-        // Get the inquiry
-        $inquiry = DB::table('inquiry')->where('InquiryID', $inquiryId)->first();
-        
-        if (!$inquiry) {
-            return redirect()->back()->with('error', 'Inquiry not found.');
-        }
-
-        // Get MCMC user (assuming you have auth or session)
-        $mcmcUser = DB::table('mcmc')
-            ->join('user', 'mcmc.UserID', '=', 'user.UserID')
-            ->where('user.UserID', auth()->user()->UserID ?? 'P003') // Replace with actual auth
-            ->first();
-
-        // Generate Assignment ID
-        $lastAssignment = DB::table('inquiryassignment')
-            ->orderBy('AssignmentID', 'desc')
-            ->first();
-        
-        $nextNumber = 1;
-        if ($lastAssignment) {
-            $nextNumber = intval(substr($lastAssignment->AssignmentID, 3)) + 1;
-        }
-        $assignmentId = 'ASS' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-
-        // Create the assignment
-        DB::table('inquiryassignment')->insert([
-            'AssignmentID' => $assignmentId,
-            'AgencyID' => $request->AgencyID,
-            'mcmcID' => $mcmcUser->mcmcID,
-            'InquiryID' => $inquiryId,
-            'AssignDate' => now()->toDateString(),
-            'JurisdictionStatus' => 1,
-            'InquiryComment' => $request->InquiryComment,
-        ]);
-
-        // Update inquiry status to 'forwarded' or 'assigned'
-        DB::table('inquiry')
-            ->where('InquiryID', $inquiryId)
-            ->update(['SubmissionStatus' => 'forwarded']);
-
-        // Redirect with success message
-        return redirect()->route('mcmc.new.inquiry')
-            ->with('success', 'Inquiry has been successfully assigned to the agency.');
-
-    } catch (\Exception $e) {
-        return redirect()->back()
-            ->with('error', 'Failed to assign inquiry. Please try again.')
-            ->withInput();
+        // Pass to view
+        return view('InquiryAssignmentUI.MCMC.AssignInquiryUI', compact('inquiry', 'agencies'));
     }
-}
 
-public function newInquiryList()
-{
-    // Get only pending inquiries (not yet assigned)
-    $inquiries = DB::table('inquiry')
-        ->join('publicuser', 'inquiry.PublicID', '=', 'publicuser.PublicID')
-        ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
-        ->whereNull('inquiryassignment.InquiryID') // Only unassigned inquiries
-        ->where('inquiry.SubmissionStatus', '!=', 'forwarded') // Exclude already forwarded
-        ->where('inquiry.SubmissionStatus', '!=', 'completed') // Exclude completed
-        ->select('inquiry.*')
-        ->orderBy('inquiry.SubmissionDate', 'desc')
-        ->get();
+    // Store Inquiry Assignment
+    public function storeAssignment(Request $request, $id)
+    {
+        // Validate form input
+        $validated = $request->validate([
+            'AgencyID' => 'required',
+            'InquiryComment' => 'required|string|max:255',
+        ]);
 
-    return view('mcmc.new-inquiry', compact('inquiries'));
-}
+        // Generate unique AssignmentID (example: ASS1234)
+        $assignmentID = 'ASS' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+        // Create new assignment
+        $assignment = new InquiryAssignment();
+        $assignment->AssignmentID = $assignmentID;
+        $assignment->AgencyID = $validated['AgencyID'];
+        $assignment->mcmcID = Auth::user()->UserID;
+        $assignment->InquiryID = $id;
+        $assignment->AssignDate = now()->toDateString();
+        $assignment->JurisdictionStatus = 1; // default status
+        $assignment->InquiryComment = $validated['InquiryComment'];
+        $assignment->save();
+
+        return redirect()->route('mcmc.assign.view', $id)->with('success', 'Inquiry assigned successfully.');
+    }
+
+    public function viewAssignedInquiry($id)
+    {
+        $inquiry = Inquiry::findOrFail($id);
+        $assignment = InquiryAssignment::where('InquiryID', $id)->first();
+
+        if (!$assignment) {
+            return redirect()->route('mcmc.new.inquiry')->with('error', 'Assignment not found.');
+        }
+
+        return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiry', 'assignment'));
+    }
+
+
+
+    public function a_ReviewInquiry()
+    {
+        $assignments = InquiryAssignment::with(['inquiry', 'agency', 'progress'])->get();
+
+        $pendingInquiries = Inquiry::where('SubmissionStatus', 'pending')->count();
+        return view('InquiryAssignmentUI.MCMC.ReviewInquiryUI', compact('assignments', 'pendingInquiries'));
+    }
+
+    public function a_AssignInquiry()
+    {
+        $inquiries = Inquiry::where('SubmissionStatus', 'pending')->get();
+        $agencies = Agency::all();
+        $assignments = InquiryAssignment::with(['inquiry', 'agency'])->latest('AssignDate')->get();
+
+        return view('InquiryAssignmentUI.AssignInquiryUI', compact('inquiries', 'agencies', 'assignments'));
+    }
+
+    public function a_DisplayReport()
+    {
+        $agencies = Agency::all();
+
+        $assignments = InquiryAssignment::with('agency')->get()->groupBy('agency.AgencyName');
+        $agencyNames = $assignments->keys();
+        $agencyCounts = $assignments->map->count()->values();
+
+        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        $trendsData = [];
+
+        foreach ($agencies as $agency) {
+            $monthlyCounts = [];
+            foreach (range(1, 6) as $m) {
+                $monthlyCounts[] = InquiryAssignment::where('AgencyID', $agency->AgencyID)
+                    ->whereMonth('AssignDate', $m)
+                    ->count();
+            }
+
+            $trendsData[] = [
+                'label' => $agency->AgencyName,
+                'data' => $monthlyCounts,
+                'borderColor' => '#' . substr(md5($agency->AgencyName), 0, 6),
+                'backgroundColor' => 'rgba(0,0,0,0.1)',
+                'tension' => 0.4,
+            ];
+        }
+
+        return view('InquiryAssignmentUI.MCMC.DisplayReportUI', compact(
+            'agencies',
+            'agencyNames',
+            'agencyCounts',
+            'months',
+            'trendsData'
+        ));
+    }
+    public function a_ListAssignedInquiry()
+    {
+        $agencyID = session('profile_id') ?? 'A001'; // fallback for testing
+
+        $assignments = InquiryAssignment::with(['inquiry', 'progress'])
+            ->where('AgencyID', $agencyID)
+            ->get();
+
+        return view('InquiryAssignmentUI.Agency.ListAssignedInquiryUI', compact('assignments'));
+    }
+
+    public function a_InquiryDetails($id)
+    {
+        $assignment = InquiryAssignment::with(['inquiry', 'progress'])
+            ->where('AssignmentID', $id)
+            ->firstOrFail();
+
+        return view('InquiryFormSubmissionUI.Agency.InquiryDetailsUI', compact('assignment'));
+    }
+
+    public function handleAction(Request $request, $id)
+    {
+        $assignment = InquiryAssignment::findOrFail($id);
+        $inquiry = $assignment->inquiry;
+
+        if ($request->action === 'accept') {
+            InquiryProgress::updateOrCreate(
+                ['AssignmentID' => $assignment->AssignmentID],
+                [
+                    'InquiryID' => $assignment->InquiryID,
+                    'AgencyID' => $assignment->AgencyID,
+                    'InvestigationBeginDate' => now(),
+                    'VerificationStatus' => 'accepted',
+                    'InvestigationDetails' => 'Inquiry accepted by agency.',
+                ] //
+            );
+            return redirect()->route('agency.inquiries')->with('success', 'Inquiry accepted.');
+        }
+
+        if ($request->action === 'reject') {
+            DB::beginTransaction();
+            try {
+                // Reset assignment
+                $assignment->delete();
+
+                // Update inquiry status back to pending
+                $inquiry->SubmissionStatus = 'pending';
+                $inquiry->save();
+
+                DB::commit();
+                return redirect()->route('agency.inquiries')->with('success', 'Inquiry rejected and unassigned.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->with('error', 'Failed to reject inquiry: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('error', 'Invalid action.');
+    }
 }
