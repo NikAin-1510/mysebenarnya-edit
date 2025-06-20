@@ -118,8 +118,6 @@ Route::get('/agency/inquiries', [InquiryAssignmentController::class, 'a_ListAssi
 Route::get('/agency/inquiries/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
 Route::post('/agency/inquiries/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
 
-Route::get('/inquiry/assign-agency/{id}', [InquiryController::class, 'mcmc_AssignAgencyForm'])->name('inquiry.assign.agency');
-Route::post('/inquiry/assign-agency/{id}', [InquiryController::class, 'mcmc_AssignAgencySubmit'])->name('inquiry.assign.agency.submit');
 
 
 
