@@ -91,31 +91,6 @@ public function storeAssignment(Request $request, $id)
         return view('InquiryAssignmentUI.MCMC.AssignInquiryUI', compact('inquiries', 'agencies', 'assignments'));
     }
 
-    public function storeAssignment(Request $request)
-    {
-        $request->validate([
-            'inquiry_id' => 'required',
-            'agency_id' => 'required',
-            'comments' => 'nullable|string'
-        ]);
-
-        InquiryAssignment::create([
-            'AssignmentID' => uniqid('ASS'),
-            'InquiryID' => $request->inquiry_id,
-            'AgencyID' => $request->agency_id,
-            'mcmcID' => session('profile_id') ?? 'M001',
-            'AssignDate' => now(),
-            'JurisdictionStatus' => 1,
-            'InquiryComment' => $request->comments,
-            'AgencyName' => Agency::find($request->agency_id)->AgencyName ?? '',
-        ]);
-
-        Inquiry::where('InquiryID', $request->inquiry_id)
-            ->update(['SubmissionStatus' => 'assigned']);
-
-        return redirect()->route('agency.assign.form')->with('success', 'Inquiry assigned successfully.');
-    }
-
     public function a_DisplayReport()
     {
         $agencies = Agency::all();
