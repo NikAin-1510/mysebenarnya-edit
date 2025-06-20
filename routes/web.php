@@ -100,19 +100,19 @@ Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name
 use App\Http\Controllers\InquiryAssignmentController;
 // MCMC Routes
 Route::group(['prefix' => 'mcmc', 'middleware' => ['auth', 'role:mcmc']], function () {
-    
+
     // List new inquiries (only unassigned ones)
     Route::get('/new-inquiries', [McmcController::class, 'newInquiryList'])
         ->name('mcmc.new.inquiry');
-    
+
     // View specific inquiry for assignment
     Route::get('/inquiry/{id}/assign', [McmcController::class, 'showAssignInquiry'])
         ->name('inquiry.assign.view');
-    
+
     // Process the assignment
     Route::post('/inquiry/{id}/assign', [McmcController::class, 'assignInquiry'])
         ->name('agency.assign.inquiry');
-    
+
     // View inquiry details (if you have a general view route)
     Route::get('/inquiry/{publicId}/view', [McmcController::class, 'viewInquiry'])
         ->name('inquiry.own.view');
