@@ -99,6 +99,13 @@ Route::post('/inquiry/store', [InquiryController::class, 'p_InquiryForm'])->name
 //Module3: Inquiry Assignment
 use App\Http\Controllers\InquiryAssignmentController;
 
+// Assign Inquiry (form display)
+Route::get('/mcmc/inquiry/assign/{id}', [InquiryAssignmentController::class, 'showAssignForm'])->name('mcmc.assign.form');
+
+// Assign Inquiry (handle form submit)
+Route::post('/mcmc/inquiry/assign/{id}', [InquiryAssignmentController::class, 'storeAssignment'])->name('agency.assign.inquiry');
+
+
 Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList'])
     ->middleware('auth') // ← this is needed
     ->name('public.list');

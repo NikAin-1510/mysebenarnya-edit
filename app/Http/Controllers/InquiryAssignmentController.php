@@ -45,6 +45,35 @@ class InquiryAssignmentController extends Controller
 
     // === MCMC ===
 
+    public function showAssignForm($id)
+{
+    $inquiry = \App\Models\Inquiry::findOrFail($id);
+    $agencies = \App\Models\Agency::select('AgencyID', 'AgencyName')->distinct()->get();
+
+    return view('InquiryAssignment.MCMC.AssignInquiryUI', compact('inquiry', 'agencies'));
+}
+
+public function storeAssignment(Request $request, $id)
+{
+    $validated = $request->validate([
+        'AgencyID' => 'required',
+        'InquiryComment' => 'required|string|max:255'
+    ]);
+
+    $assignment = new \App\Models\InquiryAssignment();
+    $assignment->AssignmentID = 'ASS' . str_pad(rand(1, 9999), 3, '0', STR_PAD_LEFT);
+    $assignment->AgencyID = $validated['AgencyID'];
+    $assignment->mcmcID = auth()->user()->UserID; // assuming MCMC user is logged in
+    $assignment->InquiryID = $id;
+    $assignment->AssignDate = now()->toDateString();
+    $assignment->JurisdictionStatus = 1;
+    $assignment->InquiryComment = $validated['InquiryComment'];
+    $assignment->save();
+
+    return redirect()->route('mcmc.new.inquiry')->with('success', 'Inquiry successfully assigned!');
+}
+
+
     public function a_ReviewInquiry()
     {
         $assignments = InquiryAssignment::with(['inquiry', 'agency', 'progress'])->get();
