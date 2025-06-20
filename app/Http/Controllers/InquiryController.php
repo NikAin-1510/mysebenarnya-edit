@@ -284,14 +284,6 @@ class InquiryController extends Controller
 
         return redirect()->back()->with('success', 'Category updated successfully.');
     }
-    public function assignAgency($id)
-    {
-        $inquiry = Inquiry::findOrFail($id);
-        $agencies = Agency::all(); // or however you fetch agency list
-
-        return view('InquiryFormSubmissionUI.Public.AssignAgencyUI', compact('inquiry', 'agencies'));
-    }
-
 
     public function m_DetailsInquiry($id)
     {
