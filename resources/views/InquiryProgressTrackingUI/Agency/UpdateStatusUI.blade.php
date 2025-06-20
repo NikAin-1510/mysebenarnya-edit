@@ -11,15 +11,26 @@
     <input type="hidden" name="AgencyID" value="{{ $agency->AgencyID }}">
 
     <div class="a-update-status">
-        <p>Update Status:</p>
-        <label for="inquiry-status">Inquiry Status:</label>
-        <select id="inquiry-status" name="VerificationStatus" required>
-            <option value="">--Select--</option>
-            <option value="Under Investigation" {{ $progress?->VerificationStatus == 'Under Investigation' ? 'selected' : '' }}>Under Investigation</option>
-            <option value="Verified as True" {{ $progress?->VerificationStatus == 'Verified as True' ? 'selected' : '' }}>Verified as True</option>
-            <option value="Identified as Fake" {{ $progress?->VerificationStatus == 'Identified as Fake' ? 'selected' : '' }}>Identified as Fake</option>
-            <option value="Rejected" {{ $progress?->VerificationStatus == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-        </select>
+        <label for="VerificationStatus">Inquiry Status:</label>
+<select name="VerificationStatus" id="VerificationStatus" required>
+    <option value="">--Select Status--</option>
+    <option value="Under Investigation"
+        {{ $progress?->InvestigationBeginDate && !$progress?->VerificationStatus ? 'selected' : '' }}>
+        Under Investigation
+    </option>
+    <option value="Verified as True"
+        {{ $progress?->VerificationStatus == 'Verified as True' ? 'selected' : '' }}>
+        Verified as True
+    </option>
+    <option value="Identified as Fake"
+        {{ $progress?->VerificationStatus == 'Identified as Fake' ? 'selected' : '' }}>
+        Identified as Fake
+    </option>
+    <option value="Rejected"
+        {{ $progress?->VerificationStatus == 'Rejected' ? 'selected' : '' }}>
+        Rejected
+    </option>
+</select>
     </div>
 
     <div class="a-investigation-details">
@@ -44,14 +55,12 @@
     </div>
 
     <label for="notify-option">Notify MCMC:</label>
-        <select name="Notify" id="notify-option" required>
+        <select name="Notify" id="notify-option">
             <option value="">--Select Notification--</option>
             <option value="Further clarification needed" {{ $progress?->Notify == 'Further clarification needed' ? 'selected' : '' }}>Further clarification needed</option>
             <option value="Inquiry is completed" {{ $progress?->Notify == 'Inquiry is completed' ? 'selected' : '' }}>Inquiry is completed</option>
             <option value="Reassignment requested" {{ $progress?->Notify == 'Reassignment requested' ? 'selected' : '' }}>Reassignment requested</option>
         </select>
-
-        <button type="submit">Submit Notification</button>
 
     <button type="submit">Submit</button>
 </form>

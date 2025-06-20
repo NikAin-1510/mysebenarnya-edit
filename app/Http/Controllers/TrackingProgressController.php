@@ -37,72 +37,91 @@ class TrackingProgressController extends Controller
         $request->validate([
             'InquiryID' => 'required',
             'AgencyID' => 'required',
-            'VerificationStatus' => 'required',
+            'VerificationStatus' => 'required|in:Under Investigation,Verified as True,Identified as Fake,Rejected',
             'InvestigationDetails' => 'nullable|string',
             'InvestigationDoc' => 'nullable|file|max:2048',
+            'Notify' => 'nullable|in:Further clarification needed,Inquiry is completed,Reassignment requested',
         ]);
 
         $data = [
             'InquiryID' => $request->InquiryID,
             'AgencyID' => $request->AgencyID,
-            'VerificationStatus' => $request->VerificationStatus,
             'InvestigationDetails' => $request->InvestigationDetails,
-            'VerificationDateTime' => now(), // always updated
+            'Notify' => $request->Notify,
         ];
 
-        // Only set InvestigationBeginDate if status is 'Under Investigation'
-        if ($request->VerificationStatus === 'Under Investigation' && empty($existing?->InvestigationBeginDate)) {
-            $data['InvestigationBeginDate'] = now();
-        }
+        $selectedStatus = $request->VerificationStatus;
 
-        // Handle file upload
-        if ($request->hasFile('InvestigationDoc')) {
-            $filename = $request->file('InvestigationDoc')->store('investigation_docs', 'public');
-            $data['InvestigationDoc'] = $filename;
-        }
-
-        // Check if record exists
         $existing = DB::table('inquiryprogress')
             ->where('InquiryID', $request->InquiryID)
             ->where('AgencyID', $request->AgencyID)
             ->first();
 
+        // Special logic for Under Investigation
+        if ($selectedStatus === 'Under Investigation') {
+            // Only set InvestigationBeginDate if it doesn't exist OR is null
+            if (!$existing || empty($existing->InvestigationBeginDate)) {
+                $data['InvestigationBeginDate'] = now();
+            }
+            // Clear verification fields when going back to investigation
+            $data['VerificationStatus'] = null;
+            $data['VerificationDateTime'] = null;
+        } else {
+            // For all other statuses (verified, fake, rejected)
+            $data['VerificationStatus'] = $selectedStatus;
+            $data['VerificationDateTime'] = now();
+            // Don't touch InvestigationBeginDate for verification statuses
+        }
+
+        // File upload
+        if ($request->hasFile('InvestigationDoc')) {
+            $filename = $request->file('InvestigationDoc')->store('investigation_docs', 'public');
+            $data['InvestigationDoc'] = $filename;
+        }
+
+        // Insert or update
         if ($existing) {
-            // ✅ Update existing progress
             DB::table('inquiryprogress')
                 ->where('InquiryID', $request->InquiryID)
                 ->where('AgencyID', $request->AgencyID)
                 ->update($data);
         } else {
-            // ✅ Insert new record with generated StatusID
-            $data['StatusID'] = 'ST' . strtoupper(Str::random(6));
-            DB::table('inquiryprogress')->insert($data);
+            $assignment = DB::table('inquiryassignment')
+                ->where('InquiryID', $request->InquiryID)
+                ->first();
+
+            if ($assignment) {
+                $data['AssignmentID'] = $assignment->AssignmentID;
+                $data['StatusID'] = 'ST' . strtoupper(Str::random(6));
+                DB::table('inquiryprogress')->insert($data);
+            } else {
+                return back()->with('error', 'Assignment not found for this inquiry and agency.');
+            }
         }
 
-        return redirect()->route('agency.assign.form')->with('success', 'Inquiry updated successfully.');
+        return redirect()->route('progress.update.status')->with('success', 'Inquiry status saved.');
     }
 
-    public function a_NotifyMCMC(Request $request)
+
+    public function m_SupportingDoc($statusID)
     {
-        $request->validate([
-            'InquiryID' => 'required',
-            'Notify' => 'required|in:Further clarification needed,Inquiry is completed,Reassignment requested',
-        ]);
+        $record = DB::table('inquiryprogress')
+            ->where('StatusID', $statusID)
+            ->select('InvestigationDoc')
+            ->first();
 
-        $userID = Auth::user()->UserID;
+        if (!$record || !$record->InvestigationDoc) {
+            abort(404, 'Document not found.');
+        }
 
-        $agency = DB::table('agency')->where('UserID', $userID)->first();
+        $filePath = storage_path('app/public/' . $record->InvestigationDoc);
 
-        DB::table('inquiryprogress')
-            ->where('InquiryID', $request->InquiryID)
-            ->where('AgencyID', $agency->AgencyID)
-            ->update([
-                'Notify' => $request->Notify,
-            ]);
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found on server.');
+        }
 
-        return redirect()->back()->with('success', 'MCMC has been notified: ' . $request->Notify);
+        return response()->file($filePath);
     }
-
 
     //mcmc
     public function m_InquiryProgress(Request $request)
@@ -125,12 +144,13 @@ class TrackingProgressController extends Controller
             ->join('agency', 'inquiryprogress.AgencyID', '=', 'agency.AgencyID')
             ->where('inquiryprogress.InquiryID', $inquiryID)
             ->select(
+                'inquiryprogress.StatusID',
                 'inquiryprogress.VerificationStatus',
                 'inquiryprogress.VerificationDateTime',
                 'inquiryprogress.InvestigationBeginDate',
                 'inquiryprogress.InvestigationDetails',
                 'inquiryprogress.InvestigationDoc',
-                'inquiryprogress.Notify', // ✅ add this
+                'inquiryprogress.Notify',
                 'agency.AgencyName'
             )
             ->get();

@@ -119,14 +119,13 @@ Route::post('/inquiry/assign-agency/{id}', [InquiryController::class, 'mcmc_Assi
 //Module4: Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
 // agency
-Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
+Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus'])->name('progress.update.status');;
 Route::post('/agency/updatestatus/save', [TrackingProgressController::class, 'a_SaveStatus']);
 Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_NotifyMCMC']);
 Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
-
 // mcmc
 Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
+Route::get('/mcmc/progress-doc/{statusID}', [TrackingProgressController::class, 'm_SupportingDoc'])->name('progress.view.pdf');
 Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
 // public
 Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
