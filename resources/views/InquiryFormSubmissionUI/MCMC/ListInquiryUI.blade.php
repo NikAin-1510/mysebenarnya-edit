@@ -50,7 +50,7 @@
                     @endif
                 </td>
                 <td>
-                    <a href="{{ route('inquiry.view', $inquiry->PublicID) }}" class="btn btn-primary">View Details</a>
+                    <a href="{{ route('inquiry.own.view', $inquiry->PublicID) }}" class="btn btn-primary">View Details</a>
                 </td>
             </tr>
             @empty

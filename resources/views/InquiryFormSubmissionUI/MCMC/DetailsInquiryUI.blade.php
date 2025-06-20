@@ -1,49 +1,79 @@
 @extends('layouts.layout')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/Module2/mcmc-details-inquiry.css') }}">
+<link rel="stylesheet" href="{{ asset('css/Module2/mcmc-new-details.css') }}">
 @endpush
+
 @section('content')
 <div class="container">
     <h1>Inquiry Details</h1>
 
-    <div class="card p-4 mb-3">
-        <h3>{{ $inquiry->InquiryTitle }}</h3>
-        <p><strong>Description:</strong> {{ $inquiry->Description }}</p>
-        <p><strong>Link:</strong> <a href="{{ $inquiry->URL }}" target="_blank">{{ $inquiry->URL }}</a></p>
-        <p><strong>Evidence:</strong>
-            @if($inquiry->Evidence)
-                <a href="{{ asset('storage/evidence/' . $inquiry->Evidence) }}" target="_blank">View File</a>
-            @else
-                No file uploaded.
-            @endif
-        </p>
+    <form action="{{ route('mcmc.new.inquiry', $inquiry->InquiryID) }}" method="POST">
+    @csrf
 
-        <form action="{{ route('inquiry.update.category', $inquiry->PublicID) }}" method="POST">
-            @csrf
-            @method('PUT')
+        <div class="inquiry-details-card">
+            <span class="inquiry-id-badge">ID: {{ $inquiry->InquiryID }}</span>
+            <p><strong>Title:</strong> {{ $inquiry->InquiryTitle }}</p>
+            <p><strong>Description:</strong> {{ $inquiry->InquiryDescription }}</p>
 
-            <div class="form-group">
-                <label for="SubmissionCategory">Category:</label>
-                <select name="SubmissionCategory" id="SubmissionCategory" class="form-control" onchange="toggleNextButton()">
-                    <option value="">-- Select Category --</option>
+            {{-- Dropdown for SubmissionCategory --}}
+            <p><strong>Category:</strong>
+                <select id="category-select" name="SubmissionCategory" class="category-select" required>
+                    <option value="-" {{ $inquiry->SubmissionCategory == '-' ? 'selected' : '' }}>-</option>
                     <option value="Genuine" {{ $inquiry->SubmissionCategory == 'Genuine' ? 'selected' : '' }}>Genuine</option>
-                    <option value="NonSerious" {{ $inquiry->SubmissionCategory == 'NonSerious' ? 'selected' : '' }}>Non-Serious</option>
+                    <option value="Non-Serious" {{ $inquiry->SubmissionCategory == 'Non-Serious' ? 'selected' : '' }}>Non-Serious</option>
                 </select>
+            </p>
+
+            <p><strong>Status:</strong> {{ ucfirst($inquiry->SubmissionStatus) }}</p>
+            <p><strong>Submitted At:</strong> {{ \Carbon\Carbon::parse($inquiry->SubmissionDate)->format('d M Y') }}</p>
+
+            {{-- Evidence Section --}}
+            <div class="evidence-section">
+                <p><strong>Submission Link:</strong>
+                    <a href="{{ $inquiry->SubmissionLink }}" target="_blank">{{ $inquiry->SubmissionLink }}</a>
+                </p>
+
+                @if($inquiry->SubmissionEvidence)
+                    <p><strong>Evidence File:</strong>
+                        <a href="{{ asset('storage/evidence/' . $inquiry->SubmissionEvidence) }}" target="_blank">View Evidence</a>
+                    </p>
+                @else
+                    <p><strong>Evidence File:</strong> Not Provided</p>
+                @endif
             </div>
 
-            <button type="submit" class="btn btn-success mt-3">Save</button>
+            <p><strong>Agency:</strong> Unassigned</p>
 
-            <a id="nextBtn" href="{{ route('inquiry.assign.agency', $inquiry->PublicID) }}" class="btn btn-primary mt-3"
-                style="{{ $inquiry->SubmissionCategory === 'Genuine' ? '' : 'display: none;' }}">Next</a>
-        </form>
-    </div>
+            <div class="text-center mt-4">
+                <br>
+                <a href="{{ route('public.list') }}" class="btn-back">Back to List</a>
+                <button type="submit" class="btn-save">Save</button>
+                <a href="{{ route('mcmc.assign.form', $inquiry->InquiryID) }}" class="btn-next" id="next-button">Next</a>
+            </div>
+        </div>
+    </form>
 </div>
 
+{{-- JavaScript to show/hide the Next button --}}
 <script>
-    function toggleNextButton() {
-        const category = document.getElementById('SubmissionCategory').value;
-        document.getElementById('nextBtn').style.display = category === 'Genuine' ? 'inline-block' : 'none';
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('category-select');
+        const nextButton = document.getElementById('next-button');
+
+        function toggleNextButton() {
+            if (categorySelect.value === 'Genuine') {
+                nextButton.style.display = 'inline-block';
+            } else {
+                nextButton.style.display = 'none';
+            }
+        }
+
+        // Initial check
+        toggleNextButton();
+
+        // Add event listener
+        categorySelect.addEventListener('change', toggleNextButton);
+    });
 </script>
 @endsection

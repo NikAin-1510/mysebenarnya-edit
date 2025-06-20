@@ -1,0 +1,128 @@
+/* Container */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Heading */
+.container h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Inquiry card */
+.inquiry-details-card {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9fafb;
+    border-left: 5px solid #691075;
+    line-height: 1.8;
+}
+
+/* Strong labels */
+.inquiry-details-card p strong {
+    color: #444;
+    display: inline-block;
+    width: 150px;
+}
+
+/* Paragraph styling */
+.inquiry-details-card p {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+/* Unified button base */
+.btn-save,
+.btn-next,
+.btn-back {
+    width: 130px; /* fixed width */
+    height: 40px; /* fixed height */
+    line-height: 45px; /* vertical alignment */
+    display: inline-block;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+    padding: 0; /* reset padding to rely on height */
+}
+
+/* Individual button colors */
+.btn-save {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: #218838;
+}
+
+.btn-next {
+    background-color: #993594;
+    color: white;
+}
+
+.btn-next:hover {
+    background-color: #64126b;
+}
+
+.btn-back {
+    background-color: #93c6f2;
+    color: white;
+}
+
+.btn-back:hover {
+    background-color: #5a6268;
+}
+
+
+
+.inquiry-details-card p:first-child {
+    font-weight: bold;
+    color: #70257a;
+}
+.inquiry-id-badge {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 6px 12px;
+    background-color: #70257a;
+    color: white;
+    font-weight: 500;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+
+.evidence-section a {
+    color: #5c98d8;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.evidence-section a:hover {
+    color: #5c9ce1;
+}
+
+/* Category Dropdown */
+.category-select {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+    margin-top: 5px;
+}
+

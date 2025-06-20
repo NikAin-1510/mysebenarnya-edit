@@ -48,9 +48,7 @@
 
 
 <div class="inquiry-actions">
-        <a href="{{ route('details.own.inquiry', $inq->InquiryID) }}" class="view-details-btn">
-          <i class="fas fa-eye"></i> View Details
-        </a>
+    <a href="{{ route('details.own.inquiry', $inq->InquiryID) }}" class="view-details-btn">View Details</a>
       </div>
     </div>
   @endforeach

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model; // ✅ Required for Eloquent methods like hasOne()
+use App\Models\PublicUser;
+
 
 class User extends Authenticatable
 {
@@ -30,14 +33,12 @@ class User extends Authenticatable
     public $timestamps = false;
 
     protected $hidden = ['Password'];
-
-    // Relationships
-    // User.php
-    public function publicProfile()
+    public function getAuthIdentifierName()
     {
-        return $this->hasOne(PublicUser::class, 'UserID'); // or whatever model you use
+        return 'UserID'; // Your custom primary key
     }
-    // app/Models/User.php
+
+
     public function publicUser()
     {
         return $this->hasOne(PublicUser::class, 'UserID', 'UserID');

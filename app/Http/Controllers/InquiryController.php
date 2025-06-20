@@ -13,6 +13,7 @@ use App\Exports\ReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Models\User;
 
 
 class InquiryController extends Controller
@@ -146,23 +147,26 @@ class InquiryController extends Controller
 
 
 
-    public function p_DetailsOwnInquiry()
+    public function p_DetailsOwnInquiry($id)
     {
-        // Get the logged-in user's associated PublicID using the relationship
-        $publicID = auth()->user()->publicProfile->PublicID ?? null;
+        $user = Auth::user(); // ✅ same thing, more IDE-friendly
 
 
-        if (!$publicID) {
-            return redirect()->back()->with('error', 'Public user profile not found.');
+        if (!$user || !$user->publicUser) {
+            return redirect()->back()->with('error', 'Your public user profile is missing.');
         }
 
-        // Fetch inquiries using PublicID
-        $inquiries = Inquiry::where('PublicID', $publicID)
-            ->orderBy('SubmissionDate', 'desc')
-            ->get();
+        $inquiry = Inquiry::where('InquiryID', $id)
+            ->where('PublicID', $user->publicUser->PublicID)
+            ->firstOrFail();
 
-        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact('inquiries'));
+        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact('inquiry'));
     }
+
+
+
+
+
 
 
 
@@ -177,7 +181,7 @@ class InquiryController extends Controller
             'url' => 'required|url',
             'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
-
+        $inquiryID = 'INQ' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         $inquiry = new Inquiry();
         $inquiry->InquiryID = uniqid('INQ');
         $inquiry->UserID = Auth::id(); // Assuming user is logged in
@@ -268,17 +272,17 @@ class InquiryController extends Controller
     //----
 
     // DETAILS INQUIRY
-    public function UpdateCategory(Request $request, $id)
+    public function updateCategory(Request $request, $id)
     {
         $request->validate([
-            'SubmissionCategory' => 'required|in:Genuine,NonSerious',
+            'SubmissionCategory' => 'required|in:Genuine,Non-Serious',
         ]);
 
-        $inquiry = Inquiry::where('PublicID', $id)->firstOrFail();
+        $inquiry = Inquiry::findOrFail($id);
         $inquiry->SubmissionCategory = $request->SubmissionCategory;
         $inquiry->save();
 
-        return back()->with('success', 'Category updated.');
+        return redirect()->back()->with('success', 'Category updated successfully.');
     }
 
     public function m_DetailsInquiry($id)
@@ -311,5 +315,21 @@ class InquiryController extends Controller
         $agencies = Agency::all();
 
         return view('InquiryFormSubmissionUI.MCMC.ListAllInquiryUI', compact('inquiries', 'agencies'));
+    }
+
+    public function m_AllDetailsInquiry($id)
+    {
+        $user = Auth::user(); // ✅ same thing, more IDE-friendly
+
+
+        if (!$user || !$user->publicUser) {
+            return redirect()->back()->with('error', 'Your public user profile is missing.');
+        }
+
+        $inquiry = Inquiry::where('InquiryID', $id)
+            ->where('PublicID', $user->publicUser->PublicID)
+            ->firstOrFail();
+
+        return view('InquiryFormSubmissionUI.Public.AllDetailsInquiryUI', compact('inquiry'));
     }
 }
