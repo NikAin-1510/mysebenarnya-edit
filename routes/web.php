@@ -65,15 +65,17 @@ Route::get('/agency/inquiry/review/{id}', [InquiryController::class, 'a_ReviewIn
 
 
 // mcmc
-Route::get('/mcmc/list-all-inquiry', [InquiryController::class, 'm_ListInquiry'])->name('mcmc.new.inquiry');
 Route::get('/previous-inquiries/download', [InquiryController::class, 'downloadFilteredInquiries'])->name('inquiries.download');
 Route::get('/display-report', [InquiryController::class, 'm_DisplayReport'])->name('mcmc.display.report');
 Route::get('/mcmc/export/report/pdf', [InquiryController::class, 'exportReportToPDF'])->name('mcmc.export.pdf');
 Route::get('/mcmc/export/report/excel', [InquiryController::class, 'exportReportToExcel'])->name('mcmc.export.excel');
 Route::get('/mcmc/inquiry/{id}', [InquiryController::class, 'm_DetailsInquiry'])->name('inquiry.own.view');
-Route::put('/inquiry/update-category/{id}', [InquiryController::class, 'UpdateCategory'])->name('inquiry.update.category');
+Route::put('/mcmc/inquiry/{id}/update-category', [InquiryController::class, 'updateCategory'])->name('mcmc.update.category');
+Route::get('/mcmc/list-new-inquiry', [InquiryController::class, 'm_ListInquiry'])->name('mcmc.new.inquiry');
+
 Route::get('/mcmc/allinquiry', [InquiryController::class, 'm_ListAllInquiry'])->name('mcmc.all.inquiry');
-Route::get('/mcmc/all-details', [InquiryController::class, 'm_AllDetailsInquiry'])->name('mcmc.all.details');
+Route::get('/mcmc/all-details/{id}', [InquiryController::class, 'm_AllDetailsInquiry'])->name('mcmc.all.details');
+
 
 // public
 Route::get('/public/list-own-inquiries', [InquiryController::class, 'p_ListOwnInquiries'])->name('list.own.inquiries');

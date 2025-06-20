@@ -48,7 +48,7 @@
         </div>
         <div class="inquiry-footer">
           <div><i class="fas fa-building"></i> {{ $inq->AgencyName ?? 'Unassigned' }}</div>
-          <a href="{{ route('mcmc.all.details', $inq->PublicID) }}" class="btn-view">View Details</a>
+          <a href="{{ route('mcmc.all.details', $inq->InquiryID) }}" class="btn-view">View Details</a>
         </div>
       </div>
     @endforeach
