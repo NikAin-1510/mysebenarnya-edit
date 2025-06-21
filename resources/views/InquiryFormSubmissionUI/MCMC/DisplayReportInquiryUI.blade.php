@@ -71,7 +71,8 @@
 
     {{-- Export Buttons --}}
     <div class="export-buttons mb-4">
-        <a href="{{ route('mcmc.export.pdf', request()->all()) }}" class="btn btn-danger">Export PDF</a>
+        <a href="{{ route('mcmc.export.excel', request()->all()) }}" class="btn btn-success">Export Excel</a>
+
         <a href="{{ route('mcmc.export.excel', request()->all()) }}" class="btn btn-success">Export Excel</a>
     </div>
 

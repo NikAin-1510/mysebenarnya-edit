@@ -8,7 +8,8 @@
     <div class="assigned-inquiry-list">
         <h2>All Inquiries</h2>
 
-        <form method="GET" action="/public/inquiry-list"" style="margin-bottom: 20px;">
+        <form method="GET" action="/public/inquiry-list" style="margin-bottom: 20px;">
+
             <label for="status">Filter by Status:</label>
             <select name="status" id="status">
                 <option value="">-- All --</option>
@@ -37,11 +38,20 @@
     {{ $inq->InquiryTitle }}
 </a></td>
                     <td>{{ \Carbon\Carbon::parse($inq->SubmissionDate)->format('Y-m-d H:i') }}</td>
-                    @php
-                        $status = $inq->VerificationStatus
-                        ?? ($inq->InvestigationBeginDate ? 'Under Investigation' : 'N/A');
-                    @endphp
+                   @php
+    if (!empty($inq->progress?->VerificationStatus)) {
+        $status = 'Completed';
+    } elseif (!empty($inq->progress?->InvestigationBeginDate)) {
+        $status = 'Under Investigation';
+    } elseif (!empty($inq->latestAssignment)) {
+        $status = 'Forwarded';
+    } else {
+        $status = 'Pending';
+    }
+@endphp
+
                     <td>{{ $status }}</td>
+
                 </tr>
             @empty
                 <tr>

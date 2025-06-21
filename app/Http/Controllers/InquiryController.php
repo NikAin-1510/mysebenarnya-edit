@@ -190,47 +190,36 @@ class InquiryController extends Controller
 
 
 
-    public function exportReportToExcel(Request $request) {}
-
-
-
-    // === PUBLIC ===
-
-
-
-    public function p_DetailsOwnInquiry($id)
+    public function exportReportToExcel(Request $request)
     {
-        $user = Auth::user();
+        $query = Inquiry::query()
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select(
+                'inquiry.*',
+                'agency.AgencyName'
+            );
 
-        if (!$user || !$user->publicUser) {
-            return redirect()->back()->with('error', 'Your public user profile is missing.');
+        // Optional filters
+        if ($request->filled('month')) {
+            $query->whereMonth('inquiry.SubmissionDate', $request->month);
         }
 
-        $inquiry = Inquiry::where('InquiryID', $id)
-            ->where('PublicID', $user->publicUser->PublicID)
-            ->firstOrFail();
+        if ($request->filled('year')) {
+            $query->whereYear('inquiry.SubmissionDate', $request->year);
+        }
 
-        $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
-            ->where('InquiryID', $id)
-            ->whereNotNull('AgencyID') // <-- This prevents fake/empty agency
-            ->orderByDesc('AssignDate')
-            ->first();
+        if ($request->filled('agency')) {
+            $query->where('inquiryassignment.AgencyID', $request->agency);
+        }
 
+        $inquiries = $query->get();
 
-        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact(
-            'inquiry',
-            'assignedAgency',
-
-        ));
+        return Excel::download(new Inquiry($inquiries), 'inquiry_report.xlsx');
     }
 
 
-
-
-
-
-
-
+    // === PUBLIC ===
 
 
 
@@ -273,14 +262,65 @@ class InquiryController extends Controller
     public function p_DetailsAllInquiry($id)
     {
         $inquiry = Inquiry::findOrFail($id);
-        return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI', compact('inquiry'));
+
+        // Set status based on current inquiry state
+        if (!empty($inquiry->VerificationStatus)) {
+            $inquiry->SubmissionStatus = 'Completed';
+        } elseif (!empty($inquiry->InvestigationBeginDate) || $inquiry->latestAssignment) {
+            $inquiry->SubmissionStatus = 'Forwarded';
+        } else {
+            $inquiry->SubmissionStatus = 'Pending';
+        }
+
+        $inquiry->save();
+
+        $assignedAgency = $inquiry->latestAssignment->agency ?? null;
+
+        $nextInquiry = Inquiry::where('InquiryID', '>', $id)
+            ->orderBy('InquiryID')
+            ->first();
+
+        return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI', compact('inquiry', 'assignedAgency', 'nextInquiry'));
     }
 
-    public function p_ViewAssignedAgency($id)
+
+
+    public function p_DetailsOwnInquiry($id)
     {
-        $inquiry = Inquiry::with('agency')->findOrFail($id);
-        return view('InquiryFormSubmissionUI.Public.AssignedAgencyView', compact('inquiry'));
+        $user = Auth::user();
+
+        if (!$user || !$user->publicUser) {
+            return redirect()->back()->with('error', 'Your public user profile is missing.');
+        }
+
+        $inquiry = Inquiry::where('InquiryID', $id)
+            ->where('PublicID', $user->publicUser->PublicID)
+            ->with(['progress']) // eager load progress table
+            ->firstOrFail();
+
+        $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
+            ->where('InquiryID', $id)
+            ->whereNotNull('AgencyID')
+            ->orderByDesc('AssignDate')
+            ->first();
+
+        // ✅ Auto-determine SubmissionStatus
+        if (!empty($inquiry->progress?->VerificationStatus)) {
+            $inquiry->SubmissionStatus = 'Completed';
+        } elseif (!empty($inquiry->progress?->InvestigationBeginDate)) {
+            $inquiry->SubmissionStatus = 'Forwarded';
+        } elseif ($assignedAgency) {
+            $inquiry->SubmissionStatus = 'Forwarded';
+        } else {
+            $inquiry->SubmissionStatus = 'Pending';
+        }
+
+        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact(
+            'inquiry',
+            'assignedAgency'
+        ));
     }
+
 
 
     public function create()

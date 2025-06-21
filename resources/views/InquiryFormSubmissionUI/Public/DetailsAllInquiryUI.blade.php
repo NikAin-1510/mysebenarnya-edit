@@ -40,14 +40,15 @@
 @endif
  <div class="text-center mt-4">
         <br>
-        @if(in_array(strtolower($inquiry->SubmissionStatus), ['completed', 'verified']))
-            <a href="{{ route('public.list') }}" class="btn-back">Back to List</a>
-            <a href="#', $inquiry->InquiryID) }}" class="btn-next">Next</a>
-        @else
-        <a href="{{ route('public.list') }}" class="btn-back">Back to List</a>
-        @endif
-    </div>
+       <div class="text-center mt-4">
+    <br>
+    <a href="/public/inquiry-list" class="btn-back">Back to List</a>
+
+    @if(in_array(strtolower($inquiry->SubmissionStatus), ['forwarded', 'verified']) && $nextInquiry)
+        <a href="{{ route('details.all.inquiry', ['id' => $nextInquiry->InquiryID]) }}" class="btn-next">Next</a>
+    @endif
 </div>
+
 @endsection
 
     </div>

@@ -141,8 +141,12 @@ Route::post('/agency/request-reassignment', [TrackingProgressController::class, 
 Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
 Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
 // public
-Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
+Route::get('own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryList'])
+    ->middleware('auth')  // assuming login required
+    ->name('inquiry.own.list');
+
+Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
 Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
 Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry']);
+//Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry'])->name('public.all.list');;
