@@ -11,8 +11,7 @@
 <div class="container">
     <h1>Inquiry Details</h1>
 
-   <form action="{{ route('mcmc.assign.inquiry', ['id' => $inquiry->InquiryID]) }}" method="POST">
-
+   <form action="{{ route('mcmc.assign.inquiry', $inquiry->InquiryID) }}" method="POST">
 
 
         @csrf

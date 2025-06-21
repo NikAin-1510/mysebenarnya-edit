@@ -21,6 +21,7 @@ class InquiryAssignment extends Model
         'AssignDate',
         'JurisdictionStatus',
         'InquiryComment',
+        'JurisdictionComment'
     ];
 
     // Relationships
@@ -42,6 +43,6 @@ class InquiryAssignment extends Model
 
     public function agency()
     {
-        return $this->belongsTo(\App\Models\Agency::class, 'AgencyID', 'AgencyID');
+        return $this->belongsTo(Agency::class, 'AgencyID', 'AgencyID');
     }
 }

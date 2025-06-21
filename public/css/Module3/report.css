@@ -1,0 +1,53 @@
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.filter-form {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.filter-form .form-group {
+    margin-right: 10px;
+}
+
+.btn-filter {
+    padding: 8px 16px;
+    background-color: #70257a;
+    font-weight: bold;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.chart-container {
+    margin-bottom: 30px;
+}
+
+.download-buttons {
+    text-align: center;
+}
+
+.btn-download {
+    padding: 10px 20px;
+    background-color: #70257a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    margin: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: background 0.3s;
+}
+
+.btn-download:hover {
+    background-color: #572c60;
+}

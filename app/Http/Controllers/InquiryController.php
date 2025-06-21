@@ -8,47 +8,56 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response; // ✅ Add this line
 use App\Models\Inquiry;
 use App\Models\Agency;
-use PDF;
 use App\Exports\ReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\InquiryAssignment;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InquiryController extends Controller
 {
     // === AGENCY ===
-
     public function a_ListAssignedInquiry(Request $request)
     {
-        $agencyId = Auth::user()->AgencyID;
+        $agencyID = Auth::user()->AgencyID;
 
-        $query = Inquiry::select('inquiry.*')
-            ->join('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
-            ->where('inquiryassignment.AgencyID', $agencyId);
+        $query = Inquiry::whereHas('latestAssignment', function ($q) use ($agencyID) {
+            $q->where('AgencyID', $agencyID);
+        })
+            ->whereHas('latestProgress', function ($q) {
+                $q->whereIn('VerificationStatus', ['verified', 'fake']);
+            })
+            ->with(['latestAssignment', 'latestProgress']) // eager load
+            ->orderByDesc('SubmissionDate');
 
-        if ($request->status) {
-            $query->where('InvestigationStatus', $request->status);
+        // Optional filters
+        if ($request->filled('status')) {
+            $query->whereHas('latestProgress', function ($q) use ($request) {
+                $q->where('VerificationStatus', $request->status);
+            });
         }
 
-        if ($request->category) {
+        if ($request->filled('category')) {
             $query->where('SubmissionCategory', $request->category);
         }
 
-        if ($request->date) {
+        if ($request->filled('date')) {
             $query->whereMonth('SubmissionDate', date('m', strtotime($request->date)))
                 ->whereYear('SubmissionDate', date('Y', strtotime($request->date)));
         }
 
-        if ($request->title) {
+        if ($request->filled('title')) {
             $query->where('InquiryTitle', 'like', '%' . $request->title . '%');
         }
 
-        $assignedInquiries = $query->orderByDesc('SubmissionDate')->get();
+        $assignedInquiries = $query->get();
 
         return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
     }
+
+
 
 
     public function a_ReviewInquiry($id)
@@ -93,13 +102,22 @@ class InquiryController extends Controller
 
         // Build monthly chart data
         $monthlyCounts = DB::table('inquiry')
-            ->select(
-                DB::raw('MONTH(SubmissionDate) as month'),
-                DB::raw('COUNT(*) as total')
-            )
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select(DB::raw('MONTH(SubmissionDate) as month'), DB::raw('COUNT(*) as total'))
+            ->when($request->year, function ($query) use ($request) {
+                $query->whereYear('SubmissionDate', $request->year);
+            })
+            ->when($request->month, function ($query) use ($request) {
+                $query->whereMonth('SubmissionDate', $request->month);
+            })
+            ->when($request->agency, function ($query) use ($request) {
+                $query->where('agency.AgencyID', $request->agency);
+            })
             ->groupBy(DB::raw('MONTH(SubmissionDate)'))
             ->orderBy('month')
             ->pluck('total', 'month');
+
 
         $chartData = [
             'labels' => [],
@@ -113,7 +131,7 @@ class InquiryController extends Controller
 
         $agencies = DB::table('agency')->get();
 
-        return view('InquiryFormSubmissionUI.MCMC.DisplayReportUI', compact('inquiries', 'agencies', 'chartData'));
+        return view('InquiryFormSubmissionUI.MCMC.DisplayReportInquiryUI', compact('inquiries', 'agencies', 'chartData'));
     }
 
     private function filterReportData(Request $request)
@@ -138,7 +156,38 @@ class InquiryController extends Controller
         return $query->get();
     }
 
-    public function exportReportToPDF(Request $request) {}
+
+
+    public function exportReportToPDF(Request $request)
+    {
+        $agencies = DB::table('agency')->get();
+
+        // Apply filters like the dashboard
+        $inquiries = DB::table('inquiry')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select('inquiry.*', 'agency.AgencyName');
+
+        if ($request->month) {
+            $inquiries->whereMonth('SubmissionDate', $request->month);
+        }
+
+        if ($request->year) {
+            $inquiries->whereYear('SubmissionDate', $request->year);
+        }
+
+        if ($request->agency) {
+            $inquiries->where('agency.AgencyID', $request->agency);
+        }
+
+        $inquiries = $inquiries->get();
+
+        // Load PDF view
+        $pdf = Pdf::loadView('InquiryFormSubmissionUI.MCMC.ReportPDFUI', compact('inquiries', 'agencies'));
+
+        return $pdf->download('Inquiry_Report.pdf');
+    }
+
 
 
     public function exportReportToExcel(Request $request) {}
@@ -163,6 +212,7 @@ class InquiryController extends Controller
 
         $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
             ->where('InquiryID', $id)
+            ->whereNotNull('AgencyID') // <-- This prevents fake/empty agency
             ->orderByDesc('AssignDate')
             ->first();
 
@@ -195,9 +245,11 @@ class InquiryController extends Controller
             'url' => 'required|url',
             'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
-        $inquiryID = 'INQ' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        // Example PHP logic to generate next InquiryID
+
+
         $inquiry = new Inquiry();
-        $inquiry->InquiryID = uniqid('INQ');
+        $inquiry->InquiryID = uniqid('IQQ');
         $inquiry->UserID = Auth::id(); // Assuming user is logged in
         $inquiry->Title = $request->input('title');
         $inquiry->Description = $request->input('description');
@@ -245,7 +297,7 @@ class InquiryController extends Controller
             'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
 
-        $inquiryID = 'IQ' . str_pad(DB::table('inquiry')->count() + 1, 6, '0', STR_PAD_LEFT);
+        $inquiryID = 'IQ' . str_pad(DB::table('inquiry')->count() + 1, 5, '0', STR_PAD_LEFT);
 
         $filePath = null;
         if ($request->hasFile('evidence')) {
@@ -278,6 +330,7 @@ class InquiryController extends Controller
             ->join('user', 'publicuser.userID', '=', 'user.UserID')
             ->where('user.Role', 'publicuser')
             ->whereNull('inquiry.SubmissionCategory')
+            ->where('inquiry.SubmissionStatus', 'pending')
             ->orderBy('inquiry.SubmissionDate', 'desc')
             ->select('inquiry.*')
             ->get();

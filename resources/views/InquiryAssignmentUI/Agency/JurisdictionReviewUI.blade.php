@@ -17,7 +17,7 @@
             </a>
         </p>
         <p><strong>Assigned Date:</strong> {{ $assignment->AssignDate }}</p>
-        <p><strong>Current Status:</strong> {{ $assignment->progress->VerificationStatus ?? 'Pending' }}</p>
+
 
         <!-- Jurisdiction Review Section  -->
         <hr style="margin: 20px 0; border: 1px solid #e9ecef;">

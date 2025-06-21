@@ -9,54 +9,25 @@
         <h1>Inquiry Report Dashboard</h1>
         <p>Generate, analyze, and export inquiry statistics</p>
     </div>
-{{-- Chart --}}
-<div class="chart-section mb-5">
-    <h2>Total Public Inquiries by Month</h2>
-    <canvas id="inquiryChart" height="100"></canvas>
-</div>
 
+    {{-- Pie Chart --}}
+    <div class="chart-section mb-5">
+        <h2>Total Public Inquiries by Month (Pie)</h2>
+        <div style="max-width: 400px; margin: 0 auto;">
+            <canvas id="pieChart" width="400" height="400"></canvas>
+        </div>
+    </div>
 
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('inquiryChart').getContext('2d');
-    const chartData = @json($chartData);
-
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: chartData.labels,
-            datasets: [{
-                label: 'Total Inquiries',
-                data: chartData.data,
-                backgroundColor: [
-                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
-                    '#e74a3b', '#858796', '#5a5c69', '#20c9a6',
-                    '#f8f9fc', '#e0aaff', '#b983ff', '#96f2d7'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Total Inquiries by Month'
-                },
-                legend: {
-                    position: 'right'
-                }
-            }
-        }
-    });
-</script>
-@endpush
-
-
+    {{-- Bar Chart --}}
+    <div class="chart-section mb-5">
+        <h2>Total Public Inquiries by Month (Bar)</h2>
+        <div style="max-width: 100%; overflow-x: auto;">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
 
     {{-- Filter Form --}}
-    <form action="{{ route('mcmc.display.report') }}" method="GET" class="filter-form">
+    <form action="{{ route('show.totalInquiryReport') }}" method="GET" class="filter-form">
         <div class="filters">
             <div class="form-group">
                 <label for="month">Month</label>
@@ -104,11 +75,6 @@
         <a href="{{ route('mcmc.export.excel', request()->all()) }}" class="btn btn-success">Export Excel</a>
     </div>
 
-    {{-- Chart --}}
-    <div class="chart-section">
-        <canvas id="inquiryChart"></canvas>
-    </div>
-
     {{-- Table --}}
     <div class="report-table mt-5">
         <h2>Inquiry Records</h2>
@@ -143,10 +109,43 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('inquiryChart');
     const chartData = @json($chartData);
 
-    new Chart(ctx, {
+    // Pie Chart
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Total Inquiries',
+                data: chartData.data,
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
+                    '#e74a3b', '#858796', '#5a5c69', '#20c9a6',
+                    '#f8f9fc', '#e0aaff', '#b983ff', '#96f2d7'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Total Inquiries by Month'
+                },
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
         type: 'bar',
         data: {
             labels: chartData.labels,
@@ -157,6 +156,8 @@
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true,

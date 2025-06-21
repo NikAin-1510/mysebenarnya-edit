@@ -31,9 +31,10 @@
       <div class="inquiry-card">
         <div class="inquiry-header">
           <span class="inquiry-id">{{ $inq->InquiryID }}</span>
-          <span class="inquiry-status badge-{{ strtolower($inq->SubmissionCategory) }}">
-            {{ $inq->SubmissionCategory ?? 'Uncategorized' }}
-          </span>
+          <span class="inquiry-status badge-{{ strtolower($inq->SubmissionCategory ?? 'Uncategorized') }}">
+    {{ $inq->SubmissionCategory ?? 'Uncategorized' }}
+</span>
+
         </div>
         <div class="inquiry-title">{{ $inq->InquiryTitle }}</div>
         <div class="inquiry-description">{{ $inq->InquiryDescription }}</div>

@@ -22,11 +22,6 @@
                 </div>
                 <div class="inquiry-card-body">
                     <p><strong>ID:</strong> {{ $assign->InquiryID }}</p>
-                    <p><strong>Status:</strong>
-                        <span class="inquiry-status status-{{ strtolower(str_replace(' ', '-', $assign->progress->VerificationStatus ?? 'Pending')) }}">
-                            {{ strtoupper($assign->progress->VerificationStatus ?? 'PENDING') }}
-                        </span>
-                    </p>
                 </div>
             </div>
         @empty

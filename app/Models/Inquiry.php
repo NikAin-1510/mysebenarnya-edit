@@ -33,6 +33,16 @@ class Inquiry extends Model
             ->orderByDesc('AssignDate'); // Replace with your actual timestamp column
     }
 
+    public function progress()
+    {
+        return $this->hasMany(\App\Models\InquiryProgress::class, 'InquiryID');
+    }
+
+    public function latestProgress()
+    {
+        return $this->hasOne(\App\Models\InquiryProgress::class, 'InquiryID')->latestOfMany('VerificationDateTime');
+    }
+
 
 
     protected static function boot()
