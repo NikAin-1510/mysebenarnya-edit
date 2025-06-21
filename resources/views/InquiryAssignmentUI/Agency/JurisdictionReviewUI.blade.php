@@ -5,7 +5,7 @@
 @endpush
 @section('content')
 <div class="container">
-    <h1>Inquiry Details & Jurisdiction Review</h1>
+    <h1>Inquiry Details</h1>
 
     <div class="inquiry-details-card">
         <span class="inquiry-id-badge">ID: {{ $assignment->InquiryID }}</span>
