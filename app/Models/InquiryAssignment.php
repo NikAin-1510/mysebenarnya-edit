@@ -24,24 +24,24 @@ class InquiryAssignment extends Model
     ];
 
     // Relationships
-    public function inquiry()
-    {
-        return $this->belongsTo(Inquiry::class, 'InquiryID', 'InquiryID');
-    }
-
-    public function agency()
-    {
-        return $this->belongsTo(\App\Models\Agency::class, 'AgencyID');
-    }
-
 
     public function mcmc()
     {
         return $this->belongsTo(MCMC::class, 'mcmcID', 'mcmcID');
     }
 
+    public function inquiry()
+    {
+        return $this->belongsTo(Inquiry::class, 'InquiryID', 'InquiryID');
+    }
+
     public function progress()
     {
-        return $this->hasOne(InquiryProgress::class, 'AssignmentID', 'AssignmentID');
+        return $this->hasOne(InquiryProgress::class, 'InquiryID', 'InquiryID');
+    }
+
+    public function agency()
+    {
+        return $this->belongsTo(\App\Models\Agency::class, 'AgencyID', 'AgencyID');
     }
 }

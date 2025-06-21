@@ -10,6 +10,7 @@ use App\Models\InquiryAssignment;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PublicUser;
 use App\Models\User;
+use App\Models\InquiryProgress;
 
 class InquiryAssignmentController extends Controller
 {
@@ -163,12 +164,23 @@ class InquiryAssignmentController extends Controller
     }
     public function a_ListAssignedInquiry()
     {
-        $agencyID = session('profile_id') ?? 'A001'; // fallback for testing
+        $user = Auth::user();
 
-        $assignments = InquiryAssignment::with(['inquiry', 'progress'])
-            ->where('AgencyID', $agencyID)
+        // Get agency based on logged-in UserID
+        $agency = \App\Models\Agency::where('UserID', $user->UserID)->first();
+
+        if (!$agency) {
+            return redirect()->route('display.home')->with('error', 'You are not authorized as agency user.');
+        }
+
+        // Get all assigned inquiries for this agency
+        $assignments = InquiryAssignment::with(['inquiry', 'progress', 'agency'])
+            ->where('AgencyID', $agency->AgencyID)
+            ->where('JurisdictionStatus', '!=', 0)  // <-- tambah ni
+            ->orderBy('AssignDate', 'desc')
             ->get();
 
+        // Pass the data to blade
         return view('InquiryAssignmentUI.Agency.ListAssignedInquiryUI', compact('assignments'));
     }
 
@@ -178,6 +190,72 @@ class InquiryAssignmentController extends Controller
             ->where('AssignmentID', $id)
             ->firstOrFail();
 
-        return view('InquiryFormSubmissionUI.Agency.InquiryDetailsUI', compact('assignment'));
+        return view('InquiryAssignmentUI.Agency.JurisdictionReviewUI', compact('assignment'));
+    }
+
+    public function handleAction(Request $request, $id)
+    {
+        $assignment = InquiryAssignment::findOrFail($id);
+        $inquiry = $assignment->inquiry;
+
+        if ($request->action === 'accept') {
+            // Update the assignment with jurisdiction status and comment
+            $assignment->update([
+                'JurisdictionStatus' => 1,
+                'JurisdictionComment' => 'Accepted and proceeding with investigation'
+            ]);
+
+            InquiryProgress::updateOrCreate(
+                ['AssignmentID' => $assignment->AssignmentID],
+                [
+                    'InquiryID' => $assignment->InquiryID,
+                    'AgencyID' => $assignment->AgencyID,
+                    'InvestigationBeginDate' => now(),
+                    'VerificationStatus' => 'ACCEPTED',
+                    'InvestigationDetails' => 'Inquiry accepted by agency.',
+                ]
+            );
+            return redirect()->route('agency.inquirylist')->with('success', 'Inquiry accepted.');
+        }
+
+        if ($request->action === 'reject') {
+            // Validate the jurisdiction comment
+            $request->validate([
+                'jurisdictionComment' => 'required|string|max:100'
+            ]);
+
+            DB::beginTransaction();
+            try {
+                // Update the assignment with jurisdiction status and comment
+                $assignment->update([
+                    'JurisdictionStatus' => 0,
+                    'JurisdictionComment' => $request->jurisdictionComment
+                ]);
+
+                // Create inquiry progress record
+                InquiryProgress::create([
+                    'StatusID' => 'ST' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
+                    'AssignmentID' => $assignment->AssignmentID,
+                    'InquiryID' => $assignment->InquiryID,
+                    'AgencyID' => $assignment->AgencyID,
+                    'InvestigationBeginDate' => now(),
+                    'VerificationStatus' => 'REJECTED',
+                    'InvestigationDetails' => $request->jurisdictionComment,
+                ]);
+
+                // Reset inquiry status to pending so it can be reassigned
+                $inquiry->SubmissionStatus = 'pending';
+                $inquiry->SubmissionCategory = null;
+                $inquiry->save();
+
+                DB::commit();
+                return redirect()->route('agency.inquirylist')->with('success', 'Inquiry rejected and returned for reassignment.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->with('error', 'Failed to reject: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('error', 'Invalid action.');
     }
 }

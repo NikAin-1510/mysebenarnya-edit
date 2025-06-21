@@ -108,7 +108,9 @@ Route::get('/mcmc/inquiry/assign/{id}', [InquiryAssignmentController::class, 'sh
 Route::post('/mcmc/inquiry/assign/{id}', [InquiryAssignmentController::class, 'storeAssignment'])->name('mcmc.assign.inquiry');
 Route::get('/mcmc/assigned/{id}', [InquiryAssignmentController::class, 'm_ReviewInquiry'])->name('mcmc.review.inquiry');
 
-
+Route::get('/agency/inquirylist', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquirylist');
+Route::get('/agency/inquirylist/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
+Route::post('/agency/inquirylist/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
 
 Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnList'])
     ->middleware('auth') // ← this is needed
@@ -117,8 +119,7 @@ Route::get('/public/inquiries', [InquiryAssignmentController::class, 'publicOwnL
 Route::get('/agency/dashboard', [InquiryAssignmentController::class, 'a_ReviewInquiry'])->name('agency.review.inquiry');
 Route::get('/mcmc/assign', [InquiryAssignmentController::class, 'a_AssignInquiry'])->name('agency.assign.form');
 Route::get('/agency/reports', [InquiryAssignmentController::class, 'a_DisplayReport'])->name('agency.display.report');
-Route::get('/agency/inquiries', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquiries');
-Route::get('/agency/inquiries/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
+
 Route::post('/agency/inquiries/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
 
 
@@ -128,7 +129,6 @@ Route::post('/agency/inquiries/{id}/action', [InquiryAssignmentController::class
 //Module4: Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
 // agency
-Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
 Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
 Route::post('/agency/updatestatus/save', [TrackingProgressController::class, 'a_SaveStatus']);
 Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_NotifyMCMC']);
