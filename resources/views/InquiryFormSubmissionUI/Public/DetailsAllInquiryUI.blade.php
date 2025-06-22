@@ -47,6 +47,7 @@
     @if(in_array(strtolower($inquiry->SubmissionStatus), ['forwarded', 'verified']) && $nextInquiry)
 
     <a href="{{ url('/public/inquiry-details?id=' . $nextInquiry->InquiryID) }}" class="btn-next">Next</a>
+
 @endif
 
 </div>

@@ -131,7 +131,7 @@ Route::post('/agency/inquirylist/{id}/action', [InquiryAssignmentController::cla
 use App\Http\Controllers\TrackingProgressController;
 // agency
 Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus'])->name('progress.update.status');;
+Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus'])->name('progress.update.status');
 Route::post('/agency/updatestatus/save', [TrackingProgressController::class, 'a_SaveStatus']);
 Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_NotifyMCMC']);
 Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
@@ -146,14 +146,9 @@ Route::get('/mcmc/reports/pdf', [TrackingProgressController::class, 'm_ExportPDF
 // public
 Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
 Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
-Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
+Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList'])->name('notification.list');
 Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry']);
-
-
-
-
-
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry'])->name('public.all.list');
 
 
 //bukan faten punya

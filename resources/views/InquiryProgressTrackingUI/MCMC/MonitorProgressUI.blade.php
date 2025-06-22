@@ -64,4 +64,8 @@
     @empty
         <p>No agencies have submitted progress yet for this inquiry.</p>
     @endforelse
+        </div>
+        <div class="done-button">
+    <a href="{{ route('mcmc.all.inquiry') }}">Done</a>
+</div>
 @endsection

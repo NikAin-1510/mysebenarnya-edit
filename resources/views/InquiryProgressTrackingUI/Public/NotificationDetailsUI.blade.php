@@ -66,6 +66,9 @@
             <p><strong>Status update:</strong> No progress record found for this status.</p>
         @endif
 
-        <p>Please check your dashboard for more details.</p>
+        <p>Please check inquiry list for more details.</p>
     </div>
+        <div class="done-button">
+    <a href="{{ route('notification.list') }}">Done</a>
+</div>
 @endsection

@@ -52,8 +52,4 @@
     </div>
 @endsection
 
-@php
-    $status = $inq->VerificationStatus
-        ?? ($inq->InvestigationBeginDate ? 'Under Investigation' : 'N/A');
-@endphp
-<td>{{ $status }}</td>
+
