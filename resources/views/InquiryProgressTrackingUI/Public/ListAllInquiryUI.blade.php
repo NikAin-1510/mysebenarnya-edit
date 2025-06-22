@@ -1,11 +1,11 @@
 @extends('layouts.layout')
 
 @section('head')
-    <link rel="stylesheet" href="{{ asset('css/module4/agency-inquiry.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/module4/public.css') }}">
 @endsection
 
 @section('content')
-    <div class="assigned-inquiry-list">
+    <div class="inquiry-list">
         <h2>All Inquiries</h2>
 
         <form method="GET" action="/public/inquiry-list"" style="margin-bottom: 20px;">

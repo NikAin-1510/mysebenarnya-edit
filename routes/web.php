@@ -126,14 +126,18 @@ Route::post('/agency/inquiries/{id}/action', [InquiryAssignmentController::class
 use App\Http\Controllers\TrackingProgressController;
 // agency
 Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus']);
+Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus'])->name('progress.update.status');;
 Route::post('/agency/updatestatus/save', [TrackingProgressController::class, 'a_SaveStatus']);
 Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_NotifyMCMC']);
 Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
-
 // mcmc
 Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
-Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport']);
+Route::get('/mcmc/progress-doc/{statusID}', [TrackingProgressController::class, 'm_SupportingDoc'])->name('progress.view.pdf');
+//mcmc report
+Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport'])->name('show.agencyPerformanceReport');
+Route::post('/mcmc/reports', [TrackingProgressController::class, 'm_GenerateReport'])->name('mcmc.reports.generate');
+Route::get('/mcmc/reports/excel', [TrackingProgressController::class, 'm_ExportExcel'])->name('mcmc.reports.excel');
+Route::get('/mcmc/reports/pdf', [TrackingProgressController::class, 'm_ExportPDF'])->name('mcmc.reports.pdf');
 // public
 Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
 Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
