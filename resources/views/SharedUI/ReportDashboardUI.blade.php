@@ -72,7 +72,7 @@
                 <i class="fas fa-share-square"></i>
                 <h3>Inquiries Assigned per Agency</h3>
             </div>
-            <div class="report-card" onclick="location.href='#'">
+            <div class="report-card" onclick="location.href='{{ route('show.agencyPerformanceReport')}}'">
                 <i class="fas fa-chart-line"></i>
                 <h3>Agency Performance Report</h3>
             </div>

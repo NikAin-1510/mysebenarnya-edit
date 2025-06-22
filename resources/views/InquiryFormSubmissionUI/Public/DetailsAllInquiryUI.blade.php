@@ -45,7 +45,7 @@
     <a href="/public/inquiry-list" class="btn-back">Back to List</a>
 
     @if(in_array(strtolower($inquiry->SubmissionStatus), ['forwarded', 'verified']) && $nextInquiry)
-    <a href="{{ url('/public/inquiry-details/' . $nextInquiry->InquiryID) }}" class="btn-next">Next</a>
+    <a href="{{ url('/public/inquiry-details?id=' . $nextInquiry->InquiryID) }}" class="btn-next">Next</a>
 @endif
 
 </div>
