@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Str; 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\RegisteredUserExport;
 
 class UserProfileController extends Controller
 {
@@ -320,4 +324,9 @@ class UserProfileController extends Controller
         return [$users, $agencies];
     }
 
+    public function downloadExcel(Request $request)
+    {
+        [$users] = $this->queryUsers($request);
+        return Excel::download(new RegisteredUserExport($users), 'RegisteredUserReport.xlsx');
+    }
 }
