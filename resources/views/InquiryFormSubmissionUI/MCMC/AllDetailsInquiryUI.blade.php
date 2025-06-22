@@ -43,7 +43,7 @@
             <a href="{{ route('mcmc.all.inquiry') }}" class="btn-back">Back to List</a>
 
             {{-- Next button conditionally shown --}}
-            <a href="{{ route('mcmc.review.inquiry', $inquiry->InquiryID) }}" class="btn-next" id="next-button">Next</a>
+            <a href="{{ route('monitor.progress', ['id' => $inquiry->InquiryID]) }}" class="btn-next" id="next-button">Next</a>
         </div>
     </form>
 </div>
