@@ -22,9 +22,10 @@
     padding: 20px;
     border-radius: 10px;
     background-color: #f9fafb;
-    border-left: 5px solid #691075;
+    border-left: 5px solid #007bff;
     line-height: 1.8;
     margin-bottom: 20px;
+
 }
 
 .progress-card h3 {
@@ -34,16 +35,14 @@
 }
 
 /* Paragraph styling */
-.progress-card p,
-.container > p {
+.progress-card p, .container > p {
     margin-bottom: 10px;
     font-size: 16px;
     color: #333;
 }
 
 /* Strong labels */
-.progress-card p strong,
-.container > p strong {
+.progress-card p strong, .container > p strong {
     color: #444;
     display: inline-block;
     width: 200px;
@@ -60,27 +59,7 @@
     color: #5c9ce1;
 }
 
-/* Status badges and notifications */
-.progress-card p:has(strong:contains("⚠")) {
-    background-color: #fff3cd;
-    padding: 10px;
-    border-radius: 5px;
-    border-left: 4px solid #ffc107;
-}
 
-.progress-card p:has(strong:contains("✅")) {
-    background-color: #d4edda;
-    padding: 10px;
-    border-radius: 5px;
-    border-left: 4px solid #28a745;
-}
-
-.progress-card p:has(strong:contains("🗂")) {
-    background-color: #d1ecf1;
-    padding: 10px;
-    border-radius: 5px;
-    border-left: 4px solid #17a2b8;
-}
 
 /* Done button styling */
 .done-button {
@@ -102,12 +81,12 @@
     transition: background-color 0.3s ease;
     border: none;
     cursor: pointer;
-    background-color: #993594;
+    background-color: #007bff;
     color: white;
 }
 
 .done-button a:hover {
-    background-color: #64126b;
+    background-color: #0056b3;
 }
 
 /* Empty state message */
@@ -118,10 +97,4 @@
     margin-top: 20px;
 }
 
-.notify {
-    background-color: #ead8e9;
-    margin-left: 20px;
-    margin-right: 20px;
-    padding: 10px 5px;
-    border-radius: 8px;
-}
+

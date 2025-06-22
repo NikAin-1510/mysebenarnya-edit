@@ -107,12 +107,8 @@ table tr td[colspan="3"] {
   line-height: 1.8;
 }
 
-th {
-  background-color: #e1c980;
-  color: #040404;
-}
-
 td {
   background-color: #ffffff;
   color: #040404;
 }
+

@@ -3,7 +3,7 @@
 @section('head')
     <link rel="stylesheet" href="{{ asset('css/module4/agency-inquiry.css') }}">
 @endsection
-
+@section('page-name', 'Notification Details')
 @section('content')
     <div class="notification-list">
         <h2>Notification: Inquiry Status Update</h2>

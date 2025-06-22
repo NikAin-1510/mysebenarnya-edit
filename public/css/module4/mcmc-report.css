@@ -137,9 +137,7 @@ body {
     margin-bottom: 0;
 }
 
-/* =====================
-   FORM STYLES
-   ===================== */
+
 .filter-form {
     display: flex;
     flex-wrap: wrap;
@@ -198,9 +196,7 @@ body {
     width: 100%;
 }
 
-/* =====================
-   BUTTON STYLES
-   ===================== */
+
 .btn {
     padding: 12px 24px;
     border: none;
@@ -241,9 +237,7 @@ body {
     box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4);
 }
 
-/* =====================
-   EXPORT BUTTONS
-   ===================== */
+
 .export-buttons {
     display: flex;
     gap: 15px;
@@ -255,9 +249,7 @@ body {
     min-width: 150px;
 }
 
-/* =====================
-   TABLE STYLES
-   ===================== */
+
 .report-table {
     margin-top: 30px;
 }
@@ -315,9 +307,7 @@ body {
     background-color: #f8f9fa;
 }
 
-/* =====================
-   CHART STYLES
-   ===================== */
+
 .chart-section {
     margin-top: 40px;
     padding: 30px;
@@ -344,9 +334,7 @@ body {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
 }
 
-/* =====================
-   RESPONSIVE STYLES
-   ===================== */
+
 @media (max-width: 1024px) {
     .content {
         margin-left: 0;
@@ -419,9 +407,7 @@ body {
     }
 }
 
-/* =====================
-   UTILITY CLASSES
-   ===================== */
+
 .text-center {
     text-align: center;
 }
@@ -438,9 +424,7 @@ body {
     margin-top: 3rem;
 }
 
-/* =====================
-   LOADING STATES
-   ===================== */
+
 .loading {
     opacity: 0.7;
     pointer-events: none;
@@ -466,9 +450,7 @@ body {
     }
 }
 
-/* =====================
-   PRINT STYLES
-   ===================== */
+
 @media print {
     .sidebar,
     .main-header,
@@ -491,3 +473,4 @@ body {
     .table {
         box-shadow: none;
     }
+}
