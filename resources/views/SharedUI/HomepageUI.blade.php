@@ -1,5 +1,5 @@
 @extends('layouts.layout')
-
+@section('page-name', 'Home')
 @section('content')
     <div class="home-page">
         @if(session('user_role') === 'publicuser')

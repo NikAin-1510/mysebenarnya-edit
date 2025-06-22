@@ -27,9 +27,9 @@
         <form method="POST" action="{{ route('agency.inquiry.action', $assignment->AssignmentID) }}">
             @csrf
             <div class="action-buttons">
-                <button type="submit" name="action" value="accept" class="btn-save">
-                    <i class="fas fa-check"></i> Accept
-                </button>
+            <button type="button" class="btn-save" onclick="window.location.href='{{ route('progress.update.status', ['id' => $assignment->InquiryID]) }}'">
+                <i class="fas fa-check"></i> Accept
+            </button>
                 <button type="button" class="btn-next" onclick="showRejectForm()">
                     <i class="fas fa-times"></i> Reject Inquiry
                 </button>

@@ -120,7 +120,7 @@ Route::get('/mcmc/report/export/pdf', [InquiryAssignmentController::class, 'expo
 Route::get('/mcmc/report/export/excel', [InquiryAssignmentController::class, 'exportInquiryReportExcel'])->name('mcmc.report.export.excel');
 
 //AGENCY
-Route::get('/agency/inquirylist', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquirylist');
+Route::get('/agency/inquiry-list', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquirylist');
 Route::get('/agency/inquirylist/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
 Route::post('/agency/inquirylist/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
 
@@ -131,12 +131,12 @@ Route::post('/agency/inquirylist/{id}/action', [InquiryAssignmentController::cla
 use App\Http\Controllers\TrackingProgressController;
 // agency
 Route::get('/agency/inquirylist', [TrackingProgressController::class, 'a_InquiryList']);
-Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus'])->name('progress.update.status');;
+Route::get('/agency/updatestatus', [TrackingProgressController::class, 'a_UpdateStatus'])->name('progress.update.status');
 Route::post('/agency/updatestatus/save', [TrackingProgressController::class, 'a_SaveStatus']);
 Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_NotifyMCMC']);
 Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
 // mcmc
-Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress']);
+Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress'])->name('monitor.progress');
 Route::get('/mcmc/progress-doc/{statusID}', [TrackingProgressController::class, 'm_SupportingDoc'])->name('progress.view.pdf');
 //mcmc report
 Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport'])->name('show.agencyPerformanceReport');
@@ -146,14 +146,9 @@ Route::get('/mcmc/reports/pdf', [TrackingProgressController::class, 'm_ExportPDF
 // public
 Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
 Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
-Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
+Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList'])->name('notification.list');
 Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
 Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry'])->name('public.all.list');
-
-
-
-
-
 
 
 //bukan faten punya

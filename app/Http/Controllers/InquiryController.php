@@ -15,6 +15,9 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\InquiryAssignment;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\InquiryReport;
+use App\Exports\InquiryReportExport;
+
 
 class InquiryController extends Controller
 {
@@ -23,20 +26,29 @@ class InquiryController extends Controller
     {
         $agencyID = Auth::user()->AgencyID;
 
-        $query = Inquiry::whereHas('latestAssignment', function ($q) use ($agencyID) {
+        $query = \App\Models\Inquiry::whereHas('latestAssignment', function ($q) use ($agencyID) {
             $q->where('AgencyID', $agencyID);
         })
-            ->whereHas('latestProgress', function ($q) {
-                $q->whereIn('VerificationStatus', ['verified', 'fake']);
+            ->whereHas('progress', function ($q) use ($agencyID) {
+                $q->where('AgencyID', $agencyID)
+                    ->whereIn('VerificationStatus', ['Verified as True', 'Identified as Fake']);
             })
-            ->with(['latestAssignment', 'latestProgress']) // eager load
+            ->with(['latestAssignment', 'latestProgress'])
             ->orderByDesc('SubmissionDate');
 
-        // Optional filters
+        // Filters
         if ($request->filled('status')) {
-            $query->whereHas('latestProgress', function ($q) use ($request) {
-                $q->where('VerificationStatus', $request->status);
-            });
+            $statusMap = [
+                'verified' => 'Verified as True',
+                'fake' => 'Identified as Fake',
+            ];
+
+            if (isset($statusMap[$request->status])) {
+                $query->whereHas('progress', function ($q) use ($agencyID, $statusMap, $request) {
+                    $q->where('AgencyID', $agencyID)
+                        ->where('VerificationStatus', $statusMap[$request->status]);
+                });
+            }
         }
 
         if ($request->filled('category')) {
@@ -54,8 +66,10 @@ class InquiryController extends Controller
 
         $assignedInquiries = $query->get();
 
-        return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
+        return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiry', compact('assignedInquiries'));
     }
+
+
 
 
 
@@ -189,18 +203,13 @@ class InquiryController extends Controller
     }
 
 
-
     public function exportReportToExcel(Request $request)
     {
-        $query = Inquiry::query()
+        $query = \App\Models\Inquiry::query()
             ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
             ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
-            ->select(
-                'inquiry.*',
-                'agency.AgencyName'
-            );
+            ->select('inquiry.*', 'agency.AgencyName');
 
-        // Optional filters
         if ($request->filled('month')) {
             $query->whereMonth('inquiry.SubmissionDate', $request->month);
         }
@@ -215,8 +224,9 @@ class InquiryController extends Controller
 
         $inquiries = $query->get();
 
-        return Excel::download(new Inquiry($inquiries), 'inquiry_report.xlsx');
+        return Excel::download(new InquiryReport($inquiries), 'inquiry_report.xlsx');
     }
+
 
 
     // === PUBLIC ===
@@ -276,8 +286,9 @@ class InquiryController extends Controller
 
         $assignedAgency = $inquiry->latestAssignment->agency ?? null;
 
-        $nextInquiry = Inquiry::where('InquiryID', '>', $id)
-            ->orderBy('InquiryID')
+
+        $nextInquiry = Inquiry::where('SubmissionDate', '>', $inquiry->SubmissionDate)
+            ->orderBy('SubmissionDate')
             ->first();
 
         return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI', compact('inquiry', 'assignedAgency', 'nextInquiry'));
@@ -365,15 +376,7 @@ class InquiryController extends Controller
     // LIST INQUIRY
     public function m_ListInquiry()
     {
-        $inquiries = DB::table('inquiry')
-            ->join('publicuser', 'inquiry.publicID', '=', 'publicuser.publicID')
-            ->join('user', 'publicuser.userID', '=', 'user.UserID')
-            ->where('user.Role', 'publicuser')
-            ->whereNull('inquiry.SubmissionCategory')
-            ->where('inquiry.SubmissionStatus', 'pending')
-            ->orderBy('inquiry.SubmissionDate', 'desc')
-            ->select('inquiry.*')
-            ->get();
+        $inquiries = Inquiry::with('latestAssignment.agency')->where('SubmissionStatus', 'pending')->get();
 
         return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiries'));
     }

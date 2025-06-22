@@ -39,29 +39,32 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($inquiries as $inquiry)
-            <tr>
-                <td>{{ $inquiry->InquiryTitle }}</td>
-                <td>{{ \Carbon\Carbon::parse($inquiry->SubmissionDate)->format('d M Y, h:i A') }}</td>
-                <td>
-                    @if ($inquiry->SubmissionCategory === 'Genuine')
-                        <span class="badge badge-genuine">Genuine</span>
-                    @elseif ($inquiry->SubmissionCategory === 'Non-Serious')
-                        <span class="badge badge-nonserious">Non-Serious</span>
-                    @else
-                        <span class="badge badge-secondary">Uncategorized</span>
-                    @endif
-                </td>
-                <td>
-                    <a href="{{ route('inquiry.own.view', $inquiry->InquiryID) }}" class="btn btn-primary">View Details</a>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="4">No inquiries submitted yet.</td>
-            </tr>
-            @endforelse
-        </tbody>
+    @forelse ($inquiries as $inquiry)
+    <tr>
+        <td>{{ $inquiry->InquiryTitle }}</td>
+        <td>{{ \Carbon\Carbon::parse($inquiry->SubmissionDate)->format('d M Y, h:i A') }}</td>
+        <td>
+            @if ($inquiry->SubmissionCategory === 'Genuine')
+                <span class="badge badge-genuine">Genuine</span>
+            @elseif ($inquiry->SubmissionCategory === 'Non-Serious')
+                <span class="badge badge-nonserious">Non-Serious</span>
+            @else
+                <span class="badge badge-secondary">Uncategorized</span>
+            @endif
+            @if ($inquiry->latestAssignment && $inquiry->latestAssignment->JurisdictionStatus === 0)
+                <br><span style="color: red; font-weight:bold;">Agency Rejected: {{ $inquiry->latestAssignment->JurisdictionComment }}</span>
+            @endif
+        </td>
+        <td>
+            <a href="{{ route('inquiry.own.view', $inquiry->InquiryID) }}" class="btn btn-primary">View Details</a>
+        </td>
+    </tr>
+    @empty
+    <tr>
+        <td colspan="4">No inquiries submitted yet.</td>
+    </tr>
+    @endforelse
+</tbody>
     </table>
 </div>
 @endsection

@@ -3,7 +3,7 @@
 @section('head')
     <link rel="stylesheet" href="{{ asset('css/module4/agency-inquiry.css') }}">
 @endsection
-
+@section('page-name', 'Update Status')
 @section('content')
 <form action="{{ url('/agency/updatestatus/save') }}" method="POST" enctype="multipart/form-data">
     @csrf
@@ -63,6 +63,7 @@
         </select>
 
     <button type="submit">Submit</button>
+
 </form>
 
 @endsection

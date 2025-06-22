@@ -3,12 +3,11 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AgencyReportExport implements FromArray, WithHeadings, WithStyles, WithTitle
+class AgencyReportExport implements FromArray, WithStyles, WithTitle
 {
     protected $data;
 
@@ -26,7 +25,7 @@ class AgencyReportExport implements FromArray, WithHeadings, WithStyles, WithTit
 
         // Add overall statistics first
         if (isset($this->data['overallStats'])) {
-            $rows[] = ['OVERALL SUMMARY', '', '', '', '', '', ''];
+            $rows[] = ['OVERALL SUMMARY', '', '', '', '', '', '', ''];
             $rows[] = [
                 'Total Assigned: ' . $this->data['overallStats']['totalAssigned'],
                 'Total Resolved: ' . $this->data['overallStats']['totalResolved'],
@@ -34,11 +33,24 @@ class AgencyReportExport implements FromArray, WithHeadings, WithStyles, WithTit
                 'Under Investigation: ' . $this->data['overallStats']['totalUnderInvestigation'],
                 '',
                 '',
+                '',
                 ''
             ];
-            $rows[] = ['', '', '', '', '', '', '']; // Empty row
-            $rows[] = ['AGENCY PERFORMANCE', '', '', '', '', '', ''];
+            $rows[] = ['', '', '', '', '', '', '', '']; // Empty row
+            $rows[] = ['AGENCY PERFORMANCE', '', '', '', '', '', '', ''];
         }
+
+        // Add table headers as a regular row
+        $rows[] = [
+            'Agency Name',
+            'Total Assigned',
+            'Resolved',
+            'Pending',
+            'Under Investigation',
+            'Avg. Resolution Time (days)',
+            'Avg. Pending Delay (days)',
+            'Resolution Rate (%)'
+        ];
 
         // Add agency data
         foreach ($this->data['report'] as $item) {
@@ -58,29 +70,18 @@ class AgencyReportExport implements FromArray, WithHeadings, WithStyles, WithTit
     }
 
     /**
-     * Define the headings for the Excel file
-     */
-    public function headings(): array
-    {
-        return [
-            'Agency Name',
-            'Total Assigned',
-            'Resolved',
-            'Pending',
-            'Under Investigation',
-            'Avg. Resolution Time (days)',
-            'Avg. Pending Delay (days)',
-            'Resolution Rate (%)'
-        ];
-    }
-
-    /**
      * Apply styles to the worksheet
      */
     public function styles(Worksheet $sheet)
     {
+        // Find the row number where table headers are located
+        $headerRowNumber = 1;
+        if (isset($this->data['overallStats'])) {
+            $headerRowNumber = 5; // After overall stats and empty rows
+        }
+
         return [
-            1 => ['font' => ['bold' => true]],
+            $headerRowNumber => ['font' => ['bold' => true]], // Make table headers bold
         ];
     }
 
