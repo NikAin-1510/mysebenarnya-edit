@@ -127,8 +127,6 @@ Route::post('/agency/inquirylist/{id}/action', [InquiryAssignmentController::cla
 
 
 
-
-
 //Module4: Tracking Progress Controller
 use App\Http\Controllers\TrackingProgressController;
 // agency
@@ -146,12 +144,19 @@ Route::post('/mcmc/reports', [TrackingProgressController::class, 'm_GenerateRepo
 Route::get('/mcmc/reports/excel', [TrackingProgressController::class, 'm_ExportExcel'])->name('mcmc.reports.excel');
 Route::get('/mcmc/reports/pdf', [TrackingProgressController::class, 'm_ExportPDF'])->name('mcmc.reports.pdf');
 // public
+Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
+Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
+Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
+Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry'])->name('public.all.list');
+
+
+
+
+
+
+
+//bukan faten punya
 Route::get('own-inquiry-details', [TrackingProgressController::class, 'p_OwnInquiryList'])
     ->middleware('auth')  // assuming login required
     ->name('inquiry.own.list');
-
-Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgOwnInquiry']);
-Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
-Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
-//Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry'])->name('public.all.list');;
