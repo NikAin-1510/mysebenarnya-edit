@@ -26,20 +26,29 @@ class InquiryController extends Controller
     {
         $agencyID = Auth::user()->AgencyID;
 
-        $query = Inquiry::whereHas('latestAssignment', function ($q) use ($agencyID) {
+        $query = \App\Models\Inquiry::whereHas('latestAssignment', function ($q) use ($agencyID) {
             $q->where('AgencyID', $agencyID);
         })
-            ->whereHas('latestProgress', function ($q) {
-                $q->whereIn('VerificationStatus', ['verified', 'fake']);
+            ->whereHas('progress', function ($q) use ($agencyID) {
+                $q->where('AgencyID', $agencyID)
+                    ->whereIn('VerificationStatus', ['Verified as True', 'Identified as Fake']);
             })
-            ->with(['latestAssignment', 'latestProgress']) // eager load
+            ->with(['latestAssignment', 'latestProgress'])
             ->orderByDesc('SubmissionDate');
 
-        // Optional filters
+        // Filters
         if ($request->filled('status')) {
-            $query->whereHas('latestProgress', function ($q) use ($request) {
-                $q->where('VerificationStatus', $request->status);
-            });
+            $statusMap = [
+                'verified' => 'Verified as True',
+                'fake' => 'Identified as Fake',
+            ];
+
+            if (isset($statusMap[$request->status])) {
+                $query->whereHas('progress', function ($q) use ($agencyID, $statusMap, $request) {
+                    $q->where('AgencyID', $agencyID)
+                        ->where('VerificationStatus', $statusMap[$request->status]);
+                });
+            }
         }
 
         if ($request->filled('category')) {
@@ -57,8 +66,10 @@ class InquiryController extends Controller
 
         $assignedInquiries = $query->get();
 
-        return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
+        return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiry', compact('assignedInquiries'));
     }
+
+
 
 
 
@@ -275,8 +286,9 @@ class InquiryController extends Controller
 
         $assignedAgency = $inquiry->latestAssignment->agency ?? null;
 
-        $nextInquiry = Inquiry::where('InquiryID', '>', $id)
-            ->orderBy('InquiryID')
+
+        $nextInquiry = Inquiry::where('SubmissionDate', '>', $inquiry->SubmissionDate)
+            ->orderBy('SubmissionDate')
             ->first();
 
         return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI', compact('inquiry', 'assignedAgency', 'nextInquiry'));
