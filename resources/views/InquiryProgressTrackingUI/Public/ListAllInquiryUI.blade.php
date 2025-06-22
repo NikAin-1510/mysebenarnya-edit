@@ -1,15 +1,14 @@
 @extends('layouts.layout')
 
 @section('head')
-    <link rel="stylesheet" href="{{ asset('css/module4/public.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/module4/agency-inquiry.css') }}">
 @endsection
 
 @section('content')
-    <div class="inquiry-list">
+    <div class="assigned-inquiry-list">
         <h2>All Inquiries</h2>
 
-        <form method="GET" action="/public/inquiry-list" style="margin-bottom: 20px;">
-
+        <form method="GET" action="/public/inquiry-list"" style="margin-bottom: 20px;">
             <label for="status">Filter by Status:</label>
             <select name="status" id="status">
                 <option value="">-- All --</option>
@@ -35,23 +34,14 @@
             @forelse($inquiries as $inq)
                 <tr>
                     <td><a href="{{ route('details.all.inquiry', ['id' => $inq->InquiryID]) }}">
-    {{ $inq->InquiryTitle }}
-</a></td>
+                        {{ $inq->InquiryTitle }}
+                    </a></td>
                     <td>{{ \Carbon\Carbon::parse($inq->SubmissionDate)->format('Y-m-d H:i') }}</td>
-                   @php
-    if (!empty($inq->progress?->VerificationStatus)) {
-        $status = 'Completed';
-    } elseif (!empty($inq->progress?->InvestigationBeginDate)) {
-        $status = 'Under Investigation';
-    } elseif (!empty($inq->latestAssignment)) {
-        $status = 'Forwarded';
-    } else {
-        $status = 'Pending';
-    }
-@endphp
-
-                    <td>{{ $status }}</td>
-
+                    @php
+                        $status = $inq->VerificationStatus
+                            ?? ($inq->InvestigationBeginDate ? 'Under Investigation' : 'N/A');
+                    @endphp
+                <td>{{ $status }}</td>
                 </tr>
             @empty
                 <tr>
@@ -61,3 +51,9 @@
         </table>
     </div>
 @endsection
+
+@php
+    $status = $inq->VerificationStatus
+        ?? ($inq->InvestigationBeginDate ? 'Under Investigation' : 'N/A');
+@endphp
+<td>{{ $status }}</td>

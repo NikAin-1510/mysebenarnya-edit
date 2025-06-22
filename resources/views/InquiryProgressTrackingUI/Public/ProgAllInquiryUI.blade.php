@@ -40,4 +40,8 @@
     @empty
         <p>No progress found for this inquiry.</p>
     @endforelse
+
+    <div class="done-button">
+    <a href="{{ route('public.all.list') }}">Done</a>
+</div>
 @endsection
