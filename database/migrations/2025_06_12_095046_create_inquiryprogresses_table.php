@@ -21,6 +21,15 @@ return new class extends Migration
             $table->timestamp('VerificationDateTime')->nullable();
             $table->string('InvestigationDetails', 30);
 
+            // ✅ New columns
+            $table->binary('InvestigationDoc')->nullable();
+            $table->enum('Notify', [
+                'Further clarification needed',
+                'Inquiry is completed',
+                'Reassignment requested',
+                ''
+            ])->nullable();
+
             $table->foreign('InquiryID')->references('InquiryID')->on('inquiries');
             $table->foreign('AgencyID')->references('AgencyID')->on('agencies');
             $table->foreign('AssignmentID')->references('AssignmentID')->on('inquiryassignments');

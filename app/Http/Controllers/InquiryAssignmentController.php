@@ -10,9 +10,22 @@ use App\Models\InquiryAssignment;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PublicUser;
 use App\Models\User;
+use App\Models\InquiryProgress;
+use PDF;
+use App\Exports\InquiryAssignmentExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class InquiryAssignmentController extends Controller
 {
+    public function m_ReviewInquiry($id)
+    {
+        $inquiry = Inquiry::with('latestAssignment.agency')->where('InquiryID', $id)->firstOrFail();
+
+        return view('InquiryAssignmentUI.MCMC.ReviewInquiryUI', compact('inquiry'));
+    }
+
+
     // === PUBLIC ===
     public function publicOwnList()
     {
@@ -24,24 +37,38 @@ class InquiryAssignmentController extends Controller
 
         $publicID = $user->publicUser->PublicID;
 
+        // Subquery to get the latest assignment per inquiry
+        $latestAssignments = DB::table('inquiryassignment as ia1')
+            ->select('ia1.InquiryID', 'ia1.AgencyID', 'ia1.AssignDate')
+            ->whereRaw('ia1.AssignDate = (
+            SELECT MAX(ia2.AssignDate)
+            FROM inquiryassignment as ia2
+            WHERE ia2.InquiryID = ia1.InquiryID
+        )');
+
+        // Main query to get inquiries with latest assignment, agency info, and progress
         $inquiries = DB::table('inquiry')
-            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
-            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->leftJoinSub($latestAssignments, 'latest_ia', function ($join) {
+                $join->on('inquiry.InquiryID', '=', 'latest_ia.InquiryID');
+            })
+            ->leftJoin('agency', 'latest_ia.AgencyID', '=', 'agency.AgencyID')
             ->leftJoin('inquiryprogress', 'inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
             ->select(
                 'inquiry.*',
                 'agency.AgencyName',
-                'inquiryassignment.AssignDate',
+                'latest_ia.AssignDate',
                 'inquiryprogress.VerificationDateTime',
                 'inquiryprogress.VerificationStatus',
                 'inquiryprogress.InvestigationDetails'
             )
-            ->where('inquiry.PublicID', $publicID) // now using auth()->user()
+            ->where('inquiry.PublicID', $publicID)
             ->orderBy('SubmissionDate', 'desc')
-            ->get();
+            ->get()
+            ->unique('InquiryID');
 
         return view('InquiryAssignmentUI.Public.OwnAssignedInquiryUI', compact('inquiries'));
     }
+
 
 
     // === MCMC ===
@@ -62,50 +89,32 @@ class InquiryAssignmentController extends Controller
     // Store Inquiry Assignment
     public function storeAssignment(Request $request, $id)
     {
-        // Validate form input
         $validated = $request->validate([
             'AgencyID' => 'required',
             'InquiryComment' => 'required|string|max:255',
         ]);
 
-        // Generate unique AssignmentID (example: ASS1234)
         $assignmentID = 'ASS' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
-        // Create new assignment
         $assignment = new InquiryAssignment();
         $assignment->AssignmentID = $assignmentID;
         $assignment->AgencyID = $validated['AgencyID'];
         $assignment->mcmcID = Auth::user()->UserID;
         $assignment->InquiryID = $id;
         $assignment->AssignDate = now()->toDateString();
-        $assignment->JurisdictionStatus = 1; // default status
+        $assignment->JurisdictionStatus = 1;
         $assignment->InquiryComment = $validated['InquiryComment'];
         $assignment->save();
 
-        return redirect()->route('mcmc.assign.view', $id)->with('success', 'Inquiry assigned successfully.');
-    }
-
-    public function viewAssignedInquiry($id)
-    {
+        // ✅ Update inquiry submission status
         $inquiry = Inquiry::findOrFail($id);
-        $assignment = InquiryAssignment::where('InquiryID', $id)->first();
+        $inquiry->SubmissionStatus = 'assigned'; // <-- Add this
+        $inquiry->save(); // <-- Don't forget to save it
 
-        if (!$assignment) {
-            return redirect()->route('mcmc.new.inquiry')->with('error', 'Assignment not found.');
-        }
-
-        return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiry', 'assignment'));
+        return redirect()->route('mcmc.new.inquiry')->with('success', 'Inquiry assigned successfully.');
     }
 
 
-
-    public function a_ReviewInquiry()
-    {
-        $assignments = InquiryAssignment::with(['inquiry', 'agency', 'progress'])->get();
-
-        $pendingInquiries = Inquiry::where('SubmissionStatus', 'pending')->count();
-        return view('InquiryAssignmentUI.MCMC.ReviewInquiryUI', compact('assignments', 'pendingInquiries'));
-    }
 
     public function a_AssignInquiry()
     {
@@ -116,50 +125,59 @@ class InquiryAssignmentController extends Controller
         return view('InquiryAssignmentUI.AssignInquiryUI', compact('inquiries', 'agencies', 'assignments'));
     }
 
-    public function a_DisplayReport()
+    public function displayReportDashboard(Request $request)
     {
         $agencies = Agency::all();
 
-        $assignments = InquiryAssignment::with('agency')->get()->groupBy('agency.AgencyName');
+        $query = InquiryAssignment::with('agency');
+
+        if ($request->start_date) {
+            $query->where('AssignDate', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->where('AssignDate', '<=', $request->end_date);
+        }
+        if ($request->agency_id) {
+            $query->where('AgencyID', $request->agency_id);
+        }
+
+        $assignments = $query->get()->groupBy('agency.AgencyName');
         $agencyNames = $assignments->keys();
         $agencyCounts = $assignments->map->count()->values();
-
-        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        $trendsData = [];
-
-        foreach ($agencies as $agency) {
-            $monthlyCounts = [];
-            foreach (range(1, 6) as $m) {
-                $monthlyCounts[] = InquiryAssignment::where('AgencyID', $agency->AgencyID)
-                    ->whereMonth('AssignDate', $m)
-                    ->count();
-            }
-
-            $trendsData[] = [
-                'label' => $agency->AgencyName,
-                'data' => $monthlyCounts,
-                'borderColor' => '#' . substr(md5($agency->AgencyName), 0, 6),
-                'backgroundColor' => 'rgba(0,0,0,0.1)',
-                'tension' => 0.4,
-            ];
-        }
 
         return view('InquiryAssignmentUI.MCMC.DisplayReportUI', compact(
             'agencies',
             'agencyNames',
-            'agencyCounts',
-            'months',
-            'trendsData'
+            'agencyCounts'
         ));
     }
+
     public function a_ListAssignedInquiry()
     {
-        $agencyID = session('profile_id') ?? 'A001'; // fallback for testing
+        $user = Auth::user();
 
-        $assignments = InquiryAssignment::with(['inquiry', 'progress'])
-            ->where('AgencyID', $agencyID)
+        // Get agency based on logged-in UserID
+        $agency = \App\Models\Agency::where('UserID', $user->UserID)->first();
+
+        if (!$agency) {
+            return redirect()->route('display.home')->with('error', 'You are not authorized as agency user.');
+        }
+
+        // Get all assigned inquiries for this agency
+        $assignments = InquiryAssignment::with(['inquiry', 'progress', 'agency'])
+            ->where('AgencyID', $agency->AgencyID)
+            ->where('JurisdictionStatus', '!=', 0)
+            ->whereIn('AssignmentID', function ($query) use ($agency) {
+                $query->select(DB::raw('MAX(AssignmentID)'))
+                    ->from('inquiryassignment')
+                    ->where('AgencyID', $agency->AgencyID)
+                    ->groupBy('InquiryID');
+            })
+            ->orderBy('AssignDate', 'desc')
             ->get();
 
+
+        // Pass the data to blade
         return view('InquiryAssignmentUI.Agency.ListAssignedInquiryUI', compact('assignments'));
     }
 
@@ -169,7 +187,7 @@ class InquiryAssignmentController extends Controller
             ->where('AssignmentID', $id)
             ->firstOrFail();
 
-        return view('InquiryFormSubmissionUI.Agency.InquiryDetailsUI', compact('assignment'));
+        return view('InquiryAssignmentUI.Agency.JurisdictionReviewUI', compact('assignment'));
     }
 
     public function handleAction(Request $request, $id)
@@ -178,37 +196,124 @@ class InquiryAssignmentController extends Controller
         $inquiry = $assignment->inquiry;
 
         if ($request->action === 'accept') {
+            // Update the assignment with jurisdiction status and comment
+            $assignment->update([
+                'JurisdictionStatus' => 1,
+                'JurisdictionComment' => 'Accepted and proceeding with investigation'
+            ]);
+
             InquiryProgress::updateOrCreate(
                 ['AssignmentID' => $assignment->AssignmentID],
                 [
                     'InquiryID' => $assignment->InquiryID,
                     'AgencyID' => $assignment->AgencyID,
                     'InvestigationBeginDate' => now(),
-                    'VerificationStatus' => 'accepted',
+                    'VerificationStatus' => 'ACCEPTED',
                     'InvestigationDetails' => 'Inquiry accepted by agency.',
-                ] //
+                ]
             );
-            return redirect()->route('agency.inquiries')->with('success', 'Inquiry accepted.');
+            return redirect()->route('agency.inquirylist')->with('success', 'Inquiry accepted.');
         }
 
         if ($request->action === 'reject') {
+            // Validate the jurisdiction comment
+            $request->validate([
+                'jurisdictionComment' => 'required|string|max:100'
+            ]);
+
             DB::beginTransaction();
             try {
-                // Reset assignment
-                $assignment->delete();
+                // Update the assignment with jurisdiction status and comment
+                $assignment->update([
+                    'JurisdictionStatus' => 0,
+                    'JurisdictionComment' => $request->jurisdictionComment
+                ]);
 
-                // Update inquiry status back to pending
+                // Create inquiry progress record
+                InquiryProgress::create([
+                    'StatusID' => 'ST' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
+                    'AssignmentID' => $assignment->AssignmentID,
+                    'InquiryID' => $assignment->InquiryID,
+                    'AgencyID' => $assignment->AgencyID,
+                    'InvestigationBeginDate' => now(),
+                    'VerificationStatus' => 'REJECTED',
+                    'InvestigationDetails' => $request->jurisdictionComment,
+                ]);
+
+                // Reset inquiry status to pending so it can be reassigned
                 $inquiry->SubmissionStatus = 'pending';
+                $inquiry->SubmissionCategory = null;
                 $inquiry->save();
 
                 DB::commit();
-                return redirect()->route('agency.inquiries')->with('success', 'Inquiry rejected and unassigned.');
+                return redirect()->route('agency.inquirylist')->with('success', 'Inquiry rejected and returned for reassignment.');
             } catch (\Exception $e) {
                 DB::rollBack();
-                return back()->with('error', 'Failed to reject inquiry: ' . $e->getMessage());
+                return back()->with('error', 'Failed to reject: ' . $e->getMessage());
             }
         }
 
         return back()->with('error', 'Invalid action.');
+    }
+
+    // Inquiry Report Page
+    public function showInquiryReport(Request $request)
+    {
+        $agencies = Agency::all();
+
+        $query = InquiryAssignment::with('agency');
+
+        if ($request->start_date) {
+            $query->where('AssignDate', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->where('AssignDate', '<=', $request->end_date);
+        }
+        if ($request->agency_id) {
+            $query->where('AgencyID', $request->agency_id);
+        }
+
+        $assignments = $query->get();
+
+        $grouped = $assignments->groupBy(function ($item) {
+            return $item->agency->AgencyName;
+        });
+
+        $agencyNames = $grouped->keys()->toArray();
+        $agencyCounts = $grouped->map(function ($items) {
+            return $items->count();
+        })->values()->toArray();
+
+        return view('InquiryAssignmentUI.MCMC.DisplayReportUI', compact('agencies', 'agencyNames', 'agencyCounts'));
+    }
+
+    // Export PDF
+    public function exportInquiryReportPDF(Request $request)
+    {
+        $agencies = Agency::all();
+
+        $query = InquiryAssignment::with('agency');
+
+        if ($request->start_date) {
+            $query->where('AssignDate', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->where('AssignDate', '<=', $request->end_date);
+        }
+        if ($request->agency_id) {
+            $query->where('AgencyID', $request->agency_id);
+        }
+
+        $assignments = $query->get();
+
+        $pdf = PDF::loadView('InquiryAssignmentUI.MCMC.PdfReportUI', compact('assignments', 'agencies'));
+
+        return $pdf->download('Inquiry_Assignment_Report.pdf');
+    }
+
+    // Export Excel
+    public function exportInquiryReportExcel()
+    {
+        return Excel::download(new InquiryAssignmentExport, 'Inquiry_Assignment_Report.xlsx');
     }
 }

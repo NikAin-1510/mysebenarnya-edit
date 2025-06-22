@@ -8,46 +8,57 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response; // ✅ Add this line
 use App\Models\Inquiry;
 use App\Models\Agency;
-use PDF;
 use App\Exports\ReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\InquiryAssignment;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InquiryController extends Controller
 {
     // === AGENCY ===
-
     public function a_ListAssignedInquiry(Request $request)
     {
-        $agencyId = Auth::user()->AgencyID;
+        $agencyID = Auth::user()->AgencyID;
 
-        $query = Inquiry::where('AgencyID', $agencyId);
+        $query = Inquiry::whereHas('latestAssignment', function ($q) use ($agencyID) {
+            $q->where('AgencyID', $agencyID);
+        })
+            ->whereHas('latestProgress', function ($q) {
+                $q->whereIn('VerificationStatus', ['verified', 'fake']);
+            })
+            ->with(['latestAssignment', 'latestProgress']) // eager load
+            ->orderByDesc('SubmissionDate');
 
-        if ($request->status) {
-            $query->where('InvestigationStatus', $request->status);
+        // Optional filters
+        if ($request->filled('status')) {
+            $query->whereHas('latestProgress', function ($q) use ($request) {
+                $q->where('VerificationStatus', $request->status);
+            });
         }
 
-        if ($request->category) {
+        if ($request->filled('category')) {
             $query->where('SubmissionCategory', $request->category);
         }
 
-        if ($request->date) {
-            $query->whereMonth('SubmissionDate', '=', date('m', strtotime($request->date)))
-                ->whereYear('SubmissionDate', '=', date('Y', strtotime($request->date)));
+        if ($request->filled('date')) {
+            $query->whereMonth('SubmissionDate', date('m', strtotime($request->date)))
+                ->whereYear('SubmissionDate', date('Y', strtotime($request->date)));
         }
 
-        // ✅ New: Filter by Inquiry Title (partial match)
-        if ($request->title) {
+        if ($request->filled('title')) {
             $query->where('InquiryTitle', 'like', '%' . $request->title . '%');
         }
 
-        $assignedInquiries = $query->orderBy('SubmissionDate', 'desc')->get();
+        $assignedInquiries = $query->get();
 
         return view('InquiryFormSubmissionUI.Agency.ListAssignedInquiryUI', compact('assignedInquiries'));
     }
+
+
+
 
     public function a_ReviewInquiry($id)
     {
@@ -91,13 +102,22 @@ class InquiryController extends Controller
 
         // Build monthly chart data
         $monthlyCounts = DB::table('inquiry')
-            ->select(
-                DB::raw('MONTH(SubmissionDate) as month'),
-                DB::raw('COUNT(*) as total')
-            )
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select(DB::raw('MONTH(SubmissionDate) as month'), DB::raw('COUNT(*) as total'))
+            ->when($request->year, function ($query) use ($request) {
+                $query->whereYear('SubmissionDate', $request->year);
+            })
+            ->when($request->month, function ($query) use ($request) {
+                $query->whereMonth('SubmissionDate', $request->month);
+            })
+            ->when($request->agency, function ($query) use ($request) {
+                $query->where('agency.AgencyID', $request->agency);
+            })
             ->groupBy(DB::raw('MONTH(SubmissionDate)'))
             ->orderBy('month')
             ->pluck('total', 'month');
+
 
         $chartData = [
             'labels' => [],
@@ -111,7 +131,7 @@ class InquiryController extends Controller
 
         $agencies = DB::table('agency')->get();
 
-        return view('InquiryFormSubmissionUI.MCMC.DisplayReportUI', compact('inquiries', 'agencies', 'chartData'));
+        return view('InquiryFormSubmissionUI.MCMC.DisplayReportInquiryUI', compact('inquiries', 'agencies', 'chartData'));
     }
 
     private function filterReportData(Request $request)
@@ -136,48 +156,70 @@ class InquiryController extends Controller
         return $query->get();
     }
 
-    public function exportReportToPDF(Request $request) {}
 
 
-    public function exportReportToExcel(Request $request) {}
-
-
-
-    // === PUBLIC ===
-
-
-
-    public function p_DetailsOwnInquiry($id)
+    public function exportReportToPDF(Request $request)
     {
-        $user = Auth::user();
+        $agencies = DB::table('agency')->get();
 
-        if (!$user || !$user->publicUser) {
-            return redirect()->back()->with('error', 'Your public user profile is missing.');
+        // Apply filters like the dashboard
+        $inquiries = DB::table('inquiry')
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select('inquiry.*', 'agency.AgencyName');
+
+        if ($request->month) {
+            $inquiries->whereMonth('SubmissionDate', $request->month);
         }
 
-        $inquiry = Inquiry::where('InquiryID', $id)
-            ->where('PublicID', $user->publicUser->PublicID)
-            ->firstOrFail();
+        if ($request->year) {
+            $inquiries->whereYear('SubmissionDate', $request->year);
+        }
 
-        // Assigned agency (if any)
-        $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
-            ->where('InquiryID', $id)
-            ->first();
+        if ($request->agency) {
+            $inquiries->where('agency.AgencyID', $request->agency);
+        }
 
-        // ❌ DO NOT use InquiryComment::... (it's not a model)
+        $inquiries = $inquiries->get();
 
-        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact(
-            'inquiry',
-            'assignedAgency'
-        ));
+        // Load PDF view
+        $pdf = Pdf::loadView('InquiryFormSubmissionUI.MCMC.ReportPDFUI', compact('inquiries', 'agencies'));
+
+        return $pdf->download('Inquiry_Report.pdf');
     }
 
 
 
+    public function exportReportToExcel(Request $request)
+    {
+        $query = Inquiry::query()
+            ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+            ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+            ->select(
+                'inquiry.*',
+                'agency.AgencyName'
+            );
+
+        // Optional filters
+        if ($request->filled('month')) {
+            $query->whereMonth('inquiry.SubmissionDate', $request->month);
+        }
+
+        if ($request->filled('year')) {
+            $query->whereYear('inquiry.SubmissionDate', $request->year);
+        }
+
+        if ($request->filled('agency')) {
+            $query->where('inquiryassignment.AgencyID', $request->agency);
+        }
+
+        $inquiries = $query->get();
+
+        return Excel::download(new Inquiry($inquiries), 'inquiry_report.xlsx');
+    }
 
 
-
-
+    // === PUBLIC ===
 
 
 
@@ -192,9 +234,11 @@ class InquiryController extends Controller
             'url' => 'required|url',
             'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
-        $inquiryID = 'INQ' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        // Example PHP logic to generate next InquiryID
+
+
         $inquiry = new Inquiry();
-        $inquiry->InquiryID = uniqid('INQ');
+        $inquiry->InquiryID = uniqid('IQQ');
         $inquiry->UserID = Auth::id(); // Assuming user is logged in
         $inquiry->Title = $request->input('title');
         $inquiry->Description = $request->input('description');
@@ -218,14 +262,65 @@ class InquiryController extends Controller
     public function p_DetailsAllInquiry($id)
     {
         $inquiry = Inquiry::findOrFail($id);
-        return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI', compact('inquiry'));
+
+        // Set status based on current inquiry state
+        if (!empty($inquiry->VerificationStatus)) {
+            $inquiry->SubmissionStatus = 'Completed';
+        } elseif (!empty($inquiry->InvestigationBeginDate) || $inquiry->latestAssignment) {
+            $inquiry->SubmissionStatus = 'Forwarded';
+        } else {
+            $inquiry->SubmissionStatus = 'Pending';
+        }
+
+        $inquiry->save();
+
+        $assignedAgency = $inquiry->latestAssignment->agency ?? null;
+
+        $nextInquiry = Inquiry::where('InquiryID', '>', $id)
+            ->orderBy('InquiryID')
+            ->first();
+
+        return view('InquiryFormSubmissionUI.Public.DetailsAllInquiryUI', compact('inquiry', 'assignedAgency', 'nextInquiry'));
     }
 
-    public function p_ViewAssignedAgency($id)
+
+
+    public function p_DetailsOwnInquiry($id)
     {
-        $inquiry = Inquiry::with('agency')->findOrFail($id);
-        return view('InquiryFormSubmissionUI.Public.AssignedAgencyView', compact('inquiry'));
+        $user = Auth::user();
+
+        if (!$user || !$user->publicUser) {
+            return redirect()->back()->with('error', 'Your public user profile is missing.');
+        }
+
+        $inquiry = Inquiry::where('InquiryID', $id)
+            ->where('PublicID', $user->publicUser->PublicID)
+            ->with(['progress']) // eager load progress table
+            ->firstOrFail();
+
+        $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
+            ->where('InquiryID', $id)
+            ->whereNotNull('AgencyID')
+            ->orderByDesc('AssignDate')
+            ->first();
+
+        // ✅ Auto-determine SubmissionStatus
+        if (!empty($inquiry->progress?->VerificationStatus)) {
+            $inquiry->SubmissionStatus = 'Completed';
+        } elseif (!empty($inquiry->progress?->InvestigationBeginDate)) {
+            $inquiry->SubmissionStatus = 'Forwarded';
+        } elseif ($assignedAgency) {
+            $inquiry->SubmissionStatus = 'Forwarded';
+        } else {
+            $inquiry->SubmissionStatus = 'Pending';
+        }
+
+        return view('InquiryFormSubmissionUI.Public.DetailsOwnInquiryUI', compact(
+            'inquiry',
+            'assignedAgency'
+        ));
     }
+
 
 
     public function create()
@@ -242,7 +337,7 @@ class InquiryController extends Controller
             'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
 
-        $inquiryID = 'IQ' . str_pad(DB::table('inquiry')->count() + 1, 6, '0', STR_PAD_LEFT);
+        $inquiryID = 'IQ' . str_pad(DB::table('inquiry')->count() + 1, 5, '0', STR_PAD_LEFT);
 
         $filePath = null;
         if ($request->hasFile('evidence')) {
@@ -274,49 +369,67 @@ class InquiryController extends Controller
             ->join('publicuser', 'inquiry.publicID', '=', 'publicuser.publicID')
             ->join('user', 'publicuser.userID', '=', 'user.UserID')
             ->where('user.Role', 'publicuser')
+            ->whereNull('inquiry.SubmissionCategory')
+            ->where('inquiry.SubmissionStatus', 'pending')
             ->orderBy('inquiry.SubmissionDate', 'desc')
             ->select('inquiry.*')
             ->get();
 
         return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiries'));
     }
+
+
+
     //----
 
     // DETAILS INQUIRY
     public function updateCategory(Request $request, $id)
     {
+        // ✅ 1. Validate that the SubmissionCategory field is either "Genuine" or "Non-Serious"
         $request->validate([
             'SubmissionCategory' => 'required|in:Genuine,Non-Serious',
         ]);
 
+        // ✅ 2. Find the inquiry by ID or fail if not found
         $inquiry = Inquiry::findOrFail($id);
+
+        // ✅ 3. Update the SubmissionCategory field with the selected value
         $inquiry->SubmissionCategory = $request->SubmissionCategory;
+
+        // ✅ 4. Save the updated record to the database
         $inquiry->save();
 
+        // ✅ 5. Redirect back to the form with a success message (used for popup alert)
         return redirect()->back()->with('success', 'Category updated successfully.');
     }
 
+
     public function m_DetailsInquiry($id)
     {
-        $inquiry = Inquiry::where('PublicID', $id)->firstOrFail();
+        $inquiry = Inquiry::where('InquiryID', $id)->firstOrFail();
         return view('InquiryFormSubmissionUI.MCMC.DetailsInquiryUI', compact('inquiry'));
     }
+
+
 
     //-----
 
     // LIST ALL INQUIRY
-
     public function m_ListAllInquiry(Request $request)
     {
-        $query = Inquiry::query();
+        $query = Inquiry::with(['latestAssignment.agency']);
+
 
         if ($request->filled('status')) {
             $query->where('SubmissionCategory', $request->status);
         }
 
         if ($request->filled('agency')) {
-            $query->where('AssignedAgencyID', $request->agency);
+            $query->whereHas('latestAssignment', function ($q) use ($request) {
+                $q->where('AgencyID', $request->agency);
+            });
         }
+
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('SubmissionDate', [$request->start_date, $request->end_date]);
@@ -328,19 +441,17 @@ class InquiryController extends Controller
         return view('InquiryFormSubmissionUI.MCMC.ListAllInquiryUI', compact('inquiries', 'agencies'));
     }
 
+
+
+
     public function m_AllDetailsInquiry($id)
     {
-        $user = Auth::user(); // ✅ same thing, more IDE-friendly
+        $inquiry = Inquiry::where('InquiryID', $id)->firstOrFail();
 
+        $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
+            ->where('InquiryID', $id)
+            ->first();
 
-        if (!$user || !$user->publicUser) {
-            return redirect()->back()->with('error', 'Your public user profile is missing.');
-        }
-
-        $inquiry = Inquiry::where('InquiryID', $id)
-            ->where('PublicID', $user->publicUser->PublicID)
-            ->firstOrFail();
-
-        return view('InquiryFormSubmissionUI.Public.AllDetailsInquiryUI', compact('inquiry'));
+        return view('InquiryFormSubmissionUI.MCMC.AllDetailsInquiryUI', compact('inquiry', 'assignedAgency'));
     }
 }

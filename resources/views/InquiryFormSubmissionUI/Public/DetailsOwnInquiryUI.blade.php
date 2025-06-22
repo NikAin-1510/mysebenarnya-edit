@@ -26,25 +26,23 @@
             @else
                 <p><strong>Evidence File:</strong> Not Provided</p>
             @endif
-        @if($assignedAgency)
-        <p><strong>Agency Name:</strong> {{ $assignedAgency->AgencyName }}</p>
-        <p><strong>Assigned At:</strong> {{ \Carbon\Carbon::parse($assignedAgency->AssignDate)->format('d M Y, h:i A') }}</p>
-        <p><strong>Status:</strong> {{ ucfirst($assignedAgency->JurisdictionStatus) }}</p>
-        @if(!empty($assignedAgency->InquiryComment))
-            <div class="mt-3">
-                <h3>Comment</h3>
-                <p>{{ $assignedAgency->InquiryComment }}</p>
-            </div>
-        @endif
-    </div>
+     @if($assignedAgency && $assignedAgency->AgencyID && $assignedAgency->agency)
+    <p><strong>Agency Name:</strong> {{ $assignedAgency->agency->AgencyName }}</p>
+@else
+    <p><strong>Agency Name:</strong> <span class="text-muted">Unassigned</span></p>
 @endif
+
+
+
  <div class="text-center mt-4">
         <br>
-        @if(in_array(strtolower($inquiry->SubmissionStatus), ['completed', 'verified']))
-            <a href="{{ route('public.list') }}" class="btn-back">Back to List</a>
-            <a href="#', $inquiry->InquiryID) }}" class="btn-next">Next</a>
+       <a href="{{ route('public.list') }}" class="btn-back">Back to List</a>
 
-        @endif
+@if($assignedAgency && $assignedAgency->AgencyID && $assignedAgency->agency)
+    <a href="#" class="btn-next">Next</a>
+@endif
+
+
     </div>
 </div>
 @endsection

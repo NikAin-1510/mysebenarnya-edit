@@ -15,7 +15,8 @@ class CreateInquiryasssignmentTable extends Migration
             $table->string('InquiryID', 8);
             $table->date('AssignDate')->nullable();
             $table->boolean('JurisdictionStatus')->default(0);
-            $table->string('InquiryComment', 30)->nullable();
+            $table->string('InquiryComment', 100)->nullable();
+            $table->string('JurisdictionComment', 100)->nullable();
 
             // Foreign keys (assuming FK exists in database)
             $table->foreign('AgencyID')->references('AgencyID')->on('agency');

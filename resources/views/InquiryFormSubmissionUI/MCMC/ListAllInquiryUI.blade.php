@@ -31,9 +31,10 @@
       <div class="inquiry-card">
         <div class="inquiry-header">
           <span class="inquiry-id">{{ $inq->InquiryID }}</span>
-          <span class="inquiry-status badge-{{ strtolower($inq->SubmissionCategory) }}">
-            {{ $inq->SubmissionCategory ?? 'Uncategorized' }}
-          </span>
+          <span class="inquiry-status badge-{{ strtolower($inq->SubmissionCategory ?? 'Uncategorized') }}">
+    {{ $inq->SubmissionCategory ?? 'Uncategorized' }}
+</span>
+
         </div>
         <div class="inquiry-title">{{ $inq->InquiryTitle }}</div>
         <div class="inquiry-description">{{ $inq->InquiryDescription }}</div>
@@ -47,9 +48,15 @@
           @endif
         </div>
         <div class="inquiry-footer">
-          <div><i class="fas fa-building"></i> {{ $inq->AgencyName ?? 'Unassigned' }}</div>
-          <a href="{{ route('mcmc.all.details', $inq->InquiryID) }}" class="btn-view">View Details</a>
-        </div>
+  <div>
+    <i class="fas fa-building"></i>
+    {{ $inq->latestAssignment?->agency?->AgencyName ?? 'Unassigned' }}
+
+
+  </div>
+  <a href="{{ route('mcmc.all.details', $inq->InquiryID) }}" class="btn-view">View Details</a>
+</div>
+
       </div>
     @endforeach
   </div>

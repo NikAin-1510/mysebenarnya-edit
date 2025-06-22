@@ -8,7 +8,7 @@
 <div class="container">
     <h1>Inquiry Details</h1>
 
-    <form action="{{ route('mcmc.new.inquiry', $inquiry->InquiryID) }}" method="POST">
+    <form action="{{ route('mcmc.update.category', $inquiry->InquiryID) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -19,7 +19,7 @@
 
             {{-- Dropdown for SubmissionCategory --}}
             <p><strong>Category:</strong>
-                <select name="SubmissionCategory" class="form-control" required>
+                <select name="SubmissionCategory" class="form-control" id="category-select" required>
                     <option value="Genuine" {{ $inquiry->SubmissionCategory == 'Genuine' ? 'selected' : '' }}>Genuine</option>
                     <option value="Non-Serious" {{ $inquiry->SubmissionCategory == 'Non-Serious' ? 'selected' : '' }}>Non-Serious</option>
                 </select>
@@ -45,10 +45,64 @@
 
         <div class="text-center mt-4">
             <br>
-            <a href="{{ route('public.list') }}" class="btn-back">Back to List</a>
+            <a href="{{ route('mcmc.all.inquiry') }}" class="btn-back">Back to List</a>
             <button type="submit" class="btn-save">Save</button>
-            <a href="{{ route('mcmc.assign.agency', $inquiry->InquiryID) }}" class="btn-next">Next</a>
+
+            {{-- Next button conditionally shown --}}
+            <a href="{{ route('mcmc.assign.form', $inquiry->InquiryID) }}" class="btn-next" id="next-button">Next</a>
         </div>
     </form>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('category-select');
+        const nextButton = document.getElementById('next-button');
+
+        function toggleNextButton() {
+            if (categorySelect.value === 'Genuine') {
+                nextButton.style.display = 'inline-block';
+            } else {
+                nextButton.style.display = 'none';
+            }
+        }
+
+        // Initialize on page load
+        toggleNextButton();
+
+        // Update on change
+        categorySelect.addEventListener('change', toggleNextButton);
+    });
+</script>
+@endpush
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+@endpush

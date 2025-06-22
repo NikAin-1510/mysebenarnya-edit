@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Models\InquiryAssignment;
 
 class Inquiry extends Model
 {
@@ -11,6 +12,7 @@ class Inquiry extends Model
     protected $primaryKey = 'InquiryID';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false;
 
     protected $fillable = [
         'InquiryID',
@@ -23,6 +25,25 @@ class Inquiry extends Model
         'SubmissionEvidence',
         'SubmissionCategory', // Add the new field here
     ];
+
+    // In Inquiry.php model
+    public function latestAssignment()
+    {
+        return $this->hasOne(\App\Models\InquiryAssignment::class, 'InquiryID', 'InquiryID')
+            ->orderByDesc('AssignDate'); // Replace with your actual timestamp column
+    }
+
+    public function progress()
+    {
+        return $this->hasMany(\App\Models\InquiryProgress::class, 'InquiryID');
+    }
+
+    public function latestProgress()
+    {
+        return $this->hasOne(\App\Models\InquiryProgress::class, 'InquiryID')->latestOfMany('VerificationDateTime');
+    }
+
+
 
     protected static function boot()
     {

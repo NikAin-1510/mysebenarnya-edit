@@ -141,3 +141,17 @@ body {
     margin-bottom: 1rem;
 }
 
+options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        title: {
+            display: true,
+            text: 'Total Inquiries by Month'
+        },
+        legend: {
+            position: 'right'
+        }
+
+    }
+}

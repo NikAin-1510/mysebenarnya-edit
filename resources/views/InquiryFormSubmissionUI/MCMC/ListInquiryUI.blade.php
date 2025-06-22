@@ -12,18 +12,17 @@
         text-transform: capitalize;
         color: #fff;
     }
-
     .badge-genuine {
-        background-color: #28a745; /* Green */
+        background-color: #28a745; /* green */
     }
-
     .badge-nonserious {
-        background-color: #dc3545; /* Red */
+        background-color: #dc3545; /* red */
+    }
+    .badge-secondary {
+        background-color: #6c757d; /* grey */
     }
 </style>
 @endpush
-
-@section('page-name', 'New Inquiries')
 
 @section('content')
 <div class="container">
@@ -47,10 +46,10 @@
                 <td>
                     @if ($inquiry->SubmissionCategory === 'Genuine')
                         <span class="badge badge-genuine">Genuine</span>
-                    @elseif ($inquiry->SubmissionCategory === 'NonSerious')
+                    @elseif ($inquiry->SubmissionCategory === 'Non-Serious')
                         <span class="badge badge-nonserious">Non-Serious</span>
                     @else
-                        <span class="badge">{{ $inquiry->SubmissionCategory ?? 'Uncategorized' }}</span>
+                        <span class="badge badge-secondary">Uncategorized</span>
                     @endif
                 </td>
                 <td>

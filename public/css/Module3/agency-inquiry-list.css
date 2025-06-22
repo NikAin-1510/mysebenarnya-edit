@@ -1,0 +1,95 @@
+/* Container grid */
+.inquiry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+    padding: 30px;
+}
+
+/* Card design */
+.inquiry-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid #a37e27;
+}
+
+.inquiry-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Card Header */
+.inquiry-card-header {
+    background: #a37e27;
+    color: white;
+    padding: 20px;
+}
+
+.inquiry-card-header h4 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.inquiry-card-meta {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* Card Body */
+.inquiry-card-body {
+    padding: 20px;
+    font-size: 15px;
+    color: #444;
+}
+
+.inquiry-card-body p {
+    margin-bottom: 8px;
+}
+
+/* Status Badge */
+.inquiry-status {
+    display: inline-block;
+    padding: 6px 15px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.status-verified-as-true {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-identified-as-fake {
+    background-color: #dc3545;
+    color: white;
+}
+
+.status-rejected {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-pending {
+    background-color: #ffc107;
+    color: #333;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .inquiry-card-header h4 {
+        font-size: 18px;
+    }
+    .inquiry-card-body {
+        font-size: 14px;
+    }
+}
