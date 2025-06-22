@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< Updated upstream
-    "content-hash": "1110196f012a4417e0f6301cf9527d65",
-=======
     "content-hash": "472b64fdf65917f37fb4cedc9b59e875",
->>>>>>> Stashed changes
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -3301,8 +3297,6 @@
             "time": "2025-05-08T08:14:37+00:00"
         },
         {
-<<<<<<< Updated upstream
-=======
             "name": "phpoffice/phpspreadsheet",
             "version": "1.29.10",
             "source": {
