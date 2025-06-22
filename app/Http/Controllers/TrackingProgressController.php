@@ -104,7 +104,7 @@ class TrackingProgressController extends Controller
             }
         }
 
-        return redirect()->route('progress.update.status')->with('success', 'Inquiry status saved.');
+        return redirect()->route('agency.inquirylist')->with('success', 'Inquiry status saved.');
     }
 
 
@@ -216,7 +216,7 @@ class TrackingProgressController extends Controller
             }
         }
 
-        // Enhanced report generation with better metrics
+        // Enhanced report generation with better metrics - FIXED TO RETURN INTEGERS
         $report = $filteredRows->groupBy('AgencyName')->map(function ($group) {
             $assigned = $group->count();
             $resolved = $group->filter(
@@ -229,7 +229,7 @@ class TrackingProgressController extends Controller
                 fn($r) => $r->InvestigationBeginDate && is_null($r->VerificationStatus)
             )->count();
 
-            // Calculate average time from assignment to resolution - FIXED
+            // Calculate average time from assignment to resolution - FIXED TO RETURN INTEGER
             $resolvedInquiries = $group->filter(
                 fn($r) => in_array($r->VerificationStatus, ['Verified as True', 'Identified as Fake', 'Rejected'])
                     && $r->VerificationDateTime && $r->AssignDate
@@ -237,48 +237,48 @@ class TrackingProgressController extends Controller
 
             $avgResolutionTime = 0;
             if ($resolvedInquiries->count() > 0) {
-                $avgResolutionTime = round($resolvedInquiries->map(function ($r) {
+                $avgResolutionTime = (int) round($resolvedInquiries->map(function ($r) {
                     $assignDate = new \Carbon\Carbon($r->AssignDate);
                     $verificationDate = new \Carbon\Carbon($r->VerificationDateTime);
-                    return abs($verificationDate->diffInDays($assignDate)); // Use abs() to ensure positive
-                })->average()); // Round to integer
+                    return abs($verificationDate->diffInDays($assignDate));
+                })->average());
             }
 
-            // Calculate average investigation time (from investigation start to completion) - FIXED
+            // Calculate average investigation time (from investigation start to completion) - FIXED TO RETURN INTEGER
             $avgInvestigationTime = 0;
             $investigationInquiries = $resolvedInquiries->filter(fn($r) => $r->InvestigationBeginDate);
             if ($investigationInquiries->count() > 0) {
-                $avgInvestigationTime = round($investigationInquiries->map(function ($r) {
+                $avgInvestigationTime = (int) round($investigationInquiries->map(function ($r) {
                     $beginDate = new \Carbon\Carbon($r->InvestigationBeginDate);
                     $verificationDate = new \Carbon\Carbon($r->VerificationDateTime);
-                    return abs($verificationDate->diffInDays($beginDate)); // Use abs() to ensure positive
-                })->average()); // Round to integer
+                    return abs($verificationDate->diffInDays($beginDate));
+                })->average());
             }
 
-            // Calculate pending delays (days since assignment for pending inquiries) - FIXED
+            // Calculate pending delays (days since assignment for pending inquiries) - FIXED TO RETURN INTEGER
             $pendingDelays = $group->filter(
                 fn($r) => is_null($r->InvestigationBeginDate) && is_null($r->VerificationStatus)
             )->map(function ($r) {
                 $assignDate = new \Carbon\Carbon($r->AssignDate);
-                return abs(now()->diffInDays($assignDate)); // Use abs() to ensure positive
+                return abs(now()->diffInDays($assignDate));
             });
 
-            $avgPendingDelay = $pendingDelays->count() > 0 ? round($pendingDelays->average()) : 0;
-            $maxPendingDelay = $pendingDelays->count() > 0 ? round($pendingDelays->max()) : 0;
+            $avgPendingDelay = $pendingDelays->count() > 0 ? (int) round($pendingDelays->average()) : 0;
+            $maxPendingDelay = $pendingDelays->count() > 0 ? (int) round($pendingDelays->max()) : 0;
 
-            // Calculate investigation delays (days in investigation without resolution) - FIXED
+            // Calculate investigation delays (days in investigation without resolution) - FIXED TO RETURN INTEGER
             $investigationDelays = $group->filter(
                 fn($r) => $r->InvestigationBeginDate && is_null($r->VerificationStatus)
             )->map(function ($r) {
                 $beginDate = new \Carbon\Carbon($r->InvestigationBeginDate);
-                return abs(now()->diffInDays($beginDate)); // Use abs() to ensure positive
+                return abs(now()->diffInDays($beginDate));
             });
 
-            $avgInvestigationDelay = $investigationDelays->count() > 0 ? round($investigationDelays->average()) : 0;
-            $maxInvestigationDelay = $investigationDelays->count() > 0 ? round($investigationDelays->max()) : 0;
+            $avgInvestigationDelay = $investigationDelays->count() > 0 ? (int) round($investigationDelays->average()) : 0;
+            $maxInvestigationDelay = $investigationDelays->count() > 0 ? (int) round($investigationDelays->max()) : 0;
 
-            // Resolution rate
-            $resolutionRate = $assigned > 0 ? round(($resolved / $assigned) * 100, 2) : 0;
+            // Resolution rate - keep as decimal for percentage
+            $resolutionRate = $assigned > 0 ? round(($resolved / $assigned) * 100, 1) : 0;
 
             return compact(
                 'assigned',
@@ -335,7 +335,7 @@ class TrackingProgressController extends Controller
         ]);
     }
 
-    // Helper method to get enhanced report data - FIXED
+    // Helper method to get enhanced report data - FIXED TO RETURN INTEGERS
     private function getReportData(Request $req)
     {
         $query = DB::table('inquiryassignment as ia')
@@ -377,7 +377,7 @@ class TrackingProgressController extends Controller
             }
         }
 
-        // Generate enhanced report data - FIXED
+        // Generate enhanced report data - FIXED TO RETURN INTEGERS
         $report = $filteredRows->groupBy('AgencyName')->map(function ($group, $agencyName) {
             $assigned = $group->count();
             $resolved = $group->filter(
@@ -390,7 +390,7 @@ class TrackingProgressController extends Controller
                 fn($r) => $r->InvestigationBeginDate && is_null($r->VerificationStatus)
             )->count();
 
-            // Enhanced time calculations - FIXED
+            // Enhanced time calculations - FIXED TO RETURN INTEGERS
             $resolvedInquiries = $group->filter(
                 fn($r) => in_array($r->VerificationStatus, ['Verified as True', 'Identified as Fake', 'Rejected'])
                     && $r->VerificationDateTime && $r->AssignDate
@@ -398,11 +398,11 @@ class TrackingProgressController extends Controller
 
             $avgResolutionTime = 0;
             if ($resolvedInquiries->count() > 0) {
-                $avgResolutionTime = round($resolvedInquiries->map(function ($r) {
+                $avgResolutionTime = (int) round($resolvedInquiries->map(function ($r) {
                     $assignDate = new \Carbon\Carbon($r->AssignDate);
                     $verificationDate = new \Carbon\Carbon($r->VerificationDateTime);
-                    return abs($verificationDate->diffInDays($assignDate)); // Use abs() to ensure positive
-                })->average()); // Round to integer
+                    return abs($verificationDate->diffInDays($assignDate));
+                })->average());
             }
 
             $avgPendingDelay = 0;
@@ -410,13 +410,13 @@ class TrackingProgressController extends Controller
                 fn($r) => is_null($r->InvestigationBeginDate) && is_null($r->VerificationStatus)
             );
             if ($pendingInquiries->count() > 0) {
-                $avgPendingDelay = round($pendingInquiries->map(function ($r) {
+                $avgPendingDelay = (int) round($pendingInquiries->map(function ($r) {
                     $assignDate = new \Carbon\Carbon($r->AssignDate);
-                    return abs(now()->diffInDays($assignDate)); // Use abs() to ensure positive
-                })->average()); // Round to integer
+                    return abs(now()->diffInDays($assignDate));
+                })->average());
             }
 
-            $resolutionRate = $assigned > 0 ? round(($resolved / $assigned) * 100, 2) : 0;
+            $resolutionRate = $assigned > 0 ? round(($resolved / $assigned) * 100, 1) : 0;
 
             return [
                 'agency' => $agencyName,
@@ -424,8 +424,8 @@ class TrackingProgressController extends Controller
                 'resolved' => $resolved,
                 'pending' => $pending,
                 'underInvestigation' => $underInvestigation,
-                'avgResolutionTime' => $avgResolutionTime, // Already rounded to integer
-                'avgPendingDelay' => $avgPendingDelay, // Already rounded to integer
+                'avgResolutionTime' => $avgResolutionTime, // Now guaranteed to be integer
+                'avgPendingDelay' => $avgPendingDelay, // Now guaranteed to be integer
                 'resolutionRate' => $resolutionRate
             ];
         });
@@ -484,8 +484,8 @@ class TrackingProgressController extends Controller
                 'resolved' => $item['resolved'],
                 'pending' => $item['pending'],
                 'underInvestigation' => $item['underInvestigation'],
-                'avgResolutionTime' => $item['avgResolutionTime'],
-                'avgPendingDelay' => $item['avgPendingDelay'],
+                'avgResolutionTime' => $item['avgResolutionTime'], // Already integer
+                'avgPendingDelay' => $item['avgPendingDelay'], // Already integer
                 'resolutionRate' => $item['resolutionRate']
             ];
         });
@@ -660,6 +660,7 @@ class TrackingProgressController extends Controller
             'notifications' => $notifications
         ]);
     }
+
     public function p_ProgAllInquiry(Request $request)
     {
         $inquiryID = $request->query('id');

@@ -1,0 +1,226 @@
+/* Container */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Heading */
+.container h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Inquiry card */
+.inquiry-details-card {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9fafb;
+    border-left: 5px solid #691075;
+    line-height: 1.8;
+}
+
+/* Strong labels */
+.inquiry-details-card p strong {
+    color: #444;
+    display: inline-block;
+    width: 150px;
+}
+
+/* Paragraph styling */
+.inquiry-details-card p {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+/* Unified button base */
+.btn-save,
+.done-button,
+.btn-back {
+    width: 130px; /* fixed width */
+    height: 40px; /* fixed height */
+    line-height: 45px; /* vertical alignment */
+    display: inline-block;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+    padding: 0; /* reset padding to rely on height */
+}
+
+/* Individual button colors */
+.btn-save {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: #218838;
+}
+
+.done-button {
+    background-color: #993594;
+    color: white;
+}
+
+.done-button:hover {
+    background-color: #64126b;
+}
+
+.btn-back {
+    background-color: #93c6f2;
+    color: white;
+}
+
+.btn-back:hover {
+    background-color: #5a6268;
+}
+
+
+
+.inquiry-details-card p:first-child {
+    font-weight: bold;
+    color: #70257a;
+}
+.inquiry-id-badge {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 6px 12px;
+    background-color: #70257a;
+    color: white;
+    font-weight: 500;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+
+.evidence-section a {
+    color: #5c98d8;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.evidence-section a:hover {
+    color: #5c9ce1;
+}
+
+/* Category Dropdown Styling */
+.form-control {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    appearance: none; /* remove default dropdown arrow */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='16' height='16' fill='gray' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.");
+}
+
+
+.assigned-inquiry-list {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Page Title */
+.assigned-inquiry-list h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Filter form styling */
+form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+form label {
+    font-weight: 500;
+    color: #444;
+}
+
+form select,
+form input[type="checkbox"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+form button {
+    padding: 8px 18px;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th, table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+table tr:hover {
+    background-color: #f0f8ff;
+}
+
+table td a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+table td a:hover {
+    text-decoration: underline;
+}
+
+/* Empty state */
+table tr td[colspan="3"] {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
