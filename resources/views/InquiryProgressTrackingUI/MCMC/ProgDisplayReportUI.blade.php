@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +7,286 @@
 
     @if(!isset($isPDF) || !$isPDF)
         <!-- CSS for web view -->
-        <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f5f7fa;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Top Header */
+            .main-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 70px;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                padding: 0 20px;
+                z-index: 1000;
+            }
+
+            .logo-container {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .logo {
+                height: 60px;
+                width: auto;
+            }
+
+            .umpsa {
+                height: 60px;
+                width: auto;
+            }
+
+            .brand {
+                height: 45px;
+                width: auto;
+                margin-top: 0px;
+                margin-bottom: 5px;
+            }
+
+            .page-name {
+                font-size: 22px;
+                font-weight: 500;
+                color: white;
+                white-space: nowrap;
+                align-self: center;
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            /* Sidebar */
+            .sidebar {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 250px;
+                height: calc(100% - 70px);
+                background: #042331;
+                transition: all 0.5s ease;
+                overflow-y: auto;
+            }
+
+            .sidebar ul a {
+                display: flex;
+                align-items: center;
+                height: 60px;
+                width: 100%;
+                font-size: 16px;
+                color: white;
+                padding-left: 20px;
+                border-bottom: 1px solid black;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                transition: 0.4s;
+                text-decoration: none;
+            }
+
+            .sidebar ul li:hover a {
+                padding-left: 35px;
+                background-color: #ffffff1c;
+            }
+
+            .sidebar ul a i {
+                margin-right: 16px;
+                min-width: 20px;
+                text-align: center;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Content Area */
+            .content {
+                margin-left: 250px;
+                margin-top: 70px;
+                padding: 20px;
+            }
+
+            .report-container {
+                max-width: 1200px;
+                margin: 40px auto;
+                padding: 30px;
+                background: #ffffff;
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+                border-radius: 12px;
+            }
+
+            .report-container .header h1 {
+                font-size: 28px;
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+            .report-container .header p {
+                color: #666;
+                margin-bottom: 25px;
+            }
+
+            /* Filter Form */
+            .filter-form {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                margin-bottom: 30px;
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 12px;
+            }
+
+            .form-group {
+                flex: 1 1 200px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group label {
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 6px;
+            }
+
+            .form-group select,
+            .form-group input {
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                background-color: #0077cc;
+                color: #fff;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.2s ease-in-out;
+                text-decoration: none;
+                display: inline-block;
+                text-align: center;
+            }
+
+            .btn:hover {
+                background-color: #005fa3;
+            }
+
+            .btn-success {
+                background-color: #28a745;
+            }
+
+            .btn-success:hover {
+                background-color: #1d6f42;
+            }
+
+            /* Export Buttons */
+            .export-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 25px;
+            }
+
+            /* Summary Box */
+            .summary-box {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .summary-box h4 {
+                margin-bottom: 15px;
+                color: #333;
+            }
+
+            .summary-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .summary-item {
+                padding: 10px;
+                background: white;
+                border-radius: 8px;
+                text-align: center;
+            }
+
+            .summary-item strong {
+                color: #0077cc;
+            }
+
+            /* Tables */
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                background-color: #fff;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                margin-bottom: 20px;
+            }
+
+            .table th,
+            .table td {
+                padding: 12px 18px;
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }
+
+            .table th {
+                background-color: #f0f4f8;
+                font-weight: bold;
+                color: #444;
+            }
+
+            .table tbody tr:hover {
+                background-color: #f9f9f9;
+            }
+
+            /* Chart Section */
+            .chart-section {
+                margin-top: 30px;
+                padding: 20px;
+                background: #fff;
+                border-radius: 16px;
+                box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+                text-align: center;
+            }
+
+            .chart-section h3 {
+                margin-bottom: 20px;
+                color: #333;
+            }
+
+            /* Report Info */
+            .report-info {
+                margin-bottom: 20px;
+                padding: 15px;
+                background: #e9ecef;
+                border-left: 4px solid #007bff;
+                border-radius: 8px;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            hr {
+                border: none;
+                height: 1px;
+                background: #eee;
+                margin: 30px 0;
+            }
+        </style>
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
     @else
@@ -107,20 +383,25 @@
 @endif
 
     <!-- Main Content -->
-    <div class="container">
-        <h2>Agency Performance Report</h2>
+    <div class="report-container">
+        <div class="header">
+            <h1>Agency Performance Report</h1>
+            <p>Generate, analyze, and export agency performance</p>
+        </div>
 
         @if(!isset($isPDF) || !$isPDF)
             {{-- Form for web view only --}}
-            <form method="POST" action="{{ route('mcmc.reports.generate') }}">
+            <form method="POST" action="{{ route('mcmc.reports.generate') }}" class="filter-form">
                 @csrf
-                <div>
+                <div class="form-group">
                     <label>Date From:</label>
                     <input type="date" name="from" value="{{ old('from') ?? request('from') }}">
+                </div>
+                <div class="form-group">
                     <label>Date To:</label>
                     <input type="date" name="to" value="{{ old('to') ?? request('to') }}">
                 </div>
-                <div>
+                <div class="form-group">
                     <label>Agency:</label>
                     <select name="agency">
                         <option value="">All</option>
@@ -130,7 +411,8 @@
                             </option>
                         @endforeach
                     </select>
-
+                </div>
+                <div class="form-group">
                     <label>Status:</label>
                     <select name="status">
                         <option value="all" @if(request('status') == 'all') selected @endif>All</option>
@@ -141,8 +423,10 @@
                         <option value="Rejected" @if(request('status') == 'Rejected') selected @endif>Rejected</option>
                     </select>
                 </div>
-
-                <button type="submit">Generate Report</button>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn">Generate Report</button>
+                </div>
             </form>
         @else
             {{-- PDF Report Info --}}
@@ -174,32 +458,36 @@
         @isset($report)
             @if(!isset($isPDF) || !$isPDF)
                 <hr>
-            @endif
-            @if(!isset($isPDF) || !$isPDF)
-            <h3>Report Results</h3>
-            @if(request('from') && request('to'))
-                <p><strong>Date Range:</strong> {{ request('from') }} to {{ request('to') }}</p>
-            @else
-                <p><strong>Date Range:</strong> All records</p>
-            @endif
+                <h3>Report Results</h3>
+                @if(request('from') && request('to'))
+                    <p><strong>Date Range:</strong> {{ request('from') }} to {{ request('to') }}</p>
+                @else
+                    <p><strong>Date Range:</strong> All records</p>
+                @endif
 
-            {{-- Overall Statistics Summary --}}
-            @if(isset($overallStats))
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                <h4>Overall Summary</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div><strong>Total Assigned:</strong> {{ $overallStats['totalAssigned'] }}</div>
-                    <div><strong>Total Resolved:</strong> {{ $overallStats['totalResolved'] }}</div>
-                    <div><strong>Total Pending:</strong> {{ $overallStats['totalPending'] }}</div>
-                    <div><strong>Under Investigation:</strong> {{ $overallStats['totalUnderInvestigation'] }}</div>
+                {{-- Overall Statistics Summary --}}
+                @if(isset($overallStats))
+                <div class="summary-box">
+                    <h4>Overall Summary</h4>
+                    <div class="summary-grid">
+                        <div class="summary-item"><strong>Total Assigned:</strong> {{ $overallStats['totalAssigned'] }}</div>
+                        <div class="summary-item"><strong>Total Resolved:</strong> {{ $overallStats['totalResolved'] }}</div>
+                        <div class="summary-item"><strong>Total Pending:</strong> {{ $overallStats['totalPending'] }}</div>
+                        <div class="summary-item"><strong>Under Investigation:</strong> {{ $overallStats['totalUnderInvestigation'] }}</div>
+                    </div>
                 </div>
-            </div>
+                @endif
+
+                {{-- Export Buttons --}}
+                <div class="export-buttons">
+                    <a href="{{ route('mcmc.reports.excel', request()->all()) }}" class="btn btn-success">Export Excel</a>
+                    <a href="{{ route('mcmc.reports.pdf', request()->all()) }}" class="btn btn-success">Export PDF</a>
+                </div>
             @endif
-@endif
 
             {{-- Enhanced Performance Table --}}
-            <table border="1" cellpadding="8" style="width: 100%; border-collapse: collapse;">
-                <thead style="background-color: #f8f9fa;">
+            <table class="table">
+                <thead>
                     <tr>
                         <th>Agency</th>
                         <th class="@if(isset($isPDF) && $isPDF) text-center @endif">Total Assigned</th>
@@ -228,14 +516,10 @@
             </table>
 
             @if(!isset($isPDF) || !$isPDF)
-                <br>
-                <div>
-                    <a href="{{ route('mcmc.reports.excel', request()->all()) }}" class="btn">Download Excel</a>
-                    <a href="{{ route('mcmc.reports.pdf', request()->all()) }}" class="btn">Download PDF</a>
+                <div class="chart-section">
+                    <h3>Agency Inquiry Performance</h3>
+                    <canvas id="agencyChart" width="100" height="50"></canvas>
                 </div>
-
-                <br>
-                <canvas id="agencyChart" width="100" height="50"></canvas>
             @endif
         @endisset
 
@@ -249,8 +533,8 @@
                 <h3>Inquiry Details</h3>
             @endif
 
-            <table border="1" cellpadding="8" style="width: 100%; border-collapse: collapse; @if(!isset($isPDF) || !$isPDF) font-size: 0.9em; @endif">
-                <thead style="background-color: #f8f9fa;">
+            <table class="table">
+                <thead>
                     <tr>
                         <th>Inquiry ID</th>
                         <th>Agency</th>

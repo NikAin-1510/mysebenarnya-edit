@@ -1,8 +1,12 @@
 /* Base Container Styling */
 .report-container {
-    max-width: 1000px;
-    margin-left:100px;
-
+    margin-top: 0px;
+    margin-bottom: 90px;
+    min-width: 0px;
+    padding: 2rem;
+    max-width: 500px;
+    margin-left: 0px;
+    margin-right: 230px;
     text-align: center;
     background: linear-gradient(to bottom right, #f0f4ff, #ffffff);
     border-radius: 20px;

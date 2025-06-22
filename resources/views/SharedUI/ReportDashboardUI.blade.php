@@ -4,12 +4,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="{{ asset('css/reportdashboard.css') }}">
 <style>
-    .report-container {
-        max-width: 900px;
-        margin-left:5px;
-        padding: 2rem;
-        text-align: center;
-    }
 
     .report-container h2 {
         font-size: 2rem;
