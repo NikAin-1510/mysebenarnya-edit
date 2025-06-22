@@ -120,7 +120,7 @@ Route::get('/mcmc/report/export/pdf', [InquiryAssignmentController::class, 'expo
 Route::get('/mcmc/report/export/excel', [InquiryAssignmentController::class, 'exportInquiryReportExcel'])->name('mcmc.report.export.excel');
 
 //AGENCY
-Route::get('/agency/inquirylist', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquirylist');
+Route::get('/agency/inquiry-list', [InquiryAssignmentController::class, 'a_ListAssignedInquiry'])->name('agency.inquirylist');
 Route::get('/agency/inquirylist/{id}', [InquiryAssignmentController::class, 'a_InquiryDetails'])->name('agency.inquiry.details');
 Route::post('/agency/inquirylist/{id}/action', [InquiryAssignmentController::class, 'handleAction'])->name('agency.inquiry.action');
 
@@ -148,7 +148,7 @@ Route::get('/public/own-inquiry-details', [TrackingProgressController::class, 'p
 Route::get('/public/notification-details', [TrackingProgressController::class, 'p_NotificationDetails']);
 Route::get('/public/notification-list', [TrackingProgressController::class, 'p_NotificationList']);
 Route::get('/public/inquiry-details', [TrackingProgressController::class, 'p_ProgAllInquiry']);
-Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry'])->name('public.all.list');
+Route::get('/public/inquiry-list', [TrackingProgressController::class, 'p_ListAllInquiry']);
 
 
 

@@ -288,10 +288,8 @@ class InquiryAssignmentController extends Controller
     }
 
     // Export PDF
-    public function exportInquiryReportPDF(Request $request)
+    public function exportInquiryReportExcel(Request $request)
     {
-        $agencies = Agency::all();
-
         $query = InquiryAssignment::with('agency');
 
         if ($request->start_date) {
@@ -306,14 +304,28 @@ class InquiryAssignmentController extends Controller
 
         $assignments = $query->get();
 
-        $pdf = PDF::loadView('InquiryAssignmentUI.MCMC.PdfReportUI', compact('assignments', 'agencies'));
+        $grouped = $assignments->groupBy(function ($item) {
+            return $item->agency->AgencyName;
+        });
 
-        return $pdf->download('Inquiry_Assignment_Report.pdf');
-    }
+        $report = [];
 
-    // Export Excel
-    public function exportInquiryReportExcel()
-    {
-        return Excel::download(new InquiryAssignmentExport, 'Inquiry_Assignment_Report.xlsx');
+        foreach ($grouped as $agencyName => $items) {
+            $assigned = $items->count();
+
+            $report[] = [
+                'agency' => $agencyName,
+                'assigned' => $assigned
+            ];
+        }
+
+        $overallStats = [
+            'totalAssigned' => $assignments->count(),
+        ];
+
+        return Excel::download(new \App\Exports\InquiryAssignmentExport([
+            'report' => $report,
+            'overallStats' => $overallStats
+        ]), 'Inquiry_Assignment_Report.xlsx');
     }
 }

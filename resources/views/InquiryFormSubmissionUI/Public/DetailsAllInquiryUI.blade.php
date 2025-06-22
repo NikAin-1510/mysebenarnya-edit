@@ -29,7 +29,7 @@
         @if($assignedAgency)
         <p><strong>Agency Name:</strong> {{ $assignedAgency->AgencyName }}</p>
         <p><strong>Assigned At:</strong> {{ \Carbon\Carbon::parse($assignedAgency->AssignDate)->format('d M Y, h:i A') }}</p>
-        <p><strong>News Status:</strong>
+
         @if(!empty($assignedAgency->InquiryComment))
             <div class="mt-3">
                 <h3>Comment</h3>
@@ -45,7 +45,7 @@
     <a href="/public/inquiry-list" class="btn-back">Back to List</a>
 
     @if(in_array(strtolower($inquiry->SubmissionStatus), ['forwarded', 'verified']) && $nextInquiry)
-    <a href="{{ url('/public/inquiry-details/' . $nextInquiry->InquiryID) }}" class="btn-next">Next</a>
+    <a href="/public/inquiry-details" class="btn-next">Next</a>
 @endif
 
 </div>

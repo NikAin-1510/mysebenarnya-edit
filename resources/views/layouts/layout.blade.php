@@ -59,8 +59,8 @@
         @elseif(session('user_role') === 'agency')
             <li><a href="{{ route('display.home') }}"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
-            <li><a href="{{ route('agency.inquirylist') }}"><I class="fas fa-tasks"></I> Assigned Inquiry</a></li>
-             <li><a href="{{ route('agency.list.assigned') }}"><i class="fas fa-clone"></i>History Assigned Inquiry</a></li>
+<li><a href="{{ route('agency.inquirylist') }}"><I class="fas fa-tasks"></I> Assigned Inquiry</a></li>
+            <li><a href="{{ route('agency.list.assigned') }}"><i class="fas fa-clone"></i>History Assigned Inquiry</a></li>
             <li><a href="#"><i class="fas fa-envelope"></i> Provide Feedback</a></li>
         @endif
 

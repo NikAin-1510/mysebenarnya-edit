@@ -39,7 +39,7 @@
        <a href="{{ route('public.list') }}" class="btn-back">Back to List</a>
 
 @if($assignedAgency && $assignedAgency->AgencyID && $assignedAgency->agency)
-    <a href="{{ route('own-inquiry.details', ['id' => $nextInquiry->InquiryID]) }}" class="btn-next">Next</a>
+    <a href="/public/own-inquiry-details" class="btn-next">Next</a>
 
 @endif
 
