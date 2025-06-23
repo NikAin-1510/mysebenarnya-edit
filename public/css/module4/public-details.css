@@ -17,6 +17,13 @@
     text-align: center;
 }
 
+/* Title styling - moved to the right with space below */
+.title {
+    margin-top: 20px;
+    margin-left: 20px; /* Indent the title to the right */
+    padding-top: 10px; /* Add space below the title */
+}
+
 /* Progress card styling */
 .progress-card {
     padding: 20px;
@@ -25,12 +32,11 @@
     border-left: 5px solid #007bff;
     line-height: 1.8;
     margin-bottom: 20px;
-
 }
 
 .progress-card h3 {
     margin-top: 0;
-    color: #70257a;
+    color: #136df3;
     font-weight: bold;
 }
 
@@ -41,11 +47,23 @@
     color: #333;
 }
 
-/* Strong labels */
-.progress-card p strong, .container > p strong {
+/* Strong labels - only apply fixed width to progress card labels, not inquiry titles */
+.progress-card p strong {
     color: #444;
     display: inline-block;
     width: 200px;
+}
+
+/* General strong elements (like inquiry title) - no fixed width */
+.container > p strong, .title strong {
+    color: #444;
+    /* Removed fixed width to prevent weird spacing */
+}
+
+/* Text content in status updates - no fixed width for inquiry title */
+.progress-card .text strong {
+    width: auto; /* Override the fixed width for inquiry titles in status text */
+    display: inline;
 }
 
 /* Links styling */
@@ -58,8 +76,6 @@
 .progress-card a:hover {
     color: #5c9ce1;
 }
-
-
 
 /* Done button styling */
 .done-button {
@@ -97,4 +113,6 @@
     margin-top: 20px;
 }
 
-
+.text {
+    width: 400px;
+}

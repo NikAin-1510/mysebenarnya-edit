@@ -3,9 +3,11 @@
 @section('head')
     <link rel="stylesheet" href="{{ asset('css/module4/agency-inquiry.css') }}">
 @endsection
+
 @section('page-name', 'Notification List')
+
 @section('content')
-    <div class="notification-list">
+    <div class="assigned-inquiry-list">
         <h2>Notification List</h2>
 
         <table>

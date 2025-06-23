@@ -1,7 +1,7 @@
 @extends('layouts.layout')
 
 @section('head')
-    <link rel="stylesheet" href="{{ asset('css/module4/agency-inquiry.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/module4/public-list.css') }}">
 @endsection
 @section('page-name', 'List All Inquiry')
 @section('content')
