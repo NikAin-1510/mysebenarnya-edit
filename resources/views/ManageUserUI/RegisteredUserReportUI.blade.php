@@ -1,5 +1,5 @@
 @extends('layouts.layout')
-@section('page-name', 'Registered User Report')
+
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/Module1/userreports.css') }}">
 
@@ -86,6 +86,14 @@
     <input type="hidden" name="role" value="{{ request('role') }}">
     <input type="hidden" name="agency" value="{{ request('agency') }}">
     <button type="submit">Download PDF</button>
+</form>
+
+<form method="GET" action="{{ route('registeredUserReport.downloadExcel') }}">
+    <input type="hidden" name="filter_by" value="{{ request('filter_by') }}">
+    <input type="hidden" name="date"      value="{{ request('date') }}">
+    <input type="hidden" name="role"      value="{{ request('role') }}">
+    <input type="hidden" name="agency"    value="{{ request('agency') }}">
+    <button type="submit">Download Excel</button>
 </form>
 @endif
 

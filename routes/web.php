@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
     //12.UserReports
     Route::get('/user-report', [UserProfileController::class, 'showUserReport'])->name('show.registeredUserReport');
     Route::get('/user-report/pdf', [UserProfileController::class, 'downloadPdf'])->name('registeredUserReport.download');
+    Route::get('/user-report/excel', [UserProfileController::class, 'downloadExcel'])->name('registeredUserReport.downloadExcel');
 });
 //Module1: Manage User
 

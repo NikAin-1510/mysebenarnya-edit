@@ -141,7 +141,7 @@ class UserProfileController extends Controller
             ]);
         }
 
-        return redirect()->route('profile.view')->with('success', 'Profile updated successfully.');
+        return redirect()->route('view.profile')->with('success', 'Profile updated successfully.');
     }
 
     //Update Security
