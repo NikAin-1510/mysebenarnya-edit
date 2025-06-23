@@ -24,8 +24,8 @@ class LoginController extends Controller
 
         // Look up user with correct role
         $user = User::where('Email', $request->email)
-            ->where('Role', $request->role)
-            ->first();
+                    ->where('Role', $request->role)
+                    ->first();
 
         // Check if user exists and password is correct (plaintext version for now)
         if ($user && $request->password === $user->Password) {
@@ -78,7 +78,7 @@ class LoginController extends Controller
         $user = Auth::user();
 
         if (!$user || $user->Role !== 'agency' || $user->Login_At !== null) {
-            return redirect()->route('home');
+            return redirect()->route('display.home');
         }
 
         return view('ManageUserUI.FirstTimeLoginAgency', ['userID' => $user->UserID]);
@@ -95,7 +95,7 @@ class LoginController extends Controller
         $user->Login_At = now();
         $user->save();
 
-        return redirect()->route('home')->with('success', 'Password updated successfully.');
+        return redirect()->route('display.home')->with('success', 'Password updated successfully.');
     }
 
     //3.Display Home

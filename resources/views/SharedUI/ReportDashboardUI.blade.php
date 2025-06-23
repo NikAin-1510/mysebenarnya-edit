@@ -54,7 +54,7 @@
     <div class="report-container">
         <h2>Select a Report to View</h2>
         <div class="report-selection-grid">
-            <div class="report-card" onclick="location.href='#'">
+            <div class="report-card" onclick="location.href='{{ route('show.registeredUserReport')}}'">
                 <i class="fas fa-users"></i>
                 <h3>Registered User Report</h3>
             </div>
