@@ -286,8 +286,30 @@ class InquiryAssignmentController extends Controller
 
         return view('InquiryAssignmentUI.MCMC.DisplayReportUI', compact('agencies', 'agencyNames', 'agencyCounts'));
     }
+//Export PDF
+public function exportInquiryReportPDF(Request $request)
+{
+    $agencies = Agency::all();
 
-    // Export PDF
+    $query = InquiryAssignment::with('agency');
+
+    if ($request->start_date) {
+        $query->where('AssignDate', '>=', $request->start_date);
+    }
+    if ($request->end_date) {
+        $query->where('AssignDate', '<=', $request->end_date);
+    }
+    if ($request->agency_id) {
+        $query->where('AgencyID', $request->agency_id);
+    }
+
+    $assignments = $query->get();
+
+    $pdf = PDF::loadView('InquiryAssignmentUI.MCMC.PdfReportUI', compact('assignments', 'agencies'));
+
+    return $pdf->download('Inquiry_Assignment_Report.pdf');
+}
+    // Export Excel
     public function exportInquiryReportExcel(Request $request)
     {
         $query = InquiryAssignment::with('agency');
