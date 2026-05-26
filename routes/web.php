@@ -12,7 +12,7 @@ use App\Http\Controllers\UserProfileController;
 
 //1.Login
 Route::get('/login', function () {
-    return view('ManageUserUI.Login');
+    return view('ManageUserUI.login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
 //2.First Time Login Change Password for Agency Staff
