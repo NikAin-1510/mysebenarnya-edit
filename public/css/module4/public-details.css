@@ -1,0 +1,118 @@
+/* Container */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Heading */
+.container h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Title styling - moved to the right with space below */
+.title {
+    margin-top: 20px;
+    margin-left: 20px; /* Indent the title to the right */
+    padding-top: 10px; /* Add space below the title */
+}
+
+/* Progress card styling */
+.progress-card {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9fafb;
+    border-left: 5px solid #007bff;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.progress-card h3 {
+    margin-top: 0;
+    color: #136df3;
+    font-weight: bold;
+}
+
+/* Paragraph styling */
+.progress-card p, .container > p {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Strong labels - only apply fixed width to progress card labels, not inquiry titles */
+.progress-card p strong {
+    color: #444;
+    display: inline-block;
+    width: 200px;
+}
+
+/* General strong elements (like inquiry title) - no fixed width */
+.container > p strong, .title strong {
+    color: #444;
+    /* Removed fixed width to prevent weird spacing */
+}
+
+/* Text content in status updates - no fixed width for inquiry title */
+.progress-card .text strong {
+    width: auto; /* Override the fixed width for inquiry titles in status text */
+    display: inline;
+}
+
+/* Links styling */
+.progress-card a {
+    color: #5c98d8;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.progress-card a:hover {
+    color: #5c9ce1;
+}
+
+/* Done button styling */
+.done-button {
+    text-align: left;
+    margin-top: 30px;
+    margin-left: 20px;
+}
+
+.done-button a {
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    display: inline-block;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+}
+
+.done-button a:hover {
+    background-color: #0056b3;
+}
+
+/* Empty state message */
+.container > p:last-of-type {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    margin-top: 20px;
+}
+
+.text {
+    width: 400px;
+}

@@ -1,0 +1,157 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    margin: 0;
+    padding: 0;
+}
+
+.report-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+.report-container .header h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.report-container .header p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.form-label {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.form-group select,
+.form-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.submit-btn {
+    align-self: end;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: #0077cc;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn:hover {
+    background-color: #005fa3;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.export-buttons .btn {
+    background-color: #28a745;
+}
+
+.export-buttons .btn.excel {
+    background-color: #1d6f42;
+}
+
+.export-buttons .btn.excel:hover {
+    background-color: #155e35;
+}
+
+.report-table {
+    margin-top: 20px;
+}
+
+.report-table h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table th,
+.table td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.table th {
+    background-color: #f0f4f8;
+    font-weight: bold;
+    color: #444;
+}
+
+.table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.chart-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fefefe;
+    border: 1px solid #e2e6ea;
+    border-radius: 12px;
+}
+.chart-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+.filter-form .row > div {
+    margin-bottom: 1rem;
+}
+
+options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        title: {
+            display: true,
+            text: 'Total Inquiries by Month'
+        },
+        legend: {
+            position: 'right'
+        }
+
+    }
+}

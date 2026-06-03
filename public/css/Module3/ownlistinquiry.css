@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f0f0;
+}
+
+.content {
+    margin-left: 300px;
+    margin-top: 70px;
+    padding: 20px;
+    min-height: calc(100vh - 70px);
+}
+
+.inquiries-section {
+    display: grid;
+    gap: 20px;
+}
+
+.inquiry-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #325c74;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inquiry-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.inquiry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.inquiry-id {
+    background: #325c74;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.inquiry-status {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-forwarded {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-completed {
+    background: #cce7ff;
+    color: #004085;
+}
+
+.inquiry-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.inquiry-description {
+    color: #666;
+    line-height: 1.5;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.inquiry-dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+    font-size: 13px;
+    color: #666;
+}
+
+.date-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.date-item i {
+    color: #325c74;
+}
+
+.inquiry-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.view-details-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    background-color: #007BFF;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.view-details-btn:hover {
+    background-color: #0056b3;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+    }
+
+    .inquiry-dates {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

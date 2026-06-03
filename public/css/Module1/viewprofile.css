@@ -1,0 +1,81 @@
+.profile-container {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4f6f8;
+    padding: 20px;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.profile-pic {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #6c6c6c58; /* blue circular border */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.profile-pic:hover {
+    transform: scale(1.05);
+}
+
+.profile-field {
+    margin-bottom: 14px;
+    font-size: 16px;
+    color: #444;
+}
+
+.profile-field strong {
+    color: #1d3557;
+    display: inline-block;
+    width: 130px;
+}
+
+.profile-buttons {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.profile-buttons .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.btn-edit {
+    background-color: #189aca; /* green */
+}
+
+.btn-edit:hover {
+    background-color: #0c5773;
+}
+
+.btn-security {
+    background-color: #ed4f4f; /* blue */
+}
+
+.btn-security:hover {
+    background-color: rgb(124, 45, 45);
+}

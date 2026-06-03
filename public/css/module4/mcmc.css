@@ -1,0 +1,127 @@
+/* Container */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Heading */
+.container h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Progress card styling */
+.progress-card {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9fafb;
+    border-left: 5px solid #691075;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.progress-card h3 {
+    margin-top: 0;
+    color: #70257a;
+    font-weight: bold;
+}
+
+/* Paragraph styling */
+.progress-card p,
+.container > p {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Strong labels */
+.progress-card p strong,
+.container > p strong {
+    color: #444;
+    display: inline-block;
+    width: 200px;
+}
+
+/* Links styling */
+.progress-card a {
+    color: #5c98d8;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.progress-card a:hover {
+    color: #5c9ce1;
+}
+
+/* Status badges and notifications */
+.progress-card p:has(strong:contains("⚠")) {
+    background-color: #fff3cd;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #ffc107;
+}
+
+.progress-card p:has(strong:contains("✅")) {
+    background-color: #d4edda;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #28a745;
+}
+
+.progress-card p:has(strong:contains("🗂")) {
+    background-color: #d1ecf1;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #17a2b8;
+}
+
+/* Done button styling */
+.done-button {
+    text-align: left;
+    margin-top: 30px;
+    margin-left: 20px;
+}
+
+.done-button a {
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    display: inline-block;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+    background-color: #993594;
+    color: white;
+}
+
+.done-button a:hover {
+    background-color: #64126b;
+}
+
+/* Empty state message */
+.container > p:last-of-type {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    margin-top: 20px;
+}
+
+.notify {
+    background-color: #ead8e9;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 10px 5px;
+    border-radius: 8px;
+}

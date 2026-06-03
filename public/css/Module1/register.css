@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: url('../../images/registerbg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+}
+
+.register-container {
+    background: #D1E7FE;
+    backdrop-filter: blur(10px);
+    width: 420px;
+    padding: 35px 30px;
+    margin: 80px auto;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+}
+
+.brand {
+    width: 200px;
+    height: auto;
+}
+
+h1 {
+    margin-bottom: 25px;
+    font-size: 28px;
+    color: #333;
+}
+
+form input,
+form select {
+    width: 100%;
+    padding: 12px 10px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+form p {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+form a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+form a:hover {
+    text-decoration: underline;
+}
