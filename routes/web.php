@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
 //1.Login
 Route::get('/login', function () {
     return view('ManageUserUI.Login');
