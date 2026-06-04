@@ -9,7 +9,7 @@
 @section('content')
     <h2><i class="fas fa-tasks"></i> Assigned Inquiries</h2>
     <p>Below are the inquiries assigned to your agency for investigation and verification:</p>
-
+    <p>Below are the inquiries assigned to your agency for investigation and verification:</p>
     <div class="inquiry-grid">
         @forelse($assignments as $assign)
             <div class="inquiry-card" onclick="window.location='{{ route('agency.inquiry.details', $assign->AssignmentID) }}'">
