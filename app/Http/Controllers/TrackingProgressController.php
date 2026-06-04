@@ -129,42 +129,88 @@ class TrackingProgressController extends Controller
     }
 
     //mcmc
-    public function m_InquiryProgress(Request $request)
-    {
-        $inquiryID = $request->query('id');
+    
+public function m_InquiryProgress(Request $request)
+{
+    // Get ALL inquiries with their progress and assignment details
+    $inquiries = DB::table('inquiry')
+        ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+        ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+        ->leftJoin('inquiryprogress', function($join) {
+            $join->on('inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
+                 ->on('inquiryassignment.AgencyID', '=', 'inquiryprogress.AgencyID');
+        })
+        ->select(
+            'inquiry.InquiryID',
+            'inquiry.InquiryTitle',
+            'inquiry.InquiryDescription',
+            'inquiry.SubmissionDate',
+            'inquiry.SubmissionStatus',
+            'inquiryassignment.AssignDate',
+            'agency.AgencyName',
+            'inquiryprogress.VerificationStatus',
+            'inquiryprogress.VerificationDateTime',
+            'inquiryprogress.InvestigationBeginDate',
+            'inquiryprogress.InvestigationDetails',
+            'inquiryprogress.InvestigationDoc',
+            'inquiryprogress.Notify'
+        )
+        ->orderByDesc('inquiry.SubmissionDate')
+        ->get();
 
-        if (!$inquiryID) {
-            abort(404, 'Inquiry ID not provided.');
+    // Group by InquiryID to handle multiple agencies (if any)
+    $groupedInquiries = [];
+    foreach ($inquiries as $row) {
+        $id = $row->InquiryID;
+        if (!isset($groupedInquiries[$id])) {
+            $groupedInquiries[$id] = (object) [
+                'InquiryID' => $row->InquiryID,
+                'InquiryTitle' => $row->InquiryTitle,
+                'InquiryDescription' => $row->InquiryDescription,
+                'SubmissionDate' => $row->SubmissionDate,
+                'SubmissionStatus' => $row->SubmissionStatus,
+                'latestAssignment' => null,
+                'latestProgress' => null,
+            ];
         }
-
-        $inquiry = DB::table('inquiry')
-            ->where('InquiryID', $inquiryID)
-            ->first();
-
-        if (!$inquiry) {
-            abort(404, 'Inquiry not found.');
+        
+        // Track latest assignment (if exists)
+        if ($row->AssignDate && !$groupedInquiries[$id]->latestAssignment) {
+            $groupedInquiries[$id]->latestAssignment = (object) [
+                'AssignDate' => $row->AssignDate,
+                'agency' => (object) ['AgencyName' => $row->AgencyName]
+            ];
         }
-
-        $progressList = DB::table('inquiryprogress')
-            ->join('agency', 'inquiryprogress.AgencyID', '=', 'agency.AgencyID')
-            ->where('inquiryprogress.InquiryID', $inquiryID)
-            ->select(
-                'inquiryprogress.StatusID',
-                'inquiryprogress.VerificationStatus',
-                'inquiryprogress.VerificationDateTime',
-                'inquiryprogress.InvestigationBeginDate',
-                'inquiryprogress.InvestigationDetails',
-                'inquiryprogress.InvestigationDoc',
-                'inquiryprogress.Notify',
-                'agency.AgencyName'
-            )
-            ->get();
-
-        return view('InquiryProgressTrackingUI.MCMC.MonitorProgressUI', [
-            'inquiry' => $inquiry,
-            'progressList' => $progressList
-        ]);
+        
+        // Track latest progress (if exists and not already set)
+        if ($row->VerificationStatus && !$groupedInquiries[$id]->latestProgress) {
+            $groupedInquiries[$id]->latestProgress = (object) [
+                'VerificationStatus' => $row->VerificationStatus,
+                'VerificationDateTime' => $row->VerificationDateTime,
+                'InvestigationBeginDate' => $row->InvestigationBeginDate,
+                'InvestigationDetails' => $row->InvestigationDetails,
+                'InvestigationDoc' => $row->InvestigationDoc,
+                'Notify' => $row->Notify
+            ];
+        } elseif ($row->InvestigationBeginDate && !$groupedInquiries[$id]->latestProgress) {
+            $groupedInquiries[$id]->latestProgress = (object) [
+                'VerificationStatus' => null,
+                'VerificationDateTime' => null,
+                'InvestigationBeginDate' => $row->InvestigationBeginDate,
+                'InvestigationDetails' => $row->InvestigationDetails,
+                'InvestigationDoc' => $row->InvestigationDoc,
+                'Notify' => $row->Notify
+            ];
+        }
     }
+
+    // Convert to array for view
+    $inquiryList = array_values($groupedInquiries);
+
+    return view('module4.monitor-progress', [
+        'inquiries' => $inquiryList
+    ]);
+}
 
     ///////////////
     public function m_DisplayReport()
@@ -205,7 +251,7 @@ class TrackingProgressController extends Controller
                 $filteredRows = $filteredRows->filter(
                     fn($r) => is_null($r->InvestigationBeginDate) && is_null($r->VerificationStatus)
                 );
-            } elseif ($req->status === 'Under Investigation') {
+            } elseif ($req->status  'Under Investigation') {
                 $filteredRows = $filteredRows->filter(
                     fn($r) => $r->InvestigationBeginDate && is_null($r->VerificationStatus)
                 );

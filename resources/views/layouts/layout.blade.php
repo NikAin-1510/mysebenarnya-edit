@@ -51,8 +51,10 @@
             <li><a href="{{ route('display.home') }}"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="{{ route('view.profile') }}"><i class="fas fa-user"></i> User Profile</a></li>
             <li><a href="{{ route('mcmc.all.inquiry') }}"><i class="fas fa-align-justify"></i> List Inquiry</a></li>
-                <!-- TAMBAH NAVIGATION BARUU-->
-            <li><a href="{{ route('monitor.progress') }}"><i class="fas fa-chart-line"></i> Monitor Progress</a></li>
+            
+            <!-- Monitor Progress - Direct to List Inquiry -->
+            <li><a href="{{ route('mcmc.all.inquiry') }}"><i class="fas fa-chart-line"></i> Monitor Progress</a></li>
+            
             <li><a href="{{ route('mcmc.new.inquiry') }}"><i class="far fa-clipboard"></i> New Inquiry</a></li>
             <li><a href="{{ route('show.register.agency') }}"><i class="fas fa-user-plus"></i> Register Agency</a></li>
             <li><a href="{{ route('view.all.users') }}"><i class="fas fa-users"></i> View All Users</a></li>
