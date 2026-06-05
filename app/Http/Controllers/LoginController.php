@@ -123,6 +123,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return view('ManageUserUI.Logout'); // or redirect to login page
+        return view('ManageUserUI.logout'); // or redirect to login page
     }
 }

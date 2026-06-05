@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return redirect('/home');
+});
+
 //Module1: Manage User
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
@@ -12,7 +16,7 @@ Route::get('/', function () {
 
 //1.Login
 Route::get('/login', function () {
-    return view('ManageUserUI.Login');
+    return view('ManageUserUI.login');
 })->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.submit');
 //2.First Time Login Change Password for Agency Staff
