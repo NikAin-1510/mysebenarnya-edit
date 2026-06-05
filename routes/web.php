@@ -146,7 +146,7 @@ Route::post('/agency/notify-mcmc', [TrackingProgressController::class, 'a_Notify
 Route::post('/agency/request-reassignment', [TrackingProgressController::class, 'a_RequestReassignment']);
 // mcmc
 Route::get('/mcmc/inquiry-progress', [TrackingProgressController::class, 'm_InquiryProgress'])->name('monitor.progress');
-Route::get('/mcmc/progress-doc/{statusID}', [TrackingProgressController::class, 'm_SupportingDoc'])->name('progress.view.pdf');
+Route::get('/mcmc/inquiry-progress/{id}', [TrackingProgressController::class, 'm_ProgressDetail'])->name('monitor.progress.detail');
 //mcmc report
 Route::get('/mcmc/display-report', [TrackingProgressController::class, 'm_DisplayReport'])->name('show.agencyPerformanceReport');
 Route::post('/mcmc/reports', [TrackingProgressController::class, 'm_GenerateReport'])->name('mcmc.reports.generate');
