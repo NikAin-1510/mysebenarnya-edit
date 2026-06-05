@@ -348,6 +348,11 @@ class InquiryController extends Controller
             'evidence' => 'nullable|file|max:5120', // 5MB
         ]);
 
+        if (!Auth::check() || !Auth::user()->publicUser) {
+            return redirect()->route('login')->with('error', 'Please login as a public user before submitting an inquiry.');
+        }
+
+        $publicID = Auth::user()->publicUser->PublicID;
         $inquiryID = 'IQ' . str_pad(DB::table('inquiry')->count() + 1, 5, '0', STR_PAD_LEFT);
 
         $filePath = null;
@@ -357,11 +362,11 @@ class InquiryController extends Controller
 
         DB::table('inquiry')->insert([
             'InquiryID' => $inquiryID,
-            'PublicID' => Auth::user()->publicUser->PublicID,
+            'PublicID' => $publicID,
             'InquiryTitle' => $validated['subject'],
             'InquiryDescription' => $validated['details'],
             'SubmissionDate' => now(),
-            'SubmissionStatus' => 'Pending',
+            'SubmissionStatus' => 'pending',
             'SubmissionLink' => $validated['type_link'],
             'SubmissionEvidence' => $filePath ? basename($filePath) : null,
         ]);
@@ -376,7 +381,9 @@ class InquiryController extends Controller
     // LIST INQUIRY
     public function m_ListInquiry()
     {
-        $inquiries = Inquiry::with('latestAssignment.agency')->where('SubmissionStatus', 'pending')->get();
+        $inquiries = Inquiry::with('latestAssignment.agency')
+            ->whereRaw('LOWER(SubmissionStatus) = ?', ['pending'])
+            ->get();
 
         return view('InquiryFormSubmissionUI.MCMC.ListInquiryUI', compact('inquiries'));
     }

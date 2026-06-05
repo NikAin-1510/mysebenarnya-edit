@@ -251,7 +251,7 @@ public function m_InquiryProgress(Request $request)
                 $filteredRows = $filteredRows->filter(
                     fn($r) => is_null($r->InvestigationBeginDate) && is_null($r->VerificationStatus)
                 );
-            } elseif ($req->status  'Under Investigation') {
+            } elseif ($req->status === 'Under Investigation') {
                 $filteredRows = $filteredRows->filter(
                     fn($r) => $r->InvestigationBeginDate && is_null($r->VerificationStatus)
                 );
