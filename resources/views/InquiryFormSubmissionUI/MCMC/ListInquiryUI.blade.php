@@ -44,8 +44,8 @@
         <td>{{ $inquiry->InquiryTitle }}</td>
         <td>{{ \Carbon\Carbon::parse($inquiry->SubmissionDate)->format('d M Y, h:i A') }}</td>
         <td>
-            @if ($inquiry->SubmissionCategory === 'Genuine')
-                <span class="badge badge-genuine">Genuine</span>
+            @if ($inquiry->SubmissionCategory === 'Serious')
+                <span class="badge badge-serious">Serious</span>
             @elseif ($inquiry->SubmissionCategory === 'Non-Serious')
                 <span class="badge badge-nonserious">Non-Serious</span>
             @else
@@ -56,7 +56,7 @@
             @endif
         </td>
         <td>
-            <a href="{{ route('inquiry.own.view', $inquiry->InquiryID) }}" class="btn btn-primary">View Details</a>
+            <a href="{{ route('inquiry.own.view', $inquiry->InquiryID) }}" class="btn btn-primary">Update</a>
         </td>
     </tr>
     @empty

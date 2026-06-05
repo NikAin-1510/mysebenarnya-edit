@@ -20,7 +20,7 @@
             {{-- Dropdown for SubmissionCategory --}}
             <p><strong>Category:</strong>
                 <select name="SubmissionCategory" class="form-control" id="category-select" required>
-                    <option value="Genuine" {{ $inquiry->SubmissionCategory == 'Genuine' ? 'selected' : '' }}>Genuine</option>
+                    <option value="Serious" {{ $inquiry->SubmissionCategory == 'Serious' ? 'selected' : '' }}>Serious</option>
                     <option value="Non-Serious" {{ $inquiry->SubmissionCategory == 'Non-Serious' ? 'selected' : '' }}>Non-Serious</option>
                 </select>
             </p>
@@ -45,11 +45,8 @@
 
         <div class="text-center mt-4">
             <br>
-            <a href="{{ route('mcmc.all.inquiry') }}" class="btn-back">Back to List</a>
+            <a href="{{ route('mcmc.new.inquiry') }}" class="btn-back">Back to List</a>
             <button type="submit" class="btn-save">Save</button>
-
-            {{-- Next button conditionally shown --}}
-            <a href="{{ route('mcmc.assign.form', $inquiry->InquiryID) }}" class="btn-next" id="next-button">Next</a>
         </div>
     </form>
 </div>
@@ -76,7 +73,7 @@
         const nextButton = document.getElementById('next-button');
 
         function toggleNextButton() {
-            if (categorySelect.value === 'Genuine') {
+            if (categorySelect.value === 'Serious') {
                 nextButton.style.display = 'inline-block';
             } else {
                 nextButton.style.display = 'none';

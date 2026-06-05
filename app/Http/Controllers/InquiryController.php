@@ -388,22 +388,18 @@ class InquiryController extends Controller
     // DETAILS INQUIRY
     public function updateCategory(Request $request, $id)
     {
-        // ✅ 1. Validate that the SubmissionCategory field is either "Genuine" or "Non-Serious"
         $request->validate([
-            'SubmissionCategory' => 'required|in:Genuine,Non-Serious',
+            'SubmissionCategory' => 'required|in:Serious,Non-Serious',
         ]);
 
-        // ✅ 2. Find the inquiry by ID or fail if not found
         $inquiry = Inquiry::findOrFail($id);
-
-        // ✅ 3. Update the SubmissionCategory field with the selected value
         $inquiry->SubmissionCategory = $request->SubmissionCategory;
 
-        // ✅ 4. Save the updated record to the database
+        // Move the inquiry out of the New Inquiry queue after saving
+        $inquiry->SubmissionStatus = 'Forwarded';
         $inquiry->save();
 
-        // ✅ 5. Redirect back to the form with a success message (used for popup alert)
-        return redirect()->back()->with('success', 'Category updated successfully.');
+        return redirect()->route('mcmc.all.inquiry')->with('success', 'Inquiry saved and moved to List Inquiry.');
     }
 
 
