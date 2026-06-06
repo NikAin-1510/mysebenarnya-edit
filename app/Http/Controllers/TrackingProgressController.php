@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;  // Fixed import
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use App\Exports\AgencyReportExport;
+use App\Models\Inquiry;
 
 
 class TrackingProgressController extends Controller
@@ -129,49 +130,116 @@ class TrackingProgressController extends Controller
     }
 
     //mcmc
-    public function m_InquiryProgress(Request $request)
-    {
-        $inquiryID = $request->query('id');
+    
+//mcmc
+//mcmc - List all inquiries with filter
+public function m_InquiryProgress(Request $request)
+{
+    $query = DB::table('inquiry')
+        ->leftJoin('inquiryassignment', 'inquiry.InquiryID', '=', 'inquiryassignment.InquiryID')
+        ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+        ->leftJoin('inquiryprogress', function($join) {
+            $join->on('inquiry.InquiryID', '=', 'inquiryprogress.InquiryID')
+                 ->on('inquiryassignment.AgencyID', '=', 'inquiryprogress.AgencyID');
+        })
+        ->select(
+            'inquiry.InquiryID',
+            'inquiry.InquiryTitle',
+            'inquiry.SubmissionDate',
+            'inquiryassignment.AssignDate',
+            'agency.AgencyName',
+            'inquiryprogress.VerificationStatus',
+            'inquiryprogress.InvestigationBeginDate'
+        )
+        ->orderByDesc('inquiry.SubmissionDate');
 
-        if (!$inquiryID) {
-            abort(404, 'Inquiry ID not provided.');
+    // Apply filters
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $query->whereBetween('inquiry.SubmissionDate', [$request->start_date, $request->end_date]);
+    }
+    
+    if ($request->filled('status')) {
+        switch ($request->status) {
+            case 'pending':
+                $query->whereNull('inquiryassignment.AssignDate');
+                break;
+            case 'assigned':
+                $query->whereNotNull('inquiryassignment.AssignDate')
+                      ->whereNull('inquiryprogress.InvestigationBeginDate');
+                break;
+            case 'investigation':
+                $query->whereNotNull('inquiryprogress.InvestigationBeginDate')
+                      ->whereNull('inquiryprogress.VerificationStatus');
+                break;
+            case 'completed':
+                $query->where('inquiryprogress.VerificationStatus', 'Verified as True');
+                break;
+            case 'fake':
+                $query->where('inquiryprogress.VerificationStatus', 'Identified as Fake');
+                break;
         }
-
-        $inquiry = DB::table('inquiry')
-            ->where('InquiryID', $inquiryID)
-            ->first();
-
-        if (!$inquiry) {
-            abort(404, 'Inquiry not found.');
-        }
-
-        $progressList = DB::table('inquiryprogress')
-            ->join('agency', 'inquiryprogress.AgencyID', '=', 'agency.AgencyID')
-            ->where('inquiryprogress.InquiryID', $inquiryID)
-            ->select(
-                'inquiryprogress.StatusID',
-                'inquiryprogress.VerificationStatus',
-                'inquiryprogress.VerificationDateTime',
-                'inquiryprogress.InvestigationBeginDate',
-                'inquiryprogress.InvestigationDetails',
-                'inquiryprogress.InvestigationDoc',
-                'inquiryprogress.Notify',
-                'agency.AgencyName'
-            )
-            ->get();
-
-        return view('InquiryProgressTrackingUI.MCMC.MonitorProgressUI', [
-            'inquiry' => $inquiry,
-            'progressList' => $progressList
-        ]);
     }
 
-    ///////////////
-    public function m_DisplayReport()
-    {
-        $agencies = DB::table('agency')->select('AgencyID', 'AgencyName')->get();
-        return view('InquiryProgressTrackingUI.MCMC.ProgDisplayReportUI', compact('agencies'));
+    $results = $query->get();
+
+    // Group by InquiryID
+    $grouped = [];
+    foreach ($results as $row) {
+        if (!isset($grouped[$row->InquiryID])) {
+            $grouped[$row->InquiryID] = (object) [
+                'InquiryID' => $row->InquiryID,
+                'InquiryTitle' => $row->InquiryTitle,
+                'SubmissionDate' => $row->SubmissionDate,
+                'latestAssignment' => null,
+                'latestProgress' => null,
+            ];
+        }
+        if ($row->AssignDate && !$grouped[$row->InquiryID]->latestAssignment) {
+            $grouped[$row->InquiryID]->latestAssignment = (object) [
+                'AssignDate' => $row->AssignDate,
+                'agency' => (object) ['AgencyName' => $row->AgencyName]
+            ];
+        }
+        if ($row->VerificationStatus && !$grouped[$row->InquiryID]->latestProgress) {
+            $grouped[$row->InquiryID]->latestProgress = (object) [
+                'VerificationStatus' => $row->VerificationStatus,
+                'InvestigationBeginDate' => $row->InvestigationBeginDate,
+            ];
+        }
     }
+
+    $inquiries = array_values($grouped);
+
+    return view('InquiryProgressTrackingUI.MCMC.monitor-progress', compact('inquiries'));
+}
+
+//mcmc - View progress for single inquiry
+public function m_ProgressDetail($id)
+{
+    $inquiry = DB::table('inquiry')
+        ->where('InquiryID', $id)
+        ->first();
+
+    if (!$inquiry) {
+        abort(404, 'Inquiry not found');
+    }
+
+    $assignment = DB::table('inquiryassignment')
+        ->leftJoin('agency', 'inquiryassignment.AgencyID', '=', 'agency.AgencyID')
+        ->where('inquiryassignment.InquiryID', $id)
+        ->select('inquiryassignment.*', 'agency.AgencyName')
+        ->first();
+
+    $progress = DB::table('inquiryprogress')
+        ->where('InquiryID', $id)
+        ->first();
+
+    return view('InquiryProgressTrackingUI.MCMC.progress-detail', [
+        'inquiry' => $inquiry,
+        'assignment' => $assignment,
+        'progress' => $progress
+    ]);
+}
 
     public function m_GenerateReport(Request $req)
     {

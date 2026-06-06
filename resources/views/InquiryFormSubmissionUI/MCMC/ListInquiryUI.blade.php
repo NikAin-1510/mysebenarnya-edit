@@ -12,7 +12,7 @@
         text-transform: capitalize;
         color: #fff;
     }
-    .badge-serious {
+    .badge-genuine {
         background-color: #28a745; /* green */
     }
     .badge-nonserious {
@@ -37,7 +37,7 @@
                 <th>Category</th>
                 <th>Action</th>
             </tr>
-        </thead> 
+        </thead>
         <tbody>
     @forelse ($inquiries as $inquiry)
     <tr>

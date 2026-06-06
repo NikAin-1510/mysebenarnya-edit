@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="container">
-    <h1>Update Inquiry</h1>
+    <h1>Inquiry Details</h1>
 
     <form action="{{ route('mcmc.update.category', $inquiry->InquiryID) }}" method="POST">
         @csrf
@@ -52,6 +52,42 @@
 </div>
 @endsection
 
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('category-select');
+        const nextButton = document.getElementById('next-button');
+
+        function toggleNextButton() {
+            if (categorySelect.value === 'Serious') {
+                nextButton.style.display = 'inline-block';
+            } else {
+                nextButton.style.display = 'none';
+            }
+        }
+
+        // Initialize on page load
+        toggleNextButton();
+
+        // Update on change
+        categorySelect.addEventListener('change', toggleNextButton);
+    });
+</script>
+@endpush
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
