@@ -132,7 +132,6 @@ class TrackingProgressController extends Controller
     //mcmc
     
 //mcmc
-//mcmc - List all inquiries with filter
 public function m_InquiryProgress(Request $request)
 {
     $query = DB::table('inquiry')
