@@ -1,5 +1,8 @@
 @extends('layouts.layout')
 
+
+@section('page-name', 'Inquiry Details')
+
 @section('content')
 <style>
     .inquiry-container {

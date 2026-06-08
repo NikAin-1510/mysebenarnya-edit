@@ -1,5 +1,8 @@
 
 @extends('layouts.layout')
+
+@section('page-name', 'List Inquiry')
+
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/Module2/all-inquiry.css') }}">
 @endpush
