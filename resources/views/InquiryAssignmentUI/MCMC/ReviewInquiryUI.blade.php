@@ -41,8 +41,16 @@
 
     <div class="text-center mt-4">
         <br>
-        <a href="{{ route('mcmc.all.inquiry') }}" class="btn-back">Back to List</a>
-        <a href="#" class="btn-next" id="next-button">Next</a>
+
+        <a href="{{ route('mcmc.assign.form', $inquiry->InquiryID) }}"
+        class="btn-next">
+           Assign Agency
+        </a>
+
+        <a href="{{ route('mcmc.all.inquiry') }}"
+        class="btn-back">
+            Back to List
+        </a>
     </div>
 </div>
 @endsection

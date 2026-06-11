@@ -126,6 +126,16 @@
         color: white;
     }
 
+    .btn-next {
+        background: #28a745;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+    }
+
     .text-muted {
         color: #6c757d;
         font-size: 13px;
@@ -272,6 +282,12 @@
 
                 <div class="text-center mt-3">
                     <a href="{{ route('mcmc.all.inquiry') }}" class="btn-back">← Back to List</a>
+                    @if(!$assignedAgency)
+                        <a href="{{ route('mcmc.assign.form', $inquiry->InquiryID) }}"
+                        class="btn-next">
+                            Assign Agency
+                        </a>
+                    @endif
                 </div>
             </form>
         </div>

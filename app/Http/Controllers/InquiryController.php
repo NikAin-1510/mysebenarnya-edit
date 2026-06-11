@@ -24,7 +24,10 @@ class InquiryController extends Controller
     // === AGENCY ===
     public function a_ListAssignedInquiry(Request $request)
     {
-        $agencyID = Auth::user()->AgencyID;
+        $agencyID = \App\Models\Agency::where(
+            'UserID',
+            Auth::user()->UserID
+        )->value('AgencyID');
 
         $query = \App\Models\Inquiry::whereHas('latestAssignment', function ($q) use ($agencyID) {
             $q->where('AgencyID', $agencyID);
@@ -449,15 +452,20 @@ class InquiryController extends Controller
 
 
 
-
     public function m_AllDetailsInquiry($id)
     {
-        $inquiry = Inquiry::where('InquiryID', $id)->firstOrFail();
+        $inquiry = Inquiry::with('latestAssignment.agency')
+            ->where('InquiryID', $id)
+            ->firstOrFail();
 
         $assignedAgency = InquiryAssignment::with(['agency', 'mcmc'])
             ->where('InquiryID', $id)
+            ->latest('AssignDate')
             ->first();
 
-        return view('InquiryFormSubmissionUI.MCMC.AllDetailsInquiryUI', compact('inquiry', 'assignedAgency'));
+        return view(
+            'InquiryFormSubmissionUI.MCMC.AllDetailsInquiryUI',
+            compact('inquiry', 'assignedAgency')
+        );
     }
 }

@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="inquiry-footer">
-                    <a href="{{ route('agency.view.inquiry', $inquiry->InquiryID) }}" class="btn-view">View Details</a>
+                    <a href="{{ route('agency.inquiry.details', $inquiry->latestAssignment->AssignmentID) }}" class="btn-view">View Details</a>
                 </div>
             </div>
         @empty
