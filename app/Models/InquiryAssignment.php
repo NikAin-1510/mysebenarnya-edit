@@ -38,7 +38,7 @@ class InquiryAssignment extends Model
 
     public function progress()
     {
-        return $this->hasOne(InquiryProgress::class, 'InquiryID', 'InquiryID');
+        return $this->hasOne(InquiryProgress::class, 'AssignmentID', 'AssignmentID');
     }
 
     public function agency()

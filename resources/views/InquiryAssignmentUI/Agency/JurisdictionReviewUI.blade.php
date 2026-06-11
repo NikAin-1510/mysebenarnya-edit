@@ -18,6 +18,33 @@
         </p>
         <p><strong>Assigned Date:</strong> {{ $assignment->AssignDate }}</p>
 
+        @if($assignment->progress)
+            <p>
+                <strong>Verification Status:</strong>
+                {{ $assignment->progress->VerificationStatus }}
+            </p>
+
+            <p>
+                <strong>Investigation Details:</strong>
+                {{ $assignment->progress->InvestigationDetails }}
+            </p>
+
+            <p>
+                <strong>Verified On:</strong>
+                {{ $assignment->progress->VerificationDateTime }}
+            </p>
+        @endif
+
+        <!-- Jurisdiction Review Section  -->
+        <hr style="margin: 20px 0; border: 1px solid #e9ecef;">
+
+    @if(
+        !$assignment->progress ||
+        !in_array($assignment->progress->VerificationStatus, [
+            'Verified as True',
+            'Identified as Fake'
+        ])
+    )
 
         <!-- Jurisdiction Review Section  -->
         <hr style="margin: 20px 0; border: 1px solid #e9ecef;">
@@ -55,6 +82,8 @@
                 </div>
             </form>
         </div>
+    @endif
+
     </div>
 
     <div class="text-center mt-4">

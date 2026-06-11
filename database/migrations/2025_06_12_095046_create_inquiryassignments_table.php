@@ -4,11 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInquiryasssignmentTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
-        Schema::create('inquiryassignment', function (Blueprint $table) {
+        Schema::create('inquiryassignments', function (Blueprint $table) {
             $table->string('AssignmentID', 8)->primary();
             $table->string('AgencyID', 8);
             $table->string('mcmcID', 8);
@@ -25,8 +25,8 @@ class CreateInquiryasssignmentTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('inquiryasssignment');
+        Schema::dropIfExists('inquiryassignments');
     }
-}
+};

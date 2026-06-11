@@ -167,6 +167,11 @@ class InquiryAssignmentController extends Controller
         $assignments = InquiryAssignment::with(['inquiry', 'progress', 'agency'])
             ->where('AgencyID', $agency->AgencyID)
             ->where('JurisdictionStatus', '!=', 0)
+
+            ->whereDoesntHave('progress', function ($q) {
+                $q->where('Notify', 'Inquiry is completed');
+            })
+
             ->whereIn('AssignmentID', function ($query) use ($agency) {
                 $query->select(DB::raw('MAX(AssignmentID)'))
                     ->from('inquiryassignment')
