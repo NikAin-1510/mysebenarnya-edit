@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\RegisteredUserExport;
+use Illuminate\Support\Facades\Hash; //Add Hash import for password hashing
 
 class UserProfileController extends Controller
 {
@@ -30,7 +31,8 @@ class UserProfileController extends Controller
         $validatedData = $request->validate([
             'Name' => 'required|string|max:255',
             'Email' => 'required|email|unique:user,Email|max:255',
-            'Password' => 'required|confirmed',
+            //'Password' => 'required|confirmed',
+            'Password' => 'required|confirmed|min:8',  //add min 8 chracters for password 
             'PhoneNum' => 'nullable|string|max:20',
             'Gender' => 'nullable|in:male,female'
         ]);
@@ -38,16 +40,17 @@ class UserProfileController extends Controller
         DB::beginTransaction();
 
         try {
-            // Generate UserID
-            $lastUser = User::orderBy('UserID', 'desc')->first();
-            $newUserNumber = $lastUser ? (int) filter_var($lastUser->UserID, FILTER_SANITIZE_NUMBER_INT) + 1 : 1;
-            $newUserID = 'U' . $newUserNumber;
+            // Generate UserID using numeric MAX to avoid alphabetical sort duplicates
+            $maxUserNum = DB::table('user')
+                ->selectRaw("COALESCE(MAX(CAST(SUBSTRING(UserID, 2) AS UNSIGNED)), 0) as max_num")
+                ->value('max_num');
+            $newUserID = 'U' . ($maxUserNum + 1);
 
             // Create user
             $user = User::create([
                 'UserID' => $newUserID,
                 'Email' => $request->Email,
-                'Password' => $request->Password, // Plaintext, as per your request
+                'password' => Hash::make($request->Password), // [MAINTENANCE] Hash password using bcrypt
                 'Name' => $request->Name,
                 'PhoneNum' => $request->PhoneNum,
                 'Role' => 'publicuser',
@@ -58,10 +61,11 @@ class UserProfileController extends Controller
                 throw new \Exception('User creation failed.');
             }
 
-            // Generate PublicID
-            $lastPublic = PublicUser::orderBy('PublicID', 'desc')->first();
-            $newPublicNumber = $lastPublic ? (int) filter_var($lastPublic->PublicID, FILTER_SANITIZE_NUMBER_INT) + 1 : 1;
-            $newPublicID = 'P' . $newPublicNumber;
+            // Generate PublicID using numeric MAX to avoid alphabetical sort duplicates
+            $maxPublicNum = DB::table('publicuser')
+                ->selectRaw("COALESCE(MAX(CAST(SUBSTRING(PublicID, 2) AS UNSIGNED)), 0) as max_num")
+                ->value('max_num');
+            $newPublicID = 'P' . ($maxPublicNum + 1);
 
             // Create public user record
             PublicUser::create([
@@ -168,11 +172,11 @@ class UserProfileController extends Controller
             'new_password' => ['required', 'confirmed'],
         ]);
 
-        if ($request->current_password !== $user->Password) {
+        if (!Hash::check($request->current_password, $user->password)) { // Use Hash::check to verify current password
             return back()->withErrors(['current_password' => 'Current password is incorrect']);
         }
 
-        $user->Password = $request->new_password;
+        $user->password = Hash::make($request->new_password);// Hash the new password for security
         $user->save();
 
         return redirect()->route('view.profile')->with('success', 'Password updated successfully');
@@ -197,9 +201,15 @@ class UserProfileController extends Controller
 
         try {
             // Generate new UserID
-            $lastUser = User::orderBy('UserID', 'desc')->first();
-            $newUserNumber = $lastUser ? (int) filter_var($lastUser->UserID, FILTER_SANITIZE_NUMBER_INT) + 1 : 1;
-            $newUserID = 'U' . $newUserNumber;
+            #$lastUser = User::orderByRaw('CAST(SUBSTRING(UserID, 2) AS UNSIGNED) DESC')->first();
+            #$newUserNumber = $lastUser ? (int) filter_var($lastUser->UserID, FILTER_SANITIZE_NUMBER_INT) + 1 : 1;
+            #$newUserID = 'U' . $newUserNumber;
+
+            // Generate UserID — use MAX() to avoid alphabetical sort duplicates
+            $maxNumber = DB::table('user')
+                ->selectRaw("COALESCE(MAX(CAST(SUBSTRING(UserID, 2) AS UNSIGNED)), 0) as max_num")
+                ->value('max_num');
+            $newUserID = 'U' . ($maxNumber + 1);
 
             // Auto-generate password (not hashed, per your request)
             $password = Str::random(8); // 8 characters or less
@@ -208,7 +218,7 @@ class UserProfileController extends Controller
             $user = User::create([
                 'UserID' => $newUserID,
                 'Email' => $request->Email,
-                'Password' => $password,
+                'password' => $password,
                 'Name' => $request->Name,
                 'PhoneNum' => $request->PhoneNum,
                 'Role' => 'agency',

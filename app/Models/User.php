@@ -20,7 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'UserID',
         'Email',
-        'Password',
+        'password',
         'Name',
         'PhoneNum',
         'ProfilePic',
@@ -32,7 +32,7 @@ class User extends Authenticatable
 
     public $timestamps = false;
 
-    protected $hidden = ['Password'];
+    protected $hidden = ['password'];
     public function getAuthIdentifierName()
     {
         return 'UserID'; // Your custom primary key

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\PublicUser;
 use App\Models\MCMC;
 use App\Models\Agency;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class LoginController extends Controller
 {
@@ -29,12 +30,14 @@ class LoginController extends Controller
 
         // Check if user exists and password is correct (plaintext version for now)
         if ($user && $request->password === $user->Password) {
+           // if ($user && Hash::check($request->password, $user->password)) { // Use Hash::check for hashed passwords
             Auth::login($user); // Log the user in
 
             // Store basic session data
             session([
                 'user_id' => $user->UserID,
                 'user_role' => $user->Role,
+                'user_name' => $user->Name,
                 'login_at' => now()
             ]);
 
@@ -92,6 +95,7 @@ class LoginController extends Controller
 
         $user = Auth::user();
         $user->Password = $request->new_password; // or use bcrypt() if you're using hashing later
+        // $user->password = Hash::make($request->new_password); // Hash the new password for security
         $user->Login_At = now();
         $user->save();
 
